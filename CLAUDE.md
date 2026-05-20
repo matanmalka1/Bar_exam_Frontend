@@ -15,14 +15,23 @@ Current focus: frontend MVP.
 - Be direct.
 - Do not over-engineer.
 - Do not redesign the product.
-- Do not add auth.
 - Do not add admin.
 - Do not add timer.
 - Do not add offline support.
 - Hebrew UI only.
 - RTL only.
 - Mobile-first.
-- Dev user only, fixed userId = 1 for now.
+
+## Auth
+
+- Email + password against backend `/auth/login`. JWT bearer.
+- Token stored in `localStorage` key `access_token` (`features/auth/authStorage.ts`).
+- Axios request interceptor in `src/lib/api.ts` attaches `Authorization: Bearer <token>`.
+- 401 (except `/auth/login`) clears token and fires `on401` handler set by `AuthProvider`.
+- `AuthProvider` (`features/auth/AuthProvider.tsx`) bootstraps user via `/auth/me`, exposes `login`, `logout`, `refreshMe`, `user`, `status`.
+- All app routes wrapped in `ProtectedRoute`; unauth → `/login`. `LoginPage` redirects to `/` when authenticated.
+- Backend resolves current user from token. Frontend never sends `userId`. Use `/users/me/*` endpoints.
+- Logout: `POST /auth/logout` + clear local token. Surfaced in `MorePage`.
 
 ## Frontend
 
