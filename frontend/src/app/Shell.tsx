@@ -11,10 +11,11 @@ const Shell = () => {
   const { pathname } = useLocation();
   const hideNav = HIDE_NAV_PATTERNS.some((re) => re.test(pathname));
   return (
-    <div className="min-h-full flex flex-col">
-      <main className={hideNav ? "flex-1" : "flex-1 pb-16"}>
+    <div className="min-h-screen bg-slate-50" dir="rtl">
+      <main className={hideNav ? "min-h-screen" : "min-h-screen pb-20"}>
         <Outlet />
       </main>
+
       {!hideNav && <BottomNav />}
     </div>
   );

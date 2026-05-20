@@ -3,12 +3,10 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Button from "../components/Button";
 import Card from "../components/Card";
-import EmptyState from "../components/EmptyState";
-import ErrorState from "../components/ErrorState";
 import {
   createPracticeSession,
   createSimulationSession,
-  getActiveSessions,
+  listUserSessions,
 } from "../features/sessions/api";
 import type { SessionSummary } from "../features/sessions/types";
 import { getStatsOverview } from "../features/stats/api";
@@ -16,15 +14,14 @@ import type { StatsOverview } from "../features/stats/types";
 import { getBookmarks } from "../features/bookmarks/api";
 import type { BookmarkedQuestion } from "../features/bookmarks/types";
 
-type Status = "loading" | "ready" | "error";
+type Status = "loading" | "ready";
 
 const NETWORK_ERR = "החיבור נכשל. נסה שוב";
-const SIM_422 = "אין מספיק שאלות זמינות לסימולציה";
+const SIM_422 = "אין מספיק שאלות זמינות למבחן";
 const PRACTICE_422 = "אין שאלות זמינות לתרגול הזה";
 
 const ROUTES = {
   practiceNew: "/practice/new",
-  practiceNewExam: "/practice/new?flow=exam",
   mistakes: "/mistakes",
   bookmarks: "/bookmarks",
   session: (id: number) => `/session/${id}`,
@@ -54,54 +51,81 @@ const formatPercent = (raw: number | string | null): string => {
 const modeLabel = (s: SessionSummary): string => {
   switch (s.mode) {
     case "simulation":
-      return "סימולציה כללית";
+      return "מבחן מלא";
     case "exam":
       return `בחינת מועד${s.exam_date ? ` ${s.exam_date}` : ""}`;
     case "practice":
-      if (s.part === "B") return "תרגול דין דיוני";
-      if (s.part === "C") return "תרגול דין מהותי";
-      return "תרגול חופשי";
+      if (s.part === "B") return "דין דיוני";
+      if (s.part === "C") return "דין מהותי";
+      return "תרגול";
     case "mistakes":
-      return "טעויות פתוחות";
+      return "טעויות";
     case "bookmarks":
-      return "סימניות שמורות";
+      return "סימניות";
     default:
-      return "סשן פעיל";
+      return "תרגול";
   }
 };
+
+const latestActiveSession = (sessions: SessionSummary[]) =>
+  sessions.find((session) => session.status === "active") ?? null;
 
 const HomePage = () => {
   const navigate = useNavigate();
   const [status, setStatus] = useState<Status>("loading");
+  const [sessions, setSessions] = useState<SessionSummary[]>([]);
   const [active, setActive] = useState<SessionSummary | null>(null);
   const [stats, setStats] = useState<StatsOverview | null>(null);
+  const [statsUnavailable, setStatsUnavailable] = useState(false);
   const [bookmarks, setBookmarks] = useState<BookmarkedQuestion[]>([]);
+  const [bookmarksUnavailable, setBookmarksUnavailable] = useState(false);
+  const [sessionsUnavailable, setSessionsUnavailable] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
-  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([getActiveSessions(), getStatsOverview(), getBookmarks()])
-      .then(([sessions, overview, bm]) => {
-        if (cancelled) return;
-        setActive(sessions[0] ?? null);
-        setStats(overview);
-        setBookmarks(bm);
-        setStatus("ready");
-      })
-      .catch(() => {
-        if (!cancelled) setStatus("error");
-      });
+
+    Promise.allSettled([
+      listUserSessions(),
+      getStatsOverview(),
+      getBookmarks(),
+    ]).then(([sessionsResult, statsResult, bookmarksResult]) => {
+      if (cancelled) return;
+
+      if (sessionsResult.status === "fulfilled") {
+        setSessions(sessionsResult.value);
+        setActive(latestActiveSession(sessionsResult.value));
+        setSessionsUnavailable(false);
+      } else {
+        setSessions([]);
+        setActive(null);
+        setSessionsUnavailable(true);
+      }
+
+      if (statsResult.status === "fulfilled") {
+        setStats(statsResult.value);
+        setStatsUnavailable(false);
+      } else {
+        setStats(null);
+        setStatsUnavailable(true);
+      }
+
+      if (bookmarksResult.status === "fulfilled") {
+        setBookmarks(bookmarksResult.value);
+        setBookmarksUnavailable(false);
+      } else {
+        setBookmarks([]);
+        setBookmarksUnavailable(true);
+      }
+
+      setStatus("ready");
+    });
+
     return () => {
       cancelled = true;
     };
-  }, [reloadKey]);
-
-  const retry = () => {
-    setStatus("loading");
-    setReloadKey((k) => k + 1);
-  };
+  }, []);
 
   const handleStartSimulation = async () => {
     setActionError(null);
@@ -151,25 +175,16 @@ const HomePage = () => {
     );
   }
 
-  if (status === "error") {
-    return (
-      <div className="mx-auto w-full max-w-[720px] p-4">
-        <ErrorState
-          message={NETWORK_ERR}
-          action={<Button onClick={retry}>נסה שוב</Button>}
-        />
-      </div>
-    );
-  }
-
-  const isFirstUse =
-    !active && (!stats || stats.total_answered === 0) && bookmarks.length === 0;
+  const answered = stats?.total_answered ?? 0;
+  const hasStarted = Boolean(active) || answered > 0 || bookmarks.length > 0;
 
   return (
-    <div className="mx-auto w-full max-w-[720px] p-4 space-y-4">
-      <header>
-        <h1 className="text-2xl font-bold text-gray-900">בית</h1>
-        <p className="text-sm text-gray-600">תרגול בחינות לשכת עורכי הדין</p>
+    <div className="mx-auto w-full max-w-[720px] p-4 pb-28 space-y-4">
+      <header className="space-y-1">
+        <p className="text-sm text-gray-600">ברוך הבא</p>
+        <h1 className="text-2xl font-bold text-gray-900">
+          תרגול בחינות לשכה
+        </h1>
       </header>
 
       {actionError && (
@@ -178,18 +193,11 @@ const HomePage = () => {
         </Card>
       )}
 
-      {isFirstUse && (
-        <EmptyState
-          title="ברוך הבא"
-          description="התחל בתרגול חופשי או בסימולציה כללית"
-        />
-      )}
-
       {active && (
         <Card className="border-blue-200 bg-blue-50">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-xs text-blue-700">סשן פעיל</p>
+              <p className="text-xs font-medium text-blue-700">המשך תרגול</p>
               <p className="font-semibold text-gray-900">{modeLabel(active)}</p>
               <p className="mt-1 text-sm text-gray-600">
                 {active.answered_count}/{active.total_questions} שאלות
@@ -200,7 +208,52 @@ const HomePage = () => {
         </Card>
       )}
 
-      <section className="grid gap-3">
+      {sessionsUnavailable && (
+        <Card className="border-amber-200 bg-amber-50">
+          <p className="text-sm text-amber-800">
+            לא ניתן לטעון תרגול פעיל כרגע.
+          </p>
+        </Card>
+      )}
+
+      <Button fullWidth onClick={() => navigate(ROUTES.practiceNew)}>
+        התחל תרגול
+      </Button>
+
+      {!hasStarted && !statsUnavailable && (
+        <Card>
+          <p className="font-semibold text-gray-900">מוכן להתחיל?</p>
+          <p className="mt-1 text-sm text-gray-600">
+            בחר תרגול קצר או מבחן מלא.
+          </p>
+        </Card>
+      )}
+
+      <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <Card
+          role="button"
+          tabIndex={0}
+          onClick={() => navigate(ROUTES.mistakes)}
+          className="cursor-pointer"
+        >
+          <p className="font-semibold text-gray-900">טעויות</p>
+          <p className="mt-1 text-sm text-gray-600">
+            {stats ? `${stats.active_mistakes_count} פתוחות` : "לחזרה"}
+          </p>
+        </Card>
+
+        <Card
+          role="button"
+          tabIndex={0}
+          onClick={() => navigate(ROUTES.bookmarks)}
+          className="cursor-pointer"
+        >
+          <p className="font-semibold text-gray-900">סימניות</p>
+          <p className="mt-1 text-sm text-gray-600">
+            {bookmarksUnavailable ? "לצפייה" : `${bookmarks.length} שמורות`}
+          </p>
+        </Card>
+
         <Card
           role="button"
           tabIndex={0}
@@ -208,20 +261,14 @@ const HomePage = () => {
           className="cursor-pointer"
           aria-disabled={busy === BUSY.sim}
         >
-          <p className="font-semibold text-gray-900">סימולציה כללית</p>
-          <p className="text-sm text-gray-600">בחינה מלאה בדרישות לשכה</p>
+          <p className="font-semibold text-gray-900">מבחן מלא</p>
+          <p className="mt-1 text-sm text-gray-600">
+            {busy === BUSY.sim ? "מתחיל…" : "סימולציה"}
+          </p>
         </Card>
+      </section>
 
-        <Card
-          role="button"
-          tabIndex={0}
-          onClick={() => navigate(ROUTES.practiceNewExam)}
-          className="cursor-pointer"
-        >
-          <p className="font-semibold text-gray-900">בחינת מועד</p>
-          <p className="text-sm text-gray-600">תרגול לפי מועד היסטורי</p>
-        </Card>
-
+      <section className="grid grid-cols-2 gap-3">
         <Card
           role="button"
           tabIndex={0}
@@ -230,7 +277,9 @@ const HomePage = () => {
           aria-disabled={busy === BUSY.practiceB}
         >
           <p className="font-semibold text-gray-900">דין דיוני</p>
-          <p className="text-sm text-gray-600">תרגול חלק ב'</p>
+          <p className="mt-1 text-sm text-gray-600">
+            {busy === BUSY.practiceB ? "מתחיל…" : "חלק ב׳"}
+          </p>
         </Card>
 
         <Card
@@ -241,64 +290,56 @@ const HomePage = () => {
           aria-disabled={busy === BUSY.practiceC}
         >
           <p className="font-semibold text-gray-900">דין מהותי</p>
-          <p className="text-sm text-gray-600">תרגול חלק ג'</p>
-        </Card>
-
-        <Card
-          role="button"
-          tabIndex={0}
-          onClick={() => navigate(ROUTES.practiceNew)}
-          className="cursor-pointer"
-        >
-          <p className="font-semibold text-gray-900">תרגול חופשי</p>
-          <p className="text-sm text-gray-600">בחר נושאים ומספר שאלות</p>
+          <p className="mt-1 text-sm text-gray-600">
+            {busy === BUSY.practiceC ? "מתחיל…" : "חלק ג׳"}
+          </p>
         </Card>
       </section>
 
-      <section className="grid gap-2">
-        <Card
-          role="button"
-          tabIndex={0}
-          onClick={() => navigate(ROUTES.mistakes)}
-          className="cursor-pointer flex items-center justify-between"
-        >
-          <span className="font-medium text-gray-900">טעויות פתוחות</span>
-          {stats && (
-            <span className="text-sm text-gray-600">
-              {stats.active_mistakes_count}
-            </span>
-          )}
-        </Card>
-
-        <Card
-          role="button"
-          tabIndex={0}
-          onClick={() => navigate(ROUTES.bookmarks)}
-          className="cursor-pointer flex items-center justify-between"
-        >
-          <span className="font-medium text-gray-900">סימניות שמורות</span>
-          <span className="text-sm text-gray-600">{bookmarks.length}</span>
-        </Card>
-      </section>
-
-      {stats && (
+      {stats ? (
         <Card>
-          <div className="flex flex-wrap items-baseline justify-between gap-2 text-sm">
-            <span className="text-gray-600">
-              נענו: <b className="text-gray-900">{stats.total_answered}</b>
-            </span>
-            <span className="text-gray-600">
-              הצלחה:{" "}
-              <b className="text-gray-900">
+          <p className="mb-3 text-sm font-semibold text-gray-900">מבט מהיר</p>
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <p className="text-gray-500">סשנים</p>
+              <p className="text-lg font-semibold text-gray-900">
+                {sessions.length}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-500">מבחנים</p>
+              <p className="text-lg font-semibold text-gray-900">
+                {stats.simulations_completed}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-500">הצלחה</p>
+              <p className="text-lg font-semibold text-gray-900">
                 {formatPercent(stats.overall_success_rate)}
-              </b>
-            </span>
-            <span className="text-gray-600">
-              סימולציות:{" "}
-              <b className="text-gray-900">{stats.simulations_completed}</b>
-            </span>
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-500">סימניות</p>
+              <p className="text-lg font-semibold text-gray-900">
+                {bookmarksUnavailable ? "—" : bookmarks.length}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-500">טעויות</p>
+              <p className="text-lg font-semibold text-gray-900">
+                {stats.active_mistakes_count}
+              </p>
+            </div>
           </div>
         </Card>
+      ) : (
+        statsUnavailable && (
+          <Card>
+            <p className="text-sm text-gray-600">
+              נתוני התקדמות לא זמינים כרגע.
+            </p>
+          </Card>
+        )
       )}
     </div>
   );

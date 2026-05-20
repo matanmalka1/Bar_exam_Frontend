@@ -1,18 +1,9 @@
 import { api, DEV_USER_ID } from "../../lib/api";
-import type { QuestionPart } from "../sessions/types";
+import type { MistakeItem } from "./types";
 
-interface GetMistakesParams {
-  examDate?: string;
-  part?: QuestionPart;
-}
-
-export const getMistakes = async (params: GetMistakesParams = {}) => {
-  const { data } = await api.get("/mistakes", {
-    params: {
-      user_id: DEV_USER_ID,
-      exam_date: params.examDate,
-      part: params.part,
-    },
-  });
-  return data as unknown;
+export const getMistakes = async (): Promise<MistakeItem[]> => {
+  const { data } = await api.get<MistakeItem[]>(
+    `/users/${DEV_USER_ID}/mistakes`,
+  );
+  return data;
 };

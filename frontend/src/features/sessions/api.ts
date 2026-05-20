@@ -1,8 +1,11 @@
 import { api, DEV_USER_ID } from "../../lib/api";
 import type {
-  AnswerOption,
+  AnswerResult,
+  AnswerSubmitPayload,
   QuestionPart,
+  SessionComplete,
   SessionCreateInput,
+  SessionDetail,
   SessionStatus,
   SessionSummary,
 } from "./types";
@@ -46,10 +49,10 @@ export const createMistakesSession = () => createSession({ mode: "mistakes" });
 export const createBookmarksSession = () =>
   createSession({ mode: "bookmarks" });
 
-export const getSession = async (
+export const getPracticeSession = async (
   sessionId: number | string,
-): Promise<SessionSummary> => {
-  const { data } = await api.get<SessionSummary>(
+): Promise<SessionDetail> => {
+  const { data } = await api.get<SessionDetail>(
     `/practice-sessions/${sessionId}`,
   );
   return data;
@@ -57,17 +60,20 @@ export const getSession = async (
 
 export const submitAnswer = async (
   sessionId: number | string,
-  stableId: string,
-  selectedOption: AnswerOption,
-) => {
-  const { data } = await api.post(`/practice-sessions/${sessionId}/answers`, {
-    stable_id: stableId,
-    selected_answer: selectedOption,
-  });
-  return data as unknown;
+  payload: AnswerSubmitPayload,
+): Promise<AnswerResult> => {
+  const { data } = await api.post<AnswerResult>(
+    `/practice-sessions/${sessionId}/answers`,
+    payload,
+  );
+  return data;
 };
 
-export const completeSession = async (sessionId: number | string) => {
-  const { data } = await api.post(`/practice-sessions/${sessionId}/complete`);
-  return data as unknown;
+export const completeSession = async (
+  sessionId: number | string,
+): Promise<SessionComplete> => {
+  const { data } = await api.post<SessionComplete>(
+    `/practice-sessions/${sessionId}/complete`,
+  );
+  return data;
 };

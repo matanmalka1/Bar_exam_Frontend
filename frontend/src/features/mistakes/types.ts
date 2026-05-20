@@ -1,11 +1,14 @@
-// TODO: align with backend /mistakes response.
-import type { QuestionPart } from "../sessions/types";
+import type { AnswerOption, QuestionOptions, QuestionPart } from "../sessions/types";
 
 export interface MistakeItem {
   stable_id: string;
+  number: number;
   exam_date: string;
   part: QuestionPart;
-  question_number: number;
-  wrong_count: number;
-  last_answered_at: string | null;
+  body: string;
+  options: QuestionOptions;
+  correct_answer: AnswerOption | null;
+  reference: string;
+  times_answered: number;
+  times_wrong: number;
 }

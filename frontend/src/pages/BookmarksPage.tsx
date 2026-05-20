@@ -1,7 +1,210 @@
-const BookmarksPage = () => (
-  <div className="p-4">
-    <h1 className="text-xl font-bold text-gray-900">סימניות</h1>
-  </div>
-);
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Button from "../components/Button";
+import Card from "../components/Card";
+import EmptyState from "../components/EmptyState";
+import ErrorState from "../components/ErrorState";
+import { getBookmarks, removeBookmark } from "../features/bookmarks/api";
+import type { BookmarkedQuestion } from "../features/bookmarks/types";
+import type { AnswerOption, QuestionPart } from "../features/sessions/types";
+
+type Status = "loading" | "ready" | "error";
+
+const OPTIONS: AnswerOption[] = ["א", "ב", "ג", "ד"];
+const NETWORK_ERR = "החיבור נכשל. נסה שוב";
+const REMOVE_ERR = "לא ניתן להסיר סימניה. נסה שוב";
+
+const partLabel = (part: QuestionPart) => {
+  if (part === "B") return "דין דיוני";
+  if (part === "C") return "דין מהותי";
+  return part;
+};
+
+const BookmarksPage = () => {
+  const navigate = useNavigate();
+  const [status, setStatus] = useState<Status>("loading");
+  const [bookmarks, setBookmarks] = useState<BookmarkedQuestion[]>([]);
+  const [reloadKey, setReloadKey] = useState(0);
+  const [removeError, setRemoveError] = useState<string | null>(null);
+  const [removingStableId, setRemovingStableId] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    getBookmarks()
+      .then((data) => {
+        if (cancelled) return;
+        setBookmarks(data);
+        setStatus("ready");
+      })
+      .catch(() => {
+        if (!cancelled) setStatus("error");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [reloadKey]);
+
+  const retry = () => {
+    setRemoveError(null);
+    setStatus("loading");
+    setReloadKey((k) => k + 1);
+  };
+
+  const handleRemove = async (stableId: string) => {
+    setRemoveError(null);
+    setRemovingStableId(stableId);
+    try {
+      await removeBookmark(stableId);
+      setBookmarks((items) =>
+        items.filter((item) => item.stable_id !== stableId),
+      );
+    } catch {
+      setRemoveError(REMOVE_ERR);
+    } finally {
+      setRemovingStableId(null);
+    }
+  };
+
+  if (status === "loading") {
+    return (
+      <div className="mx-auto w-full max-w-[720px] p-4">
+        <p className="text-gray-600">טוען…</p>
+      </div>
+    );
+  }
+
+  if (status === "error") {
+    return (
+      <div className="mx-auto w-full max-w-[720px] p-4">
+        <ErrorState
+          message={NETWORK_ERR}
+          action={<Button onClick={retry}>נסה שוב</Button>}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto w-full max-w-[720px] p-4 pb-28 space-y-4">
+      <header className="flex items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">סימניות</h1>
+          <p className="text-sm text-gray-600">
+            {bookmarks.length} שאלות שמורות
+          </p>
+        </div>
+        <Button onClick={() => navigate("/practice/new")}>תרגול חדש</Button>
+      </header>
+
+      {removeError && (
+        <Card className="border-red-200 bg-red-50">
+          <p className="text-sm text-red-700">{removeError}</p>
+        </Card>
+      )}
+
+      {bookmarks.length === 0 ? (
+        <Card>
+          <EmptyState
+            title="אין סימניות עדיין"
+            description="שאלות שתסמן יופיעו כאן לחזרה מהירה."
+            action={
+              <Button onClick={() => navigate("/practice/new")}>
+                התחל תרגול
+              </Button>
+            }
+          />
+        </Card>
+      ) : (
+        <section className="grid gap-3">
+          {bookmarks.map((question) => {
+            const removing = removingStableId === question.stable_id;
+            return (
+              <Card key={question.stable_id} className="space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 space-y-1">
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+                      {question.number !== null &&
+                        question.number !== undefined && (
+                          <span>שאלה {question.number}</span>
+                        )}
+                      {question.exam_date && <span>{question.exam_date}</span>}
+                      {question.part && <span>{partLabel(question.part)}</span>}
+                    </div>
+                    <p className="whitespace-pre-wrap text-base leading-relaxed text-gray-900">
+                      {question.body}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    className="shrink-0 px-3 py-2 text-sm text-red-700 hover:bg-red-50"
+                    disabled={removing}
+                    onClick={() => handleRemove(question.stable_id)}
+                  >
+                    {removing ? "מסיר…" : "הסר"}
+                  </Button>
+                </div>
+
+                <div className="grid gap-2">
+                  {OPTIONS.map((option) => {
+                    const text = question.options[option];
+                    const isCorrect = question.correct_answer === option;
+                    return (
+                      <div
+                        key={option}
+                        className={
+                          "flex items-start gap-3 rounded-2xl border p-3 " +
+                          (isCorrect
+                            ? "border-green-600 bg-green-50"
+                            : "border-gray-200 bg-gray-50")
+                        }
+                      >
+                        <span
+                          className={
+                            "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-semibold " +
+                            (isCorrect
+                              ? "border-green-600 text-green-700"
+                              : "border-gray-300 text-gray-600")
+                          }
+                        >
+                          {option}
+                        </span>
+                        <span className="flex-1 text-sm leading-relaxed text-gray-900">
+                          {text}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {(question.correct_answer || question.reference) && (
+                  <div className="space-y-2 border-t border-gray-100 pt-3">
+                    {question.correct_answer && (
+                      <p className="text-sm text-gray-700">
+                        <span className="font-medium text-gray-900">
+                          תשובה נכונה:
+                        </span>{" "}
+                        {question.correct_answer}
+                      </p>
+                    )}
+                    {question.reference && (
+                      <div>
+                        <p className="text-xs font-medium text-gray-600">
+                          הפניה
+                        </p>
+                        <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-gray-800">
+                          {question.reference}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </Card>
+            );
+          })}
+        </section>
+      )}
+    </div>
+  );
+};
 
 export default BookmarksPage;
