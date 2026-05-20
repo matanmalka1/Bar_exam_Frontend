@@ -1,9 +1,9 @@
-import type { ReactNode } from 'react'
+import type { ReactNode } from "react";
 
 interface EmptyStateProps {
-  title: string
-  description?: string
-  action?: ReactNode
+  title: string;
+  description?: string;
+  action?: ReactNode;
 }
 
 const EmptyState = ({ title, description, action }: EmptyStateProps) => (
@@ -12,6 +12,6 @@ const EmptyState = ({ title, description, action }: EmptyStateProps) => (
     {description && <p className="text-sm text-gray-600">{description}</p>}
     {action && <div className="mt-2">{action}</div>}
   </div>
-)
+);
 
-export default EmptyState
+export default EmptyState;
