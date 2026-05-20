@@ -1,6 +1,5 @@
 export interface PartStats {
-  answered: number;
-  correct: number;
+  total_answered: number;
   success_rate: number | null;
 }
 
