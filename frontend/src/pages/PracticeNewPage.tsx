@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import axios from "axios";
+import ActionCard from "../components/ActionCard";
 import Button from "../components/Button";
 import Card from "../components/Card";
 import Chip from "../components/Chip";
@@ -12,6 +12,11 @@ import {
   createPracticeSession,
 } from "../features/sessions/api";
 import type { QuestionPart } from "../features/sessions/types";
+import {
+  getApiErrorDetail,
+  HTTP_UNPROCESSABLE,
+  isApiStatusError,
+} from "../lib/api";
 
 type Status = "loading" | "ready" | "error";
 type PartChoice = QuestionPart | "both";
@@ -22,8 +27,6 @@ const DEFAULT_422 = "לא ניתן להתחיל תרגול כרגע";
 const ERR_INSUFFICIENT = "אין מספיק שאלות זמינות לצירוף הזה";
 const ERR_NEED_DATE = "צריך לבחור מועד בחינה";
 const ERR_COUNT_EXCEEDS = "אין מספיק שאלות לכמות שבחרת";
-
-const HTTP_UNPROCESSABLE = 422;
 
 const map422 = (raw: unknown): string => {
   const text = typeof raw === "string" ? raw : JSON.stringify(raw ?? "");
@@ -42,12 +45,8 @@ const map422 = (raw: unknown): string => {
 };
 
 const extractApiError = (err: unknown): string => {
-  if (!axios.isAxiosError(err)) return NETWORK_ERR;
-  if (err.response?.status === HTTP_UNPROCESSABLE) {
-    const detail = (err.response.data as { detail?: unknown } | undefined)
-      ?.detail;
-    return map422(detail);
-  }
+  if (isApiStatusError(err, HTTP_UNPROCESSABLE))
+    return map422(getApiErrorDetail(err));
   return NETWORK_ERR;
 };
 
@@ -184,18 +183,11 @@ const PracticeNewPage = () => {
               {groups.map((g) => {
                 const selected = examDate === g.exam_date;
                 return (
-                  <Card
+                  <ActionCard
                     key={g.exam_date}
-                    role="button"
-                    tabIndex={0}
                     onClick={() => setExamDate(g.exam_date)}
                     aria-pressed={selected}
-                    className={
-                      "cursor-pointer " +
-                      (selected
-                        ? "border-[var(--accent)] bg-[var(--accent-soft)] ring-1 ring-[var(--accent)]"
-                        : "")
-                    }
+                    selected={selected}
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-medium text-[var(--accent-ink)]">
@@ -205,7 +197,7 @@ const PracticeNewPage = () => {
                         {g.total} שאלות
                       </span>
                     </div>
-                  </Card>
+                  </ActionCard>
                 );
               })}
             </div>

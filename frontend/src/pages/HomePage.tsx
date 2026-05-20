@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import ActionCard from "../components/ActionCard";
 import Button from "../components/Button";
 import Card from "../components/Card";
 import {
@@ -13,6 +13,7 @@ import { getStatsOverview } from "../features/stats/api";
 import type { StatsOverview } from "../features/stats/types";
 import { getBookmarks } from "../features/bookmarks/api";
 import type { BookmarkedQuestion } from "../features/bookmarks/types";
+import { HTTP_UNPROCESSABLE, isApiStatusError } from "../lib/api";
 
 type Status = "loading" | "ready";
 
@@ -33,8 +34,6 @@ const BUSY = {
   practiceB: "practice-B",
   practiceC: "practice-C",
 } as const;
-
-const HTTP_UNPROCESSABLE = 422;
 
 const resumePath = (s: SessionSummary) =>
   s.mode === "exam" || s.mode === "simulation"
@@ -134,10 +133,7 @@ const HomePage = () => {
       const s = await createSimulationSession();
       navigate(ROUTES.exam(s.id));
     } catch (err) {
-      if (
-        axios.isAxiosError(err) &&
-        err.response?.status === HTTP_UNPROCESSABLE
-      ) {
+      if (isApiStatusError(err, HTTP_UNPROCESSABLE)) {
         setActionError(SIM_422);
       } else {
         setActionError(NETWORK_ERR);
@@ -154,10 +150,7 @@ const HomePage = () => {
       const s = await createPracticeSession({ part });
       navigate(ROUTES.session(s.id));
     } catch (err) {
-      if (
-        axios.isAxiosError(err) &&
-        err.response?.status === HTTP_UNPROCESSABLE
-      ) {
+      if (isApiStatusError(err, HTTP_UNPROCESSABLE)) {
         setActionError(PRACTICE_422);
       } else {
         setActionError(NETWORK_ERR);
@@ -240,79 +233,61 @@ const HomePage = () => {
       )}
 
       <section className="grid grid-cols-2 gap-3">
-        <Card
-          role="button"
-          tabIndex={0}
+        <ActionCard
           onClick={() => navigate(ROUTES.mistakes)}
-          className="cursor-pointer transition hover:border-[var(--accent)] hover:bg-white"
         >
           <p className="font-semibold text-[var(--accent-ink)]">טעויות</p>
           <p className="mt-1 text-sm text-stone-600">
             {stats ? `${stats.active_mistakes_count} פתוחות` : "לחזרה"}
           </p>
-        </Card>
+        </ActionCard>
 
-        <Card
-          role="button"
-          tabIndex={0}
+        <ActionCard
           onClick={() => navigate(ROUTES.bookmarks)}
-          className="cursor-pointer transition hover:border-[var(--accent)] hover:bg-white"
         >
           <p className="font-semibold text-[var(--accent-ink)]">סימניות</p>
           <p className="mt-1 text-sm text-stone-600">
             {bookmarksUnavailable ? "לצפייה" : `${bookmarks.length} שמורות`}
           </p>
-        </Card>
+        </ActionCard>
 
-        <Card
-          role="button"
-          tabIndex={0}
+        <ActionCard
           onClick={handleStartSimulation}
-          className="cursor-pointer transition hover:border-[var(--accent)] hover:bg-white"
-          aria-disabled={busy === BUSY.sim}
+          disabled={busy !== null}
         >
           <p className="font-semibold text-[var(--accent-ink)]">מבחן מלא</p>
           <p className="mt-1 text-sm text-stone-600">
             {busy === BUSY.sim ? "מתחיל…" : "סימולציה"}
           </p>
-        </Card>
-        <Card
-          role="button"
-          tabIndex={0}
+        </ActionCard>
+        <ActionCard
           onClick={() => navigate(ROUTES.practiceNew)}
-          className="cursor-pointer transition hover:border-[var(--accent)] hover:bg-white"
         >
           <p className="font-semibold text-[var(--accent-ink)]">תרגול חדש</p>
           <p className="mt-1 text-sm text-stone-600">חלק, מועד וכמות</p>
-        </Card>
+        </ActionCard>
       </section>
 
       <section className="grid grid-cols-2 gap-3">
-        <Card
-          role="button"
-          tabIndex={0}
+        <ActionCard
           onClick={() => handleStartPractice("B")}
-          className="cursor-pointer transition hover:border-[var(--accent)] hover:bg-white"
-          aria-disabled={busy === BUSY.practiceB}
+          disabled={busy !== null}
         >
           <p className="font-semibold text-[var(--accent-ink)]">דין דיוני</p>
           <p className="mt-1 text-sm text-stone-600">
             {busy === BUSY.practiceB ? "מתחיל…" : "חלק ב׳"}
           </p>
-        </Card>
+        </ActionCard>
 
-        <Card
-          role="button"
-          tabIndex={0}
+        <ActionCard
           onClick={() => handleStartPractice("C")}
-          className="cursor-pointer transition hover:border-[var(--accent)] hover:bg-white"
-          aria-disabled={busy === BUSY.practiceC}
+          disabled={busy !== null}
         >
           <p className="font-semibold text-[var(--accent-ink)]">דין מהותי</p>
           <p className="mt-1 text-sm text-stone-600">
             {busy === BUSY.practiceC ? "מתחיל…" : "חלק ג׳"}
           </p>
-        </Card>
+        </ActionCard>
       </section>
 
       {stats ? (

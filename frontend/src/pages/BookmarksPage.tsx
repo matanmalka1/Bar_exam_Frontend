@@ -6,13 +6,17 @@ import EmptyState from "../components/EmptyState";
 import ErrorState from "../components/ErrorState";
 import { getBookmarks, removeBookmark } from "../features/bookmarks/api";
 import type { BookmarkedQuestion } from "../features/bookmarks/types";
+import { createBookmarksSession } from "../features/sessions/api";
 import type { AnswerOption, QuestionPart } from "../features/sessions/types";
+import { HTTP_UNPROCESSABLE, isApiStatusError } from "../lib/api";
 
 type Status = "loading" | "ready" | "error";
 
 const OPTIONS: AnswerOption[] = ["א", "ב", "ג", "ד"];
 const NETWORK_ERR = "החיבור נכשל. נסה שוב";
 const REMOVE_ERR = "לא ניתן להסיר סימניה. נסה שוב";
+const START_ERR = "לא ניתן להתחיל תרגול סימניות כרגע";
+const START_EMPTY_ERR = "אין סימניות זמינות לתרגול";
 
 const partLabel = (part: QuestionPart) => {
   if (part === "B") return "דין דיוני";
@@ -27,6 +31,8 @@ const BookmarksPage = () => {
   const [reloadKey, setReloadKey] = useState(0);
   const [removeError, setRemoveError] = useState<string | null>(null);
   const [removingStableId, setRemovingStableId] = useState<string | null>(null);
+  const [starting, setStarting] = useState(false);
+  const [startError, setStartError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -46,12 +52,14 @@ const BookmarksPage = () => {
 
   const retry = () => {
     setRemoveError(null);
+    setStartError(null);
     setStatus("loading");
     setReloadKey((k) => k + 1);
   };
 
   const handleRemove = async (stableId: string) => {
     setRemoveError(null);
+    setStartError(null);
     setRemovingStableId(stableId);
     try {
       await removeBookmark(stableId);
@@ -62,6 +70,23 @@ const BookmarksPage = () => {
       setRemoveError(REMOVE_ERR);
     } finally {
       setRemovingStableId(null);
+    }
+  };
+
+  const handlePracticeBookmarks = async () => {
+    if (starting || bookmarks.length === 0) return;
+    setRemoveError(null);
+    setStartError(null);
+    setStarting(true);
+    try {
+      const session = await createBookmarksSession();
+      navigate(`/session/${session.id}`);
+    } catch (err) {
+      setStartError(
+        isApiStatusError(err, HTTP_UNPROCESSABLE) ? START_EMPTY_ERR : START_ERR,
+      );
+    } finally {
+      setStarting(false);
     }
   };
 
@@ -104,6 +129,12 @@ const BookmarksPage = () => {
         </Card>
       )}
 
+      {startError && (
+        <Card className="border-red-200 bg-red-50">
+          <p className="text-sm text-red-700">{startError}</p>
+        </Card>
+      )}
+
       {bookmarks.length === 0 ? (
         <Card>
           <EmptyState
@@ -117,11 +148,28 @@ const BookmarksPage = () => {
           />
         </Card>
       ) : (
-        <section className="grid gap-3">
-          {bookmarks.map((question) => {
-            const removing = removingStableId === question.stable_id;
-            return (
-              <Card key={question.stable_id} className="space-y-4">
+        <>
+          <Card className="border-[var(--accent-soft)] bg-[#fff8fd]">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="font-semibold text-[var(--accent-ink)]">
+                  תרגול סימניות
+                </p>
+                <p className="mt-1 text-sm text-stone-600">
+                  צור סשן מכל השאלות ששמרת.
+                </p>
+              </div>
+              <Button disabled={starting} onClick={handlePracticeBookmarks}>
+                {starting ? "מתחיל…" : "התחל"}
+              </Button>
+            </div>
+          </Card>
+
+          <section className="grid gap-3">
+            {bookmarks.map((question) => {
+              const removing = removingStableId === question.stable_id;
+              return (
+                <Card key={question.stable_id} className="space-y-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 space-y-1">
                     <div className="flex flex-wrap items-center gap-2 text-xs text-stone-500">
@@ -200,10 +248,11 @@ const BookmarksPage = () => {
                     )}
                   </div>
                 )}
-              </Card>
-            );
-          })}
-        </section>
+                </Card>
+              );
+            })}
+          </section>
+        </>
       )}
     </div>
   );

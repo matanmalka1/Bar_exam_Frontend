@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
@@ -8,6 +7,7 @@ import { getMistakes } from "../features/mistakes/api";
 import type { MistakeItem } from "../features/mistakes/types";
 import { createMistakesSession } from "../features/sessions/api";
 import type { AnswerOption } from "../features/sessions/types";
+import { HTTP_UNPROCESSABLE, isApiStatusError } from "../lib/api";
 
 type Status = "loading" | "ready" | "error";
 
@@ -62,7 +62,7 @@ const MistakesPage = () => {
       const s = await createMistakesSession();
       navigate(`/session/${s.id}`);
     } catch (err) {
-      if (axios.isAxiosError(err) && err.response?.status === 422) {
+      if (isApiStatusError(err, HTTP_UNPROCESSABLE)) {
         setStartError("אין טעויות זמינות לתרגול");
       } else {
         setStartError("לא ניתן להתחיל תרגול טעויות כרגע");

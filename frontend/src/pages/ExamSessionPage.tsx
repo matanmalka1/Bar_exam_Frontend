@@ -5,6 +5,11 @@ import Card from "../components/Card";
 import ErrorState from "../components/ErrorState";
 import OptionCard from "../components/OptionCard";
 import {
+  addBookmark,
+  getBookmarks,
+  removeBookmark,
+} from "../features/bookmarks/api";
+import {
   completeSession,
   getPracticeSession,
   submitAnswer,
@@ -42,6 +47,11 @@ const ExamSessionPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [completing, setCompleting] = useState(false);
+  const [bookmarkIds, setBookmarkIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const [bookmarkBusy, setBookmarkBusy] = useState(false);
+  const [bookmarkError, setBookmarkError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -56,6 +66,15 @@ const ExamSessionPage = () => {
         setSession(data);
         setCurrentIndex(findFirstUnansweredIndex(data.questions));
         setStatus("ready");
+        getBookmarks()
+          .then((items) => {
+            if (!cancelled) {
+              setBookmarkIds(new Set(items.map((item) => item.stable_id)));
+            }
+          })
+          .catch(() => {
+            if (!cancelled) setBookmarkIds(new Set());
+          });
       })
       .catch(() => {
         if (!cancelled) setStatus("error");
@@ -72,6 +91,7 @@ const ExamSessionPage = () => {
 
   const retry = () => {
     setStatus("loading");
+    setBookmarkError(null);
     setReloadKey((k) => k + 1);
   };
 
@@ -94,21 +114,46 @@ const ExamSessionPage = () => {
     );
   }
 
-  const total = session.total_questions;
   const questionsCount = session.questions.length;
+  const total = questionsCount || session.total_questions;
   const answeredCount = session.questions.filter((q) => q.answer).length;
-  const allAnswered = answeredCount === total;
+  const allAnswered = questionsCount > 0 && answeredCount >= questionsCount;
   const isLast = currentIndex === questionsCount - 1;
   const answered = current.answer;
   const answerSubmitted = answered !== null;
+  const isBookmarked = bookmarkIds.has(current.stable_id);
   const displaySelected: AnswerOption | null = answered
     ? (answered.selected_answer as AnswerOption)
     : selected;
 
   const handleSelect = (opt: AnswerOption) => {
-    if (submitting) return;
+    if (submitting || answerSubmitted) return;
     setSelected(opt);
     setSubmitError(null);
+    setBookmarkError(null);
+  };
+
+  const handleToggleBookmark = async () => {
+    if (bookmarkBusy) return;
+    setBookmarkError(null);
+    setBookmarkBusy(true);
+    try {
+      if (isBookmarked) {
+        await removeBookmark(current.stable_id);
+        setBookmarkIds((ids) => {
+          const next = new Set(ids);
+          next.delete(current.stable_id);
+          return next;
+        });
+      } else {
+        await addBookmark(current.stable_id);
+        setBookmarkIds((ids) => new Set(ids).add(current.stable_id));
+      }
+    } catch {
+      setBookmarkError("לא ניתן לעדכן סימניה כרגע");
+    } finally {
+      setBookmarkBusy(false);
+    }
   };
 
   const advance = () => {
@@ -116,6 +161,7 @@ const ExamSessionPage = () => {
       setCurrentIndex((i) => i + 1);
       setSelected(null);
       setSubmitError(null);
+      setBookmarkError(null);
     }
   };
 
@@ -163,6 +209,7 @@ const ExamSessionPage = () => {
       setCurrentIndex((i) => i - 1);
       setSelected(null);
       setSubmitError(null);
+      setBookmarkError(null);
     }
   };
 
@@ -209,7 +256,14 @@ const ExamSessionPage = () => {
             נענו: {answeredCount}/{total}
           </p>
         </div>
-        <span className="w-16" />
+        <Button
+          variant="ghost"
+          className="min-h-10 px-3 py-2 text-sm"
+          disabled={bookmarkBusy}
+          onClick={handleToggleBookmark}
+        >
+          {isBookmarked ? "הסר סימניה" : "סימניה"}
+        </Button>
       </header>
 
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#e1d3be]">
@@ -222,6 +276,12 @@ const ExamSessionPage = () => {
       {submitError && (
         <Card className="border-red-200 bg-red-50">
           <p className="text-sm text-red-700">{submitError}</p>
+        </Card>
+      )}
+
+      {bookmarkError && (
+        <Card className="border-red-200 bg-red-50">
+          <p className="text-sm text-red-700">{bookmarkError}</p>
         </Card>
       )}
 

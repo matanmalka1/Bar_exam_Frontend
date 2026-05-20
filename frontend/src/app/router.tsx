@@ -7,6 +7,7 @@ import ResultsPage from "../pages/ResultsPage";
 import MistakesPage from "../pages/MistakesPage";
 import BookmarksPage from "../pages/BookmarksPage";
 import MorePage from "../pages/MorePage";
+import NotFoundPage from "../pages/NotFoundPage";
 import Shell from "./Shell";
 
 export const router = createBrowserRouter([
@@ -21,6 +22,7 @@ export const router = createBrowserRouter([
       { path: "/mistakes", element: <MistakesPage /> },
       { path: "/bookmarks", element: <BookmarksPage /> },
       { path: "/more", element: <MorePage /> },
+      { path: "*", element: <NotFoundPage /> },
     ],
   },
 ]);

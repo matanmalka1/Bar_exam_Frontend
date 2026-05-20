@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>תרגול לשכה — Mobile Redesign</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    html, body { margin: 0; padding: 0; background: #EFE8DA; min-height: 100vh; }
+    body { font-family: 'Heebo', system-ui, sans-serif; }
+  </style>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" src="design-canvas.jsx"></script>
+  <script type="text/babel" src="ios-frame.jsx"></script>
+  <script type="text/babel" src="tweaks-panel.jsx"></script>
+  <script type="text/babel" src="icons.jsx"></script>
+  <script type="text/babel" src="screens.jsx"></script>
+
+  <script type="text/babel">
+    const DEFAULTS = /*EDITMODE-BEGIN*/{
+      "accent": "#8E4576",
+      "accentSoft": "#EFD7E5",
+      "accentInk": "#4F1F40",
+      "paper": "#FAF5EA",
+      "paper2": "#F2EBDB",
+      "displayFont": "Frank Ruhl Libre",
+      "bodyFont": "Heebo"
+    }/*EDITMODE-END*/;
+
+    const ACCENT_PRESETS = [
+      ['#B45C3E', '#F1D9CB', '#6E2E18'],   // clay / terracotta
+      ['#2A4D6E', '#D6E3EE', '#15324E'],   // indigo ink
+      ['#5A6F3C', '#E1E7CF', '#2F4022'],   // olive
+      ['#8E4576', '#EFD7E5', '#4F1F40'],   // plum
+      ['#1A1714', '#E5DDCB', '#1A1714'],   // monochrome ink
+    ];
+
+    const PAPER_PRESETS = [
+      ['#FAF5EA', '#F2EBDB'],  // parchment (default)
+      ['#F6F4EE', '#ECEAE2'],  // soft bone
+      ['#FFFFFF', '#F4F3F0'],  // crisp white
+    ];
+
+    const FONT_PAIRS = [
+      { display: 'Frank Ruhl Libre', body: 'Heebo' },
+      { display: 'Heebo', body: 'Heebo' },
+      { display: 'Frank Ruhl Libre', body: 'Assistant' },
+      { display: 'David Libre', body: 'Heebo' },
+    ];
+
+    function applyTweaks(t) {
+      const r = document.documentElement.style;
+      r.setProperty('--accent', t.accent);
+      r.setProperty('--accent-soft', t.accentSoft);
+      r.setProperty('--accent-ink', t.accentInk);
+      r.setProperty('--paper', t.paper);
+      r.setProperty('--paper-2', t.paper2);
+      r.setProperty('--serif', `'${t.displayFont}', 'Frank Ruhl Libre', Georgia, serif`);
+      r.setProperty('--sans', `'${t.bodyFont}', 'Heebo', system-ui, sans-serif`);
+    }
+
+    function ensureFont(fam) {
+      const id = 'gf-' + fam.replace(/\s+/g, '-');
+      if (document.getElementById(id)) return;
+      const link = document.createElement('link');
+      link.id = id; link.rel = 'stylesheet';
+      link.href = `https://fonts.googleapis.com/css2?family=${fam.replace(/\s+/g, '+')}:wght@400;500;600;700;800&display=swap`;
+      document.head.appendChild(link);
+    }
+
+    function App() {
+      const [t, setTweak] = useTweaks(DEFAULTS);
+
+      React.useEffect(() => { applyTweaks(t); }, [t.accent, t.accentSoft, t.accentInk, t.paper, t.paper2, t.displayFont, t.bodyFont]);
+      React.useEffect(() => { ensureFont(t.displayFont); ensureFont(t.bodyFont); }, [t.displayFont, t.bodyFont]);
+
+      const setAccent = (palette) => {
+        setTweak({ accent: palette[0], accentSoft: palette[1], accentInk: palette[2] });
+      };
+      const setPaper = (pair) => setTweak({ paper: pair[0], paper2: pair[1] });
+      const setFonts = (pair) => setTweak({ displayFont: pair.display, bodyFont: pair.body });
+
+      const FRAME_W = 402, FRAME_H = 874;
+
+      const Frame = ({ children }) => (
+        <IOSDevice width={FRAME_W} height={FRAME_H}>
+          {children}
+        </IOSDevice>
+      );
+
+      return (
+        <>
+          <DesignCanvas title="Bar Exam · Mobile Redesign"
+            subtitle="חמישה מסכים · עברית מימין לשמאל · עיצוב ספרי-משפטי, צבע אדמה אחד">
+            <DCSection id="screens" title="Core flow" subtitle="Home → Practice setup → Session → Result">
+              <DCArtboard id="home" label="01 · בית" width={FRAME_W} height={FRAME_H}>
+                <Frame><HomeScreen /></Frame>
+              </DCArtboard>
+              <DCArtboard id="setup" label="02 · תרגול חדש" width={FRAME_W} height={FRAME_H}>
+                <Frame><PracticeSetupScreen /></Frame>
+              </DCArtboard>
+              <DCArtboard id="answering" label="03 · שאלה (לפני בדיקה)" width={FRAME_W} height={FRAME_H}>
+                <Frame><SessionAnsweringScreen /></Frame>
+              </DCArtboard>
+              <DCArtboard id="answered" label="04 · שאלה (אחרי בדיקה)" width={FRAME_W} height={FRAME_H}>
+                <Frame><SessionAnsweredScreen /></Frame>
+              </DCArtboard>
+              <DCArtboard id="results" label="05 · תוצאות" width={FRAME_W} height={FRAME_H}>
+                <Frame><ResultsScreen /></Frame>
+              </DCArtboard>
+            </DCSection>
+          </DesignCanvas>
+
+          <TweaksPanel title="Tweaks">
+            <TweakSection label="Accent">
+              <TweakColor
+                label="Palette"
+                value={[t.accent, t.accentSoft, t.accentInk]}
+                onChange={setAccent}
+                options={ACCENT_PRESETS}
+              />
+            </TweakSection>
+            <TweakSection label="Paper">
+              <TweakColor
+                label="Background"
+                value={[t.paper, t.paper2]}
+                onChange={setPaper}
+                options={PAPER_PRESETS}
+              />
+            </TweakSection>
+            <TweakSection label="Type pairing">
+              {FONT_PAIRS.map((p, i) => {
+                const sel = p.display === t.displayFont && p.body === t.bodyFont;
+                return (
+                  <TweakButton key={i} onClick={() => setFonts(p)}>
+                    <span style={{ display:'flex', alignItems:'center', justifyContent:'space-between', width:'100%' }}>
+                      <span>
+                        <span style={{ fontFamily: `'${p.display}', serif`, fontWeight: 700 }}>{p.display}</span>
+                        <span style={{ opacity: 0.5 }}> · </span>
+                        <span style={{ fontFamily: `'${p.body}', sans-serif`, fontWeight: 500 }}>{p.body}</span>
+                      </span>
+                      {sel && <span>✓</span>}
+                    </span>
+                  </TweakButton>
+                );
+              })}
+            </TweakSection>
+          </TweaksPanel>
+        </>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

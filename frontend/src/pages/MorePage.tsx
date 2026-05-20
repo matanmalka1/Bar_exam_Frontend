@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import ActionCard from "../components/ActionCard";
 import Card from "../components/Card";
 
 interface NavItem {
@@ -35,18 +36,15 @@ const MorePage = () => {
 
       <section className="grid gap-3">
         {ITEMS.map((item) => (
-          <Card
+          <ActionCard
             key={item.to}
-            role="button"
-            tabIndex={0}
             onClick={() => navigate(item.to)}
-            className="cursor-pointer transition hover:border-[var(--accent)] hover:bg-white"
           >
             <p className="font-semibold text-[var(--accent-ink)]">
               {item.label}
             </p>
             <p className="mt-1 text-sm text-stone-600">{item.description}</p>
-          </Card>
+          </ActionCard>
         ))}
       </section>
 
