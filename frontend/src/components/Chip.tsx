@@ -10,10 +10,10 @@ const Chip = ({ selected, className, type = "button", ...rest }: ChipProps) => (
     type={type}
     aria-pressed={selected}
     className={cn(
-      "rounded-full border px-3 py-1 text-sm transition-colors",
+      "rounded-full border px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)]",
       selected
-        ? "border-blue-600 bg-blue-600 text-white"
-        : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50",
+        ? "border-[var(--accent)] bg-[var(--accent)] text-white"
+        : "border-[#dccfbb] bg-white/75 text-stone-700 hover:bg-[var(--accent-soft)] hover:text-[var(--accent-ink)]",
       className,
     )}
     {...rest}

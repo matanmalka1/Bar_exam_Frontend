@@ -11,7 +11,7 @@ const Shell = () => {
   const { pathname } = useLocation();
   const hideNav = HIDE_NAV_PATTERNS.some((re) => re.test(pathname));
   return (
-    <div className="min-h-screen bg-slate-50" dir="rtl">
+    <div className="min-h-screen bg-[var(--paper)] text-[var(--ink)]" dir="rtl">
       <main className={hideNav ? "min-h-screen" : "min-h-screen pb-20"}>
         <Outlet />
       </main>

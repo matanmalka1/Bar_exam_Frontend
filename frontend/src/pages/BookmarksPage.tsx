@@ -68,7 +68,7 @@ const BookmarksPage = () => {
   if (status === "loading") {
     return (
       <div className="mx-auto w-full max-w-[720px] p-4">
-        <p className="text-gray-600">טוען…</p>
+        <p className="text-stone-600">טוען...</p>
       </div>
     );
   }
@@ -88,8 +88,10 @@ const BookmarksPage = () => {
     <div className="mx-auto w-full max-w-[720px] p-4 pb-28 space-y-4">
       <header className="flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">סימניות</h1>
-          <p className="text-sm text-gray-600">
+          <h1 className="font-display text-3xl font-bold text-[var(--accent-ink)]">
+            סימניות
+          </h1>
+          <p className="text-sm text-stone-600">
             {bookmarks.length} שאלות שמורות
           </p>
         </div>
@@ -122,7 +124,7 @@ const BookmarksPage = () => {
               <Card key={question.stable_id} className="space-y-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 space-y-1">
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-stone-500">
                       {question.number !== null &&
                         question.number !== undefined && (
                           <span>שאלה {question.number}</span>
@@ -130,7 +132,7 @@ const BookmarksPage = () => {
                       {question.exam_date && <span>{question.exam_date}</span>}
                       {question.part && <span>{partLabel(question.part)}</span>}
                     </div>
-                    <p className="whitespace-pre-wrap text-base leading-relaxed text-gray-900">
+                    <p className="whitespace-pre-wrap text-base leading-8 text-[var(--ink)]">
                       {question.body}
                     </p>
                   </div>
@@ -155,7 +157,7 @@ const BookmarksPage = () => {
                           "flex items-start gap-3 rounded-2xl border p-3 " +
                           (isCorrect
                             ? "border-green-600 bg-green-50"
-                            : "border-gray-200 bg-gray-50")
+                            : "border-[#dccfbb] bg-white/80")
                         }
                       >
                         <span
@@ -163,12 +165,12 @@ const BookmarksPage = () => {
                             "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-semibold " +
                             (isCorrect
                               ? "border-green-600 text-green-700"
-                              : "border-gray-300 text-gray-600")
+                              : "border-[#d6c8b4] text-stone-600")
                           }
                         >
                           {option}
                         </span>
-                        <span className="flex-1 text-sm leading-relaxed text-gray-900">
+                        <span className="flex-1 text-sm leading-6 text-[var(--ink)]">
                           {text}
                         </span>
                       </div>
@@ -177,10 +179,10 @@ const BookmarksPage = () => {
                 </div>
 
                 {(question.correct_answer || question.reference) && (
-                  <div className="space-y-2 border-t border-gray-100 pt-3">
+                  <div className="space-y-2 border-t border-[#eadfce] pt-3">
                     {question.correct_answer && (
-                      <p className="text-sm text-gray-700">
-                        <span className="font-medium text-gray-900">
+                      <p className="text-sm text-stone-700">
+                        <span className="font-medium text-[var(--accent-ink)]">
                           תשובה נכונה:
                         </span>{" "}
                         {question.correct_answer}
@@ -188,10 +190,10 @@ const BookmarksPage = () => {
                     )}
                     {question.reference && (
                       <div>
-                        <p className="text-xs font-medium text-gray-600">
+                        <p className="text-xs font-semibold text-[var(--accent)]">
                           הפניה
                         </p>
-                        <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-gray-800">
+                        <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-stone-800">
                           {question.reference}
                         </p>
                       </div>

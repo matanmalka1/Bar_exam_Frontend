@@ -1,4 +1,14 @@
+@import url("https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Heebo:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
+
+:root {
+  --accent: #8e4576;
+  --accent-soft: #efd7e5;
+  --accent-ink: #4f1f40;
+  --paper: #faf5ea;
+  --paper-2: #f2ebdb;
+  --ink: #201922;
+}
 
 html,
 body,
@@ -9,13 +19,23 @@ body,
 body {
   margin: 0;
   font-family:
+    "Heebo",
     system-ui,
     -apple-system,
     "Segoe UI",
-    "Helvetica Neue",
     Arial,
     sans-serif;
-  background: #fff;
-  color: #111827;
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(239, 215, 229, 0.6),
+      transparent 34rem
+    ),
+    linear-gradient(180deg, var(--paper), var(--paper-2));
+  color: var(--ink);
   -webkit-font-smoothing: antialiased;
+}
+
+.font-display {
+  font-family: "Frank Ruhl Libre", "Heebo", serif;
 }

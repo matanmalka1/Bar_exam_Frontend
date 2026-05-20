@@ -33,12 +33,15 @@ const OptionCard = ({
       type={type}
       aria-pressed={selected}
       className={cn(
-        "w-full rounded-2xl border p-4 text-right transition-colors flex items-start gap-3",
-        !correct && !wrong && selected && "border-blue-600 bg-blue-50",
+        "flex w-full items-start gap-3 rounded-2xl border p-4 text-right transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)]",
+        !correct &&
+          !wrong &&
+          selected &&
+          "border-[var(--accent)] bg-[var(--accent-soft)]",
         !correct &&
           !wrong &&
           !selected &&
-          "border-gray-200 bg-white hover:bg-gray-50",
+          "border-[#dccfbb] bg-white/85 hover:bg-white",
         correct && "border-green-600 bg-green-50",
         wrong && "border-red-600 bg-red-50",
         className,
@@ -49,8 +52,8 @@ const OptionCard = ({
         className={cn(
           "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-semibold",
           selected
-            ? "border-blue-600 text-blue-600"
-            : "border-gray-300 text-gray-600",
+            ? "border-[var(--accent)] text-[var(--accent)]"
+            : "border-[#d6c8b4] text-stone-600",
           correct && "border-green-600 text-green-700",
           wrong && "border-red-600 text-red-700",
         )}

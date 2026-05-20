@@ -1,4 +1,8 @@
-import type { AnswerOption, QuestionOptions, QuestionPart } from "../sessions/types";
+import type {
+  AnswerOption,
+  QuestionOptions,
+  QuestionPart,
+} from "../sessions/types";
 
 export interface MistakeItem {
   stable_id: string;

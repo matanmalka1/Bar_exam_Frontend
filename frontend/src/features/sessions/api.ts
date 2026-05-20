@@ -1,4 +1,4 @@
-import { api, DEV_USER_ID } from "../../lib/api";
+import { api, getDevUserId } from "../../lib/api";
 import type {
   AnswerResult,
   AnswerSubmitPayload,
@@ -13,8 +13,9 @@ import type {
 export const listUserSessions = async (
   status?: SessionStatus,
 ): Promise<SessionSummary[]> => {
+  const userId = await getDevUserId();
   const { data } = await api.get<SessionSummary[]>(
-    `/users/${DEV_USER_ID}/sessions`,
+    `/users/${userId}/sessions`,
     { params: status ? { status } : undefined },
   );
   return data;
@@ -25,8 +26,9 @@ export const getActiveSessions = () => listUserSessions("active");
 const createSession = async (
   input: Omit<SessionCreateInput, "user_id">,
 ): Promise<SessionSummary> => {
+  const userId = await getDevUserId();
   const { data } = await api.post<SessionSummary>("/practice-sessions", {
-    user_id: DEV_USER_ID,
+    user_id: userId,
     ...input,
   });
   return data;

@@ -9,11 +9,12 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const VARIANT: Record<Variant, string> = {
-  primary: "bg-blue-600 text-white hover:bg-blue-700 disabled:bg-blue-300",
+  primary:
+    "bg-[var(--accent)] text-white shadow-sm hover:bg-[var(--accent-ink)] disabled:bg-[#c9a4bd]",
   secondary:
-    "bg-gray-100 text-gray-900 hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400",
+    "border border-[var(--accent-soft)] bg-white/80 text-[var(--accent-ink)] hover:bg-[var(--accent-soft)] disabled:bg-white/50 disabled:text-stone-400",
   ghost:
-    "bg-transparent text-gray-900 hover:bg-gray-100 disabled:text-gray-400",
+    "bg-transparent text-[var(--accent-ink)] hover:bg-[var(--accent-soft)] disabled:text-stone-400",
 };
 
 const Button = ({
@@ -26,7 +27,7 @@ const Button = ({
   <button
     type={type}
     className={cn(
-      "inline-flex items-center justify-center rounded-xl px-4 py-3 text-base font-medium transition-colors disabled:cursor-not-allowed",
+      "inline-flex min-h-12 items-center justify-center rounded-2xl px-4 py-3 text-base font-semibold transition-colors disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)]",
       VARIANT[variant],
       fullWidth && "w-full",
       className,

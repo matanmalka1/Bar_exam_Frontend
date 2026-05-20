@@ -49,6 +49,10 @@ const ExamSessionPage = () => {
     getPracticeSession(id)
       .then((data) => {
         if (cancelled) return;
+        if (data.mode !== "exam" && data.mode !== "simulation") {
+          navigate(`/session/${id}`, { replace: true });
+          return;
+        }
         setSession(data);
         setCurrentIndex(findFirstUnansweredIndex(data.questions));
         setStatus("ready");
@@ -59,7 +63,7 @@ const ExamSessionPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [id, reloadKey]);
+  }, [id, navigate, reloadKey]);
 
   const current = useMemo<SessionQuestion | null>(
     () => session?.questions[currentIndex] ?? null,
@@ -74,7 +78,7 @@ const ExamSessionPage = () => {
   if (status === "loading") {
     return (
       <div className="mx-auto w-full max-w-[720px] p-4">
-        <p className="text-gray-600">טוען…</p>
+        <p className="text-stone-600">טוען...</p>
       </div>
     );
   }
@@ -198,19 +202,19 @@ const ExamSessionPage = () => {
           חזרה
         </Button>
         <div className="text-center">
-          <p className="text-sm font-medium text-gray-700">
+          <p className="text-sm font-semibold text-stone-700">
             שאלה {currentIndex + 1} מתוך {total}
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-stone-500">
             נענו: {answeredCount}/{total}
           </p>
         </div>
         <span className="w-16" />
       </header>
 
-      <div className="h-1 w-full overflow-hidden rounded-full bg-gray-200">
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#e1d3be]">
         <div
-          className="h-full bg-blue-600 transition-all"
+          className="h-full bg-[var(--accent)] transition-all"
           style={{ width: `${(answeredCount / Math.max(total, 1)) * 100}%` }}
         />
       </div>
@@ -221,9 +225,11 @@ const ExamSessionPage = () => {
         </Card>
       )}
 
-      <Card>
-        <p className="text-xs text-gray-500">שאלה {current.number}</p>
-        <p className="mt-2 whitespace-pre-wrap text-base leading-relaxed text-gray-900">
+      <Card className="bg-[#fffaf1]">
+        <p className="text-xs font-medium text-[var(--accent)]">
+          שאלה {current.number}
+        </p>
+        <p className="mt-2 whitespace-pre-wrap text-base leading-8 text-[var(--ink)]">
           {current.body}
         </p>
       </Card>
@@ -259,11 +265,15 @@ const ExamSessionPage = () => {
         </Button>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 border-t border-gray-200 bg-white p-3">
+      <div className="fixed inset-x-0 bottom-0 border-t border-[#e2d5c2] bg-white/90 p-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] shadow-[0_-10px_30px_rgba(79,31,64,0.08)] backdrop-blur">
         <div className="mx-auto w-full max-w-[720px] space-y-1">
           {!showComplete && (
             <>
-              <Button fullWidth disabled={primaryDisabled} onClick={handlePrimary}>
+              <Button
+                fullWidth
+                disabled={primaryDisabled}
+                onClick={handlePrimary}
+              >
                 {primaryLabel}
               </Button>
               {primaryReason && (

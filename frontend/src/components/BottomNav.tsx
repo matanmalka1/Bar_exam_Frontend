@@ -1,4 +1,10 @@
-import { Bookmark, CircleAlert, Home, MoreHorizontal, PencilLine } from "lucide-react";
+import {
+  Bookmark,
+  CircleAlert,
+  Home,
+  MoreHorizontal,
+  PencilLine,
+} from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "../lib/cn";
 
@@ -12,7 +18,7 @@ const ITEMS = [
 
 const BottomNav = () => (
   <nav
-    className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80"
+    className="fixed inset-x-0 bottom-0 z-40 border-t border-[#e2d5c2] bg-white/90 shadow-[0_-10px_30px_rgba(79,31,64,0.08)] backdrop-blur supports-[backdrop-filter]:bg-white/75"
     aria-label="ניווט תחתון"
   >
     <ul className="grid grid-cols-5 px-1 pb-[max(env(safe-area-inset-bottom),0.25rem)] pt-1">
@@ -24,10 +30,10 @@ const BottomNav = () => (
             className={({ isActive }) =>
               cn(
                 "group relative flex h-14 flex-col items-center justify-center gap-1 rounded-xl text-[11px] font-medium transition-colors",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2",
                 isActive
-                  ? "text-blue-700"
-                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-900",
+                  ? "text-[var(--accent)]"
+                  : "text-stone-500 hover:bg-[var(--accent-soft)] hover:text-[var(--accent-ink)]",
               )
             }
           >
@@ -36,7 +42,7 @@ const BottomNav = () => (
                 <span
                   className={cn(
                     "absolute top-1 h-1 w-6 rounded-full transition-opacity",
-                    isActive ? "bg-blue-600 opacity-100" : "opacity-0",
+                    isActive ? "bg-[var(--accent)] opacity-100" : "opacity-0",
                   )}
                 />
 

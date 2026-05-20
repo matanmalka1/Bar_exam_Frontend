@@ -12,6 +12,7 @@ import {
 import type {
   AnswerOption,
   AnswerPracticeOut,
+  AnswerResult,
   SessionDetail,
   SessionQuestion,
 } from "../features/sessions/types";
@@ -34,6 +35,9 @@ const isPracticeAnswer = (
 ): a is NonNullable<SessionQuestion["answer"]> & { is_correct: boolean } =>
   a !== null && typeof a.is_correct === "boolean";
 
+const isPracticeResult = (result: AnswerResult): result is AnswerPracticeOut =>
+  "is_correct" in result;
+
 const SessionPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -54,6 +58,10 @@ const SessionPage = () => {
     getPracticeSession(id)
       .then((data) => {
         if (cancelled) return;
+        if (data.mode === "exam" || data.mode === "simulation") {
+          navigate(`/session/${id}/exam`, { replace: true });
+          return;
+        }
         setSession(data);
         setCurrentIndex(findFirstUnansweredIndex(data.questions));
         setStatus("ready");
@@ -64,7 +72,7 @@ const SessionPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [id, reloadKey]);
+  }, [id, navigate, reloadKey]);
 
   const current = useMemo<SessionQuestion | null>(
     () => session?.questions[currentIndex] ?? null,
@@ -84,7 +92,7 @@ const SessionPage = () => {
   if (status === "loading") {
     return (
       <div className="mx-auto w-full max-w-[720px] p-4">
-        <p className="text-gray-600">טוען…</p>
+        <p className="text-stone-600">טוען...</p>
       </div>
     );
   }
@@ -122,7 +130,9 @@ const SessionPage = () => {
         stable_id: current.stable_id,
         selected_answer: selected,
       });
-      const practiceResult = result as AnswerPracticeOut;
+      if (!isPracticeResult(result)) {
+        throw new Error("Expected practice answer result");
+      }
       // Server answer wins. Patch the current question with server result.
       setSession((s) => {
         if (!s) return s;
@@ -131,13 +141,13 @@ const SessionPage = () => {
             ? {
                 ...q,
                 answer: {
-                  selected_answer: practiceResult.selected_answer,
-                  is_correct: practiceResult.is_correct ?? null,
-                  answered_at: practiceResult.answered_at,
+                  selected_answer: result.selected_answer,
+                  is_correct: result.is_correct,
+                  answered_at: result.answered_at,
                 },
                 correct_answer:
-                  practiceResult.correct_answer ?? q.correct_answer ?? null,
-                reference: practiceResult.reference ?? q.reference ?? null,
+                  result.correct_answer ?? q.correct_answer ?? null,
+                reference: result.reference ?? q.reference ?? null,
               }
             : q,
         );
@@ -197,19 +207,19 @@ const SessionPage = () => {
           חזרה
         </Button>
         <div className="text-center">
-          <p className="text-sm font-medium text-gray-700">
+          <p className="text-sm font-semibold text-stone-700">
             שאלה {currentIndex + 1} מתוך {total}
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-stone-500">
             נענו: {answeredCount}/{total}
           </p>
         </div>
         <span className="w-16" />
       </header>
 
-      <div className="h-1 w-full overflow-hidden rounded-full bg-gray-200">
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#e1d3be]">
         <div
-          className="h-full bg-blue-600 transition-all"
+          className="h-full bg-[var(--accent)] transition-all"
           style={{ width: `${(answeredCount / Math.max(total, 1)) * 100}%` }}
         />
       </div>
@@ -220,9 +230,11 @@ const SessionPage = () => {
         </Card>
       )}
 
-      <Card>
-        <p className="text-xs text-gray-500">שאלה {current.number}</p>
-        <p className="mt-2 whitespace-pre-wrap text-base leading-relaxed text-gray-900">
+      <Card className="bg-[#fffaf1]">
+        <p className="text-xs font-medium text-[var(--accent)]">
+          שאלה {current.number}
+        </p>
+        <p className="mt-2 whitespace-pre-wrap text-base leading-8 text-[var(--ink)]">
           {current.body}
         </p>
       </Card>
@@ -258,9 +270,9 @@ const SessionPage = () => {
       </div>
 
       {answerSubmitted && current.reference && (
-        <Card className="border-gray-200 bg-gray-50">
-          <p className="text-xs font-medium text-gray-600">הפניה</p>
-          <p className="mt-1 whitespace-pre-wrap text-sm text-gray-800">
+        <Card className="border-[var(--accent-soft)] bg-[#fff8fd]">
+          <p className="text-xs font-semibold text-[var(--accent)]">הפניה</p>
+          <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-stone-800">
             {current.reference}
           </p>
         </Card>
@@ -283,7 +295,7 @@ const SessionPage = () => {
         </Button>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 border-t border-gray-200 bg-white p-3">
+      <div className="fixed inset-x-0 bottom-0 border-t border-[#e2d5c2] bg-white/90 p-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] shadow-[0_-10px_30px_rgba(79,31,64,0.08)] backdrop-blur">
         <div className="mx-auto w-full max-w-[720px] space-y-1">
           {!answerSubmitted && (
             <>

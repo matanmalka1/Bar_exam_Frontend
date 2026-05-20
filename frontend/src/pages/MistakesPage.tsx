@@ -75,7 +75,7 @@ const MistakesPage = () => {
   if (status === "loading") {
     return (
       <div className="mx-auto w-full max-w-[720px] p-4">
-        <p className="text-gray-600">טוען…</p>
+        <p className="text-stone-600">טוען...</p>
       </div>
     );
   }
@@ -96,12 +96,16 @@ const MistakesPage = () => {
       <div className="mx-auto w-full max-w-[720px] p-4 space-y-4">
         <header className="flex items-center justify-between">
           <span className="w-16" />
-          <h1 className="text-xl font-bold text-gray-900">טעויות</h1>
+          <h1 className="font-display text-2xl font-bold text-[var(--accent-ink)]">
+            טעויות
+          </h1>
           <span className="w-16" />
         </header>
         <Card className="text-center space-y-3">
-          <h2 className="text-lg font-semibold text-gray-900">אין טעויות עדיין</h2>
-          <p className="text-sm text-gray-600">
+          <h2 className="text-lg font-semibold text-[var(--accent-ink)]">
+            אין טעויות עדיין
+          </h2>
+          <p className="text-sm text-stone-600">
             טעויות מתרגולים יופיעו כאן כדי שתוכל לחזור עליהן.
           </p>
           <Button onClick={() => navigate("/practice/new")}>התחל תרגול</Button>
@@ -114,7 +118,7 @@ const MistakesPage = () => {
     <div className="mx-auto w-full max-w-[720px] p-4 pb-32 space-y-4">
       <header className="flex items-center justify-between">
         <span className="w-16" />
-        <h1 className="text-xl font-bold text-gray-900">
+        <h1 className="font-display text-2xl font-bold text-[var(--accent-ink)]">
           טעויות ({items.length})
         </h1>
         <Button variant="ghost" onClick={() => navigate("/practice/new")}>
@@ -133,19 +137,17 @@ const MistakesPage = () => {
           const correct = q.correct_answer;
           return (
             <Card key={q.stable_id} className="space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500">
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-stone-500">
                 <span>שאלה {q.number}</span>
                 <div className="flex gap-2">
                   {q.exam_date && <span>{formatExamDate(q.exam_date)}</span>}
-                  {q.part && (
-                    <span>{PART_LABEL[q.part] ?? q.part}</span>
-                  )}
+                  {q.part && <span>{PART_LABEL[q.part] ?? q.part}</span>}
                   <span className="text-red-700">
                     {q.times_wrong}/{q.times_answered} טעויות
                   </span>
                 </div>
               </div>
-              <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-900">
+              <p className="whitespace-pre-wrap text-sm leading-7 text-[var(--ink)]">
                 {q.body}
               </p>
               <div className="grid gap-1.5">
@@ -158,7 +160,7 @@ const MistakesPage = () => {
                         "rounded-lg border p-2 text-sm " +
                         (isCor
                           ? "border-green-500 bg-green-50 text-green-900"
-                          : "border-gray-200 bg-white text-gray-800")
+                          : "border-[#dccfbb] bg-white text-stone-800")
                       }
                     >
                       <span className="font-semibold">{opt}.</span>{" "}
@@ -173,9 +175,11 @@ const MistakesPage = () => {
                 })}
               </div>
               {q.reference && (
-                <div className="rounded-lg border border-gray-200 bg-gray-50 p-2">
-                  <p className="text-xs font-medium text-gray-600">הפניה</p>
-                  <p className="mt-1 whitespace-pre-wrap text-sm text-gray-800">
+                <div className="rounded-xl border border-[var(--accent-soft)] bg-[#fff8fd] p-3">
+                  <p className="text-xs font-semibold text-[var(--accent)]">
+                    הפניה
+                  </p>
+                  <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-stone-800">
                     {q.reference}
                   </p>
                 </div>
@@ -185,7 +189,7 @@ const MistakesPage = () => {
         })}
       </section>
 
-      <div className="fixed inset-x-0 bottom-0 border-t border-gray-200 bg-white p-3">
+      <div className="fixed inset-x-0 bottom-0 border-t border-[#e2d5c2] bg-white/90 p-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] shadow-[0_-10px_30px_rgba(79,31,64,0.08)] backdrop-blur">
         <div className="mx-auto w-full max-w-[720px]">
           <Button
             fullWidth

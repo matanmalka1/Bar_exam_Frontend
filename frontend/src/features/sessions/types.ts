@@ -103,9 +103,13 @@ export interface PartBreakdown {
 
 export interface ExamMistakeBrief {
   stable_id: string;
-  selected_answer: AnswerOption;
-  correct_answer: AnswerOption | null;
-  reference: string | null;
+  part: QuestionPart;
+  number: number;
+  body: string;
+  options: QuestionOptions;
+  selected_answer: AnswerOption | null;
+  correct_answer: AnswerOption;
+  reference: string;
 }
 
 export interface SessionComplete {

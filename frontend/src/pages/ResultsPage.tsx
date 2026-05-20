@@ -63,7 +63,7 @@ const ResultsPage = () => {
   if (status === "loading") {
     return (
       <div className="mx-auto w-full max-w-[720px] p-4">
-        <p className="text-gray-600">טוען…</p>
+        <p className="text-stone-600">טוען...</p>
       </div>
     );
   }
@@ -74,10 +74,12 @@ const ResultsPage = () => {
         <ErrorState
           message="לא ניתן לטעון את התוצאות"
           action={
-            <Button onClick={() => {
-              setStatus("loading");
-              setReloadKey((k) => k + 1);
-            }}>
+            <Button
+              onClick={() => {
+                setStatus("loading");
+                setReloadKey((k) => k + 1);
+              }}
+            >
               נסה שוב
             </Button>
           }
@@ -99,34 +101,42 @@ const ResultsPage = () => {
   return (
     <div className="mx-auto w-full max-w-[720px] p-4 pb-32 space-y-4">
       <header className="flex items-center justify-between">
-        <Button variant="ghost" onClick={() => navigate("/")}>חזרה</Button>
-        <h1 className="text-xl font-bold text-gray-900">תוצאות</h1>
+        <Button variant="ghost" onClick={() => navigate("/")}>
+          חזרה
+        </Button>
+        <h1 className="font-display text-2xl font-bold text-[var(--accent-ink)]">
+          תוצאות
+        </h1>
         <span className="w-16" />
       </header>
 
-      <Card>
+      <Card className="bg-[#fffaf1]">
         <div className="text-center space-y-2">
-          <p className="text-sm text-gray-600">הציון שלך</p>
-          <p className="text-5xl font-bold text-blue-700">{scorePercent}%</p>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm font-medium text-[var(--accent)]">הציון שלך</p>
+          <p className="font-display text-6xl font-black text-[var(--accent-ink)]">
+            {scorePercent}%
+          </p>
+          <p className="text-sm text-stone-600">
             {correct} נכונות מתוך {total}
           </p>
           <div className="grid grid-cols-3 gap-2 pt-3 text-sm">
             <div>
-              <p className="text-gray-500">נענו</p>
-              <p className="font-semibold text-gray-900">{answered}/{total}</p>
+              <p className="text-stone-500">נענו</p>
+              <p className="font-semibold text-[var(--accent-ink)]">
+                {answered}/{total}
+              </p>
             </div>
             <div>
-              <p className="text-gray-500">נכונות</p>
+              <p className="text-stone-500">נכונות</p>
               <p className="font-semibold text-green-700">{correct}</p>
             </div>
             <div>
-              <p className="text-gray-500">טעויות</p>
+              <p className="text-stone-500">טעויות</p>
               <p className="font-semibold text-red-700">{mistakes.length}</p>
             </div>
           </div>
           {session.completed_at && (
-            <p className="pt-2 text-xs text-gray-500">
+            <p className="pt-2 text-xs text-stone-500">
               הושלם: {formatDate(session.completed_at)}
             </p>
           )}
@@ -134,12 +144,12 @@ const ResultsPage = () => {
       </Card>
 
       <section className="space-y-2">
-        <h2 className="text-base font-semibold text-gray-900">
+        <h2 className="text-base font-semibold text-[var(--accent-ink)]">
           טעויות ({mistakes.length})
         </h2>
         {mistakes.length === 0 ? (
           <Card>
-            <p className="text-sm text-gray-600">אין טעויות. כל הכבוד!</p>
+            <p className="text-sm text-stone-600">אין טעויות.</p>
           </Card>
         ) : (
           mistakes.map((q) => {
@@ -147,8 +157,10 @@ const ResultsPage = () => {
             const correctAns = q.correct_answer ?? null;
             return (
               <Card key={q.stable_id} className="space-y-3">
-                <p className="text-xs text-gray-500">שאלה {q.number}</p>
-                <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-900">
+                <p className="text-xs font-medium text-[var(--accent)]">
+                  שאלה {q.number}
+                </p>
+                <p className="whitespace-pre-wrap text-sm leading-7 text-[var(--ink)]">
                   {q.body}
                 </p>
                 <div className="grid gap-1.5">
@@ -164,7 +176,7 @@ const ResultsPage = () => {
                             ? "border-green-500 bg-green-50 text-green-900"
                             : isSel
                               ? "border-red-500 bg-red-50 text-red-900"
-                              : "border-gray-200 bg-white text-gray-800")
+                              : "border-[#dccfbb] bg-white text-stone-800")
                         }
                       >
                         <span className="font-semibold">{opt}.</span>{" "}
@@ -184,9 +196,11 @@ const ResultsPage = () => {
                   })}
                 </div>
                 {q.reference && (
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-2">
-                    <p className="text-xs font-medium text-gray-600">הפניה</p>
-                    <p className="mt-1 whitespace-pre-wrap text-sm text-gray-800">
+                  <div className="rounded-xl border border-[var(--accent-soft)] bg-[#fff8fd] p-3">
+                    <p className="text-xs font-semibold text-[var(--accent)]">
+                      הפניה
+                    </p>
+                    <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-stone-800">
                       {q.reference}
                     </p>
                   </div>
@@ -197,13 +211,9 @@ const ResultsPage = () => {
         )}
       </section>
 
-      <div className="fixed inset-x-0 bottom-0 border-t border-gray-200 bg-white p-3">
+      <div className="fixed inset-x-0 bottom-0 border-t border-[#e2d5c2] bg-white/90 p-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] shadow-[0_-10px_30px_rgba(79,31,64,0.08)] backdrop-blur">
         <div className="mx-auto flex w-full max-w-[720px] gap-2">
-          <Button
-            variant="secondary"
-            fullWidth
-            onClick={() => navigate("/")}
-          >
+          <Button variant="secondary" fullWidth onClick={() => navigate("/")}>
             חזרה לבית
           </Button>
           <Button fullWidth onClick={() => navigate("/practice/new")}>

@@ -9,5 +9,18 @@ export const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+interface DevUser {
+  id: number;
+  display_name: string;
+  user_key: string | null;
+  created_at: string;
+}
+
+let devUserPromise: Promise<DevUser> | null = null;
+
 // Dev-only user. Replace with real auth later.
-export const DEV_USER_ID = 1;
+export const getDevUserId = async (): Promise<number> => {
+  devUserPromise ??= api.post<DevUser>("/users/dev").then(({ data }) => data);
+  const user = await devUserPromise;
+  return user.id;
+};
