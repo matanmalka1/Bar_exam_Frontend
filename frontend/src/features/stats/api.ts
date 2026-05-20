@@ -1,8 +1,9 @@
 import { api, DEV_USER_ID } from '../../lib/api'
+import type { StatsOverview } from './types'
 
-export const getStatsOverview = async () => {
-  const { data } = await api.get('/stats/summary', {
-    params: { user_id: DEV_USER_ID },
-  })
-  return data as unknown
+export const getStatsOverview = async (): Promise<StatsOverview> => {
+  const { data } = await api.get<StatsOverview>(
+    `/users/${DEV_USER_ID}/stats/overview`,
+  )
+  return data
 }

@@ -1,11 +1,11 @@
-// TODO: align with backend OpenAPI (backend/openapi.json).
-
 export type SessionMode =
   | 'practice'
   | 'exam'
   | 'simulation'
   | 'mistakes'
   | 'bookmarks'
+
+export type SessionStatus = 'active' | 'completed' | 'abandoned'
 
 export type QuestionPart = 'B' | 'C'
 
@@ -18,17 +18,31 @@ export interface DraftAnswer {
   updatedAt: string
 }
 
-// TODO: match backend Session response shape.
 export interface SessionSummary {
   id: number
+  user_id: number
   mode: SessionMode
+  status: SessionStatus
+  exam_date: string | null
+  part: QuestionPart | null
   total_questions: number
-  answered_count?: number
-  correct_count?: number
-  score_percent?: number
+  answered_count: number
+  correct_count: number | null
+  score_percent: string | null
+  started_at: string
+  completed_at: string | null
+  created_at: string
 }
 
-// TODO: match backend Question response shape.
+export interface SessionCreateInput {
+  user_id: number
+  mode: SessionMode
+  exam_date?: string
+  part?: QuestionPart
+  question_count?: number
+  include_invalidated?: boolean
+}
+
 export interface SessionQuestion {
   stable_id: string
   number: number

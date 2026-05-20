@@ -1,10 +1,14 @@
-// TODO: align with backend /bookmarks response.
-import type { QuestionPart } from '../sessions/types'
+import type { AnswerOption, QuestionPart } from '../sessions/types'
 
-export interface BookmarkItem {
+export interface BookmarkedQuestion {
   stable_id: string
   exam_date: string
   part: QuestionPart
-  question_number: number
+  number: number
+  body: string
+  options: Record<AnswerOption, string>
+  status: string
+  correct_answer: AnswerOption | null
+  reference: string
   created_at: string
 }

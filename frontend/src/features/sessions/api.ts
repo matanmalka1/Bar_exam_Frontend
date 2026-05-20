@@ -1,59 +1,56 @@
 import { api, DEV_USER_ID } from '../../lib/api'
-import type { AnswerOption, QuestionPart } from './types'
+import type {
+  AnswerOption,
+  QuestionPart,
+  SessionCreateInput,
+  SessionStatus,
+  SessionSummary,
+} from './types'
 
-// TODO: Replace `unknown` with shapes from backend/openapi.json once aligned.
-
-interface PracticeSessionInput {
-  exam_date?: string
-  part?: QuestionPart | 'both'
+export const listUserSessions = async (
+  status?: SessionStatus,
+): Promise<SessionSummary[]> => {
+  const { data } = await api.get<SessionSummary[]>(
+    `/users/${DEV_USER_ID}/sessions`,
+    { params: status ? { status } : undefined },
+  )
+  return data
 }
 
-export const createPracticeSession = async (input: PracticeSessionInput) => {
-  const { data } = await api.post('/sessions', {
+export const getActiveSessions = () => listUserSessions('active')
+
+const createSession = async (
+  input: Omit<SessionCreateInput, 'user_id'>,
+): Promise<SessionSummary> => {
+  const { data } = await api.post<SessionSummary>('/practice-sessions', {
     user_id: DEV_USER_ID,
-    mode: 'practice',
     ...input,
   })
-  return data as unknown
+  return data
 }
 
-export const createExamSession = async (examDate: string, part: QuestionPart | 'both') => {
-  const { data } = await api.post('/sessions', {
-    user_id: DEV_USER_ID,
-    mode: 'exam',
-    exam_date: examDate,
-    part,
-  })
-  return data as unknown
-}
+export const createPracticeSession = (input: {
+  part?: QuestionPart
+  exam_date?: string
+  question_count?: number
+}) => createSession({ mode: 'practice', ...input })
 
-export const createSimulationSession = async () => {
-  const { data } = await api.post('/sessions', {
-    user_id: DEV_USER_ID,
-    mode: 'simulation',
-  })
-  return data as unknown
-}
+export const createExamSession = (examDate: string, part?: QuestionPart) =>
+  createSession({ mode: 'exam', exam_date: examDate, part })
 
-export const createMistakesSession = async () => {
-  const { data } = await api.post('/sessions', {
-    user_id: DEV_USER_ID,
-    mode: 'mistakes',
-  })
-  return data as unknown
-}
+export const createSimulationSession = () => createSession({ mode: 'simulation' })
 
-export const createBookmarksSession = async () => {
-  const { data } = await api.post('/sessions', {
-    user_id: DEV_USER_ID,
-    mode: 'bookmarks',
-  })
-  return data as unknown
-}
+export const createMistakesSession = () => createSession({ mode: 'mistakes' })
 
-export const getSession = async (sessionId: number | string) => {
-  const { data } = await api.get(`/sessions/${sessionId}`)
-  return data as unknown
+export const createBookmarksSession = () => createSession({ mode: 'bookmarks' })
+
+export const getSession = async (
+  sessionId: number | string,
+): Promise<SessionSummary> => {
+  const { data } = await api.get<SessionSummary>(
+    `/practice-sessions/${sessionId}`,
+  )
+  return data
 }
 
 export const submitAnswer = async (
@@ -61,21 +58,14 @@ export const submitAnswer = async (
   stableId: string,
   selectedOption: AnswerOption,
 ) => {
-  const { data } = await api.post(`/sessions/${sessionId}/answers`, {
-    stable_id: stableId,
-    selected_answer: selectedOption,
-  })
+  const { data } = await api.post(
+    `/practice-sessions/${sessionId}/answers`,
+    { stable_id: stableId, selected_answer: selectedOption },
+  )
   return data as unknown
 }
 
 export const completeSession = async (sessionId: number | string) => {
-  const { data } = await api.post(`/sessions/${sessionId}/submit`)
-  return data as unknown
-}
-
-export const getActiveSessions = async () => {
-  const { data } = await api.get('/sessions', {
-    params: { user_id: DEV_USER_ID, status: 'active' },
-  })
+  const { data } = await api.post(`/practice-sessions/${sessionId}/complete`)
   return data as unknown
 }
