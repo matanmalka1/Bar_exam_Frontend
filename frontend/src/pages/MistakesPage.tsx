@@ -110,7 +110,7 @@ const MistakesPage = () => {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[720px] space-y-4 p-4 pb-32">
+    <div className="mx-auto w-full max-w-[720px] space-y-4 p-4 pb-40">
       <header className="flex items-center justify-between gap-3">
         <div>
           <h1 className="font-display text-3xl font-bold text-[var(--accent-ink)]">

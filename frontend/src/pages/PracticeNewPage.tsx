@@ -151,7 +151,7 @@ const PracticeNewPage = () => {
     };
 
     return (
-      <div className="mx-auto w-full max-w-[720px] p-4 pb-28 space-y-4">
+      <div className="mx-auto w-full max-w-[720px] space-y-4 p-4 pb-40">
         <header className="flex items-center justify-between">
           <Button variant="ghost" onClick={goBack}>
             ביטול
@@ -250,7 +250,7 @@ const PracticeNewPage = () => {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[720px] p-4 pb-28 space-y-4">
+    <div className="mx-auto w-full max-w-[720px] space-y-4 p-4 pb-40">
       <header className="flex items-center justify-between">
         <Button variant="ghost" onClick={goBack}>
           ביטול
