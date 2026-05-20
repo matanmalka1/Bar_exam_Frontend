@@ -5,7 +5,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { setCurrentUserId, setOnUnauthorized } from "../../lib/api";
+import { setOnUnauthorized } from "../../lib/api";
 import * as authApi from "./api";
 import { AuthContext, type AuthContextValue } from "./AuthContext";
 import {
@@ -25,7 +25,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const applyUser = useCallback((u: AuthUser | null) => {
     setUser(u);
-    setCurrentUserId(u?.id ?? null);
     setStatus(u ? "authenticated" : "unauthenticated");
   }, []);
 

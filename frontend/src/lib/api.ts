@@ -47,25 +47,11 @@ api.interceptors.response.use(
       err.config?.url !== "/auth/login"
     ) {
       clearAccessToken();
-      currentUserId = null;
       on401?.();
     }
     return Promise.reject(err);
   },
 );
-
-let currentUserId: number | null = null;
-
-export const setCurrentUserId = (id: number | null): void => {
-  currentUserId = id;
-};
-
-export const getCurrentUserId = (): number => {
-  if (currentUserId == null) {
-    throw new Error("No authenticated user");
-  }
-  return currentUserId;
-};
 
 export const isApiStatusError = (err: unknown, status: number): boolean =>
   axios.isAxiosError(err) && err.response?.status === status;

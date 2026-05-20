@@ -64,7 +64,6 @@ export interface SessionDetail extends SessionSummary {
 }
 
 export interface SessionCreateInput {
-  user_id: number;
   mode: SessionMode;
   exam_date?: string;
   part?: QuestionPart | null;

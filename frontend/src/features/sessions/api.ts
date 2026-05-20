@@ -1,4 +1,4 @@
-import { api, getCurrentUserId } from "../../lib/api";
+import { api } from "../../lib/api";
 import type {
   AnswerResult,
   AnswerSubmitPayload,
@@ -13,24 +13,21 @@ import type {
 export const listUserSessions = async (
   status?: SessionStatus,
 ): Promise<SessionSummary[]> => {
-  const userId = getCurrentUserId();
-  const { data } = await api.get<SessionSummary[]>(
-    `/users/${userId}/sessions`,
-    { params: status ? { status } : undefined },
-  );
+  const { data } = await api.get<SessionSummary[]>("/users/me/sessions", {
+    params: status ? { status } : undefined,
+  });
   return data;
 };
 
 export const getActiveSessions = () => listUserSessions("active");
 
 const createSession = async (
-  input: Omit<SessionCreateInput, "user_id">,
+  input: SessionCreateInput,
 ): Promise<SessionSummary> => {
-  const userId = getCurrentUserId();
-  const { data } = await api.post<SessionSummary>("/practice-sessions", {
-    user_id: userId,
-    ...input,
-  });
+  const { data } = await api.post<SessionSummary>(
+    "/practice-sessions",
+    input,
+  );
   return data;
 };
 

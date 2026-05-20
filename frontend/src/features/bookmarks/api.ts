@@ -1,4 +1,4 @@
-import { api, getCurrentUserId } from "../../lib/api";
+import { api } from "../../lib/api";
 import type { BookmarkedQuestion } from "./types";
 
 export interface Bookmark {
@@ -12,17 +12,13 @@ export interface BookmarkRemoved {
 }
 
 export const getBookmarks = async (): Promise<BookmarkedQuestion[]> => {
-  const userId = getCurrentUserId();
-  const { data } = await api.get<BookmarkedQuestion[]>(
-    `/users/${userId}/bookmarks`,
-  );
+  const { data } = await api.get<BookmarkedQuestion[]>("/users/me/bookmarks");
   return data;
 };
 
 export const addBookmark = async (stableId: string): Promise<Bookmark> => {
-  const userId = getCurrentUserId();
   const { data } = await api.post<Bookmark>(
-    `/users/${userId}/bookmarks/${stableId}`,
+    `/users/me/bookmarks/${stableId}`,
   );
   return data;
 };
@@ -30,9 +26,8 @@ export const addBookmark = async (stableId: string): Promise<Bookmark> => {
 export const removeBookmark = async (
   stableId: string,
 ): Promise<BookmarkRemoved> => {
-  const userId = getCurrentUserId();
   const { data } = await api.delete<BookmarkRemoved>(
-    `/users/${userId}/bookmarks/${stableId}`,
+    `/users/me/bookmarks/${stableId}`,
   );
   return data;
 };
