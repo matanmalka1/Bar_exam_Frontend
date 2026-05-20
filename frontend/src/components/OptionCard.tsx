@@ -1,0 +1,60 @@
+import type { ButtonHTMLAttributes } from 'react'
+import { cn } from '../lib/cn'
+
+export type OptionMode = 'practice' | 'exam' | 'review'
+
+interface OptionCardProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  mode: OptionMode
+  label: string
+  text: string
+  selected?: boolean
+  isCorrect?: boolean
+  isWrong?: boolean
+}
+
+const OptionCard = ({
+  mode,
+  label,
+  text,
+  selected,
+  isCorrect,
+  isWrong,
+  className,
+  type = 'button',
+  ...rest
+}: OptionCardProps) => {
+  // Exam mode MUST ignore correctness props.
+  const showCorrectness = mode !== 'exam'
+  const correct = showCorrectness && isCorrect
+  const wrong = showCorrectness && isWrong
+
+  return (
+    <button
+      type={type}
+      aria-pressed={selected}
+      className={cn(
+        'w-full rounded-2xl border p-4 text-right transition-colors flex items-start gap-3',
+        !correct && !wrong && selected && 'border-blue-600 bg-blue-50',
+        !correct && !wrong && !selected && 'border-gray-200 bg-white hover:bg-gray-50',
+        correct && 'border-green-600 bg-green-50',
+        wrong && 'border-red-600 bg-red-50',
+        className,
+      )}
+      {...rest}
+    >
+      <span
+        className={cn(
+          'flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-semibold',
+          selected ? 'border-blue-600 text-blue-600' : 'border-gray-300 text-gray-600',
+          correct && 'border-green-600 text-green-700',
+          wrong && 'border-red-600 text-red-700',
+        )}
+      >
+        {label}
+      </span>
+      <span className="flex-1 text-base leading-relaxed text-gray-900">{text}</span>
+    </button>
+  )
+}
+
+export default OptionCard
