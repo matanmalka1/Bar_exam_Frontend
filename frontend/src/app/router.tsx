@@ -8,21 +8,29 @@ import MistakesPage from "../pages/MistakesPage";
 import BookmarksPage from "../pages/BookmarksPage";
 import MorePage from "../pages/MorePage";
 import NotFoundPage from "../pages/NotFoundPage";
+import LoginPage from "../features/auth/LoginPage";
+import ProtectedRoute from "../features/auth/ProtectedRoute";
 import Shell from "./Shell";
 
 export const router = createBrowserRouter([
+  { path: "/login", element: <LoginPage /> },
   {
-    element: <Shell />,
+    element: <ProtectedRoute />,
     children: [
-      { path: "/", element: <HomePage /> },
-      { path: "/practice/new", element: <PracticeNewPage /> },
-      { path: "/session/:id", element: <SessionPage /> },
-      { path: "/session/:id/exam", element: <ExamSessionPage /> },
-      { path: "/session/:id/results", element: <ResultsPage /> },
-      { path: "/mistakes", element: <MistakesPage /> },
-      { path: "/bookmarks", element: <BookmarksPage /> },
-      { path: "/more", element: <MorePage /> },
-      { path: "*", element: <NotFoundPage /> },
+      {
+        element: <Shell />,
+        children: [
+          { path: "/", element: <HomePage /> },
+          { path: "/practice/new", element: <PracticeNewPage /> },
+          { path: "/session/:id", element: <SessionPage /> },
+          { path: "/session/:id/exam", element: <ExamSessionPage /> },
+          { path: "/session/:id/results", element: <ResultsPage /> },
+          { path: "/mistakes", element: <MistakesPage /> },
+          { path: "/bookmarks", element: <BookmarksPage /> },
+          { path: "/more", element: <MorePage /> },
+          { path: "*", element: <NotFoundPage /> },
+        ],
+      },
     ],
   },
 ]);

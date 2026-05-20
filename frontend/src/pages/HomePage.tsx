@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ActionCard from "../components/ActionCard";
+import type { ReactNode } from "react";
 import Button from "../components/Button";
 import Card from "../components/Card";
 import PageLoading from "../components/PageLoading";
@@ -14,6 +14,7 @@ import type { StatsOverview } from "../features/stats/types";
 import { getBookmarks } from "../features/bookmarks/api";
 import type { BookmarkedQuestion } from "../features/bookmarks/types";
 import { HTTP_UNPROCESSABLE, isApiStatusError } from "../lib/api";
+import { cn } from "../lib/cn";
 
 type Status = "loading" | "ready";
 
@@ -33,11 +34,15 @@ const resumePath = (s: SessionSummary) =>
     ? ROUTES.exam(s.id)
     : ROUTES.session(s.id);
 
-const formatPercent = (raw: number | string | null): string => {
-  if (raw === null || raw === undefined) return "—";
+const toNumber = (raw: number | string | null | undefined): number | null => {
+  if (raw === null || raw === undefined) return null;
   const n = typeof raw === "string" ? Number(raw) : raw;
-  if (Number.isNaN(n)) return "—";
-  return `${Math.round(n)}%`;
+  return Number.isNaN(n) ? null : n;
+};
+
+const formatPercent = (raw: number | string | null): string => {
+  const n = toNumber(raw);
+  return n === null ? "—" : `${Math.round(n)}%`;
 };
 
 const modeLabel = (s: SessionSummary): string => {
@@ -61,6 +66,117 @@ const modeLabel = (s: SessionSummary): string => {
 
 const latestActiveSession = (sessions: SessionSummary[]) =>
   sessions.find((session) => session.status === "active") ?? null;
+
+const Icon = ({ children }: { children: ReactNode }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="h-5 w-5"
+    aria-hidden="true"
+  >
+    {children}
+  </svg>
+);
+
+const IconPlay = () => (
+  <Icon>
+    <path d="M7 5v14l12-7z" />
+  </Icon>
+);
+const IconExam = () => (
+  <Icon>
+    <path d="M5 4h11l3 3v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z" />
+    <path d="M8 11h8M8 15h5M8 7h5" />
+  </Icon>
+);
+const IconMistakes = () => (
+  <Icon>
+    <path d="M12 9v4M12 17h.01" />
+    <path d="M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.7 3.86a2 2 0 0 0-3.4 0Z" />
+  </Icon>
+);
+const IconBookmark = () => (
+  <Icon>
+    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+  </Icon>
+);
+const IconArrow = () => (
+  <Icon>
+    <path d="M15 6l-6 6 6 6" />
+  </Icon>
+);
+
+interface TileProps {
+  onClick?: () => void;
+  disabled?: boolean;
+  icon: ReactNode;
+  title: string;
+  sub: string;
+  tone: "primary" | "ink" | "amber" | "rose";
+}
+
+const TONE: Record<TileProps["tone"], string> = {
+  primary:
+    "from-[#fbe7f1] to-[#f7d6e6] text-[var(--accent-ink)] ring-[var(--accent-soft)]",
+  ink: "from-[#efe5d4] to-[#e7d8bf] text-[#3a2a1c] ring-[#dac9a8]",
+  amber: "from-[#fde9c8] to-[#f7d8a3] text-[#5a3a0b] ring-[#eccb87]",
+  rose: "from-[#fde2e2] to-[#f6c9c9] text-[#6e2323] ring-[#eeb4b4]",
+};
+
+const Tile = ({ onClick, disabled, icon, title, sub, tone }: TileProps) => (
+  <button
+    type="button"
+    onClick={onClick}
+    disabled={disabled}
+    className={cn(
+      "group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/60 bg-gradient-to-br p-4 text-right shadow-[0_10px_30px_rgba(79,31,64,0.08)] ring-1 transition active:scale-[0.98] hover:shadow-[0_14px_38px_rgba(79,31,64,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-70",
+      TONE[tone],
+    )}
+  >
+    <div className="flex items-start justify-between">
+      <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white/70 shadow-sm">
+        {icon}
+      </span>
+      <span className="opacity-50 transition group-hover:opacity-100">
+        <IconArrow />
+      </span>
+    </div>
+    <div className="mt-6">
+      <p className="font-display text-xl font-bold leading-tight">{title}</p>
+      <p className="mt-1 text-sm opacity-80">{sub}</p>
+    </div>
+  </button>
+);
+
+const Progress = ({ value }: { value: number }) => (
+  <div className="h-2 w-full overflow-hidden rounded-full bg-white/70">
+    <div
+      className="h-full rounded-full bg-gradient-to-l from-[var(--accent)] to-[#c66ba2] transition-all"
+      style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
+    />
+  </div>
+);
+
+const StatBlock = ({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number;
+}) => (
+  <div className="rounded-2xl border border-[#ece1cb] bg-white/70 px-3 py-3 text-center">
+    <p className="text-[11px] font-medium uppercase tracking-wide text-stone-500">
+      {label}
+    </p>
+    <p className="font-display mt-1 text-2xl font-black text-[var(--accent-ink)]">
+      {value}
+    </p>
+  </div>
+);
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -133,23 +249,46 @@ const HomePage = () => {
 
   if (status === "loading") return <PageLoading />;
 
+  const activeProgress = active
+    ? active.total_questions > 0
+      ? (active.answered_count / active.total_questions) * 100
+      : 0
+    : 0;
+
+  const successRate = stats ? toNumber(stats.overall_success_rate) : null;
+
   return (
-    <div className="mx-auto w-full max-w-[720px] space-y-4 p-4 pb-28">
-      <header className="rounded-[2rem] border border-[#e2d5c2] bg-[#fffaf1]/85 p-5 shadow-[0_16px_44px_rgba(79,31,64,0.08)]">
-        <p className="text-sm font-medium text-[var(--accent)]">ברוך הבא</p>
-        <h1 className="font-display mt-1 text-4xl font-black leading-tight text-[var(--accent-ink)]">
-          תרגול בחינות לשכה
-        </h1>
-        <p className="mt-2 text-sm leading-6 text-stone-700">
-          בחר מסלול, המשך סשן פעיל או חזור לשאלות שסימנת.
-        </p>
-        <Button
-          fullWidth
-          className="mt-5"
-          onClick={() => navigate(ROUTES.practiceNew)}
-        >
-          התחל תרגול
-        </Button>
+    <div className="mx-auto w-full max-w-[720px] space-y-5 p-4 pb-28">
+      <header className="relative overflow-hidden rounded-[2rem] border border-white/60 bg-gradient-to-br from-[#fff4e8] via-[#fdeaf3] to-[#f3dcec] p-6 shadow-[0_20px_50px_rgba(79,31,64,0.12)]">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -left-16 -top-16 h-48 w-48 rounded-full bg-[var(--accent-soft)] opacity-50 blur-2xl"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -bottom-20 -right-10 h-56 w-56 rounded-full bg-[#fde2c4] opacity-60 blur-3xl"
+        />
+        <div className="relative">
+          <p className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-xs font-semibold text-[var(--accent)]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
+            ברוך הבא
+          </p>
+          <h1 className="font-display mt-3 text-[2.6rem] font-black leading-[1.05] text-[var(--accent-ink)]">
+            תרגול בחינות
+            <br />
+            לשכת עורכי הדין
+          </h1>
+          <p className="mt-3 max-w-[26ch] text-sm leading-6 text-stone-700">
+            בחר מסלול, המשך סשן פעיל או חזור לשאלות שסימנת.
+          </p>
+          <Button
+            fullWidth
+            className="mt-5 shadow-lg shadow-[var(--accent-soft)]/60"
+            onClick={() => navigate(ROUTES.practiceNew)}
+          >
+            התחל תרגול
+          </Button>
+        </div>
       </header>
 
       {actionError && (
@@ -159,22 +298,31 @@ const HomePage = () => {
       )}
 
       {active && (
-        <Card className="border-[var(--accent-soft)] bg-[#fff8fd]">
+        <button
+          type="button"
+          onClick={() => navigate(resumePath(active))}
+          className="group relative w-full overflow-hidden rounded-3xl border border-[var(--accent-soft)] bg-gradient-to-l from-[#fff8fd] to-[#fbe7f1] p-5 text-right shadow-[0_14px_40px_rgba(79,31,64,0.1)] transition hover:shadow-[0_18px_48px_rgba(79,31,64,0.15)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+        >
           <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="text-xs font-semibold text-[var(--accent)]">
+            <div className="flex-1">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--accent)]">
                 המשך תרגול
               </p>
-              <p className="font-semibold text-[var(--accent-ink)]">
+              <p className="font-display mt-1 text-xl font-bold text-[var(--accent-ink)]">
                 {modeLabel(active)}
               </p>
               <p className="mt-1 text-sm text-stone-600">
                 {active.answered_count}/{active.total_questions} שאלות
               </p>
             </div>
-            <Button onClick={() => navigate(resumePath(active))}>המשך</Button>
+            <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--accent)] text-white shadow-md transition group-hover:bg-[var(--accent-ink)]">
+              <IconPlay />
+            </span>
           </div>
-        </Card>
+          <div className="mt-4">
+            <Progress value={activeProgress} />
+          </div>
+        </button>
       )}
 
       {sessionsUnavailable && (
@@ -185,63 +333,74 @@ const HomePage = () => {
         </Card>
       )}
 
-      <section className="grid grid-cols-2 gap-3">
-        <ActionCard onClick={() => navigate(ROUTES.practiceNew)}>
-          <p className="font-semibold text-[var(--accent-ink)]">תרגול חדש</p>
-          <p className="mt-1 text-sm text-stone-600">חלק, מועד וכמות</p>
-        </ActionCard>
-
-        <ActionCard
-          onClick={handleStartSimulation}
-          disabled={startingSim}
-        >
-          <p className="font-semibold text-[var(--accent-ink)]">מבחן מלא</p>
-          <p className="mt-1 text-sm text-stone-600">
-            {startingSim ? "מתחיל…" : "סימולציה"}
-          </p>
-        </ActionCard>
-
-        <ActionCard onClick={() => navigate(ROUTES.mistakes)}>
-          <p className="font-semibold text-[var(--accent-ink)]">טעויות</p>
-          <p className="mt-1 text-sm text-stone-600">
-            {stats ? `${stats.active_mistakes_count} פתוחות` : "לחזרה"}
-          </p>
-        </ActionCard>
-
-        <ActionCard onClick={() => navigate(ROUTES.bookmarks)}>
-          <p className="font-semibold text-[var(--accent-ink)]">סימניות</p>
-          <p className="mt-1 text-sm text-stone-600">
-            {bookmarksUnavailable ? "לצפייה" : `${bookmarks.length} שמורות`}
-          </p>
-        </ActionCard>
+      <section>
+        <div className="mb-2 flex items-baseline justify-between px-1">
+          <h2 className="font-display text-lg font-bold text-[var(--accent-ink)]">
+            מסלולים
+          </h2>
+          <span className="text-xs text-stone-500">בחר כיוון</span>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Tile
+            tone="primary"
+            icon={<IconPlay />}
+            title="תרגול חדש"
+            sub="חלק, מועד וכמות"
+            onClick={() => navigate(ROUTES.practiceNew)}
+          />
+          <Tile
+            tone="ink"
+            icon={<IconExam />}
+            title="מבחן מלא"
+            sub={startingSim ? "מתחיל…" : "סימולציה"}
+            onClick={handleStartSimulation}
+            disabled={startingSim}
+          />
+          <Tile
+            tone="rose"
+            icon={<IconMistakes />}
+            title="טעויות"
+            sub={stats ? `${stats.active_mistakes_count} פתוחות` : "לחזרה"}
+            onClick={() => navigate(ROUTES.mistakes)}
+          />
+          <Tile
+            tone="amber"
+            icon={<IconBookmark />}
+            title="סימניות"
+            sub={
+              bookmarksUnavailable ? "לצפייה" : `${bookmarks.length} שמורות`
+            }
+            onClick={() => navigate(ROUTES.bookmarks)}
+          />
+        </div>
       </section>
 
       {stats ? (
-        <Card>
-          <p className="mb-3 text-sm font-semibold text-[var(--accent-ink)]">
-            מבט מהיר
-          </p>
-          <div className="grid grid-cols-3 gap-3 text-sm">
-            <div>
-              <p className="text-stone-500">נענו</p>
-              <p className="text-lg font-semibold text-[var(--accent-ink)]">
-                {stats.total_answered}
-              </p>
-            </div>
-            <div>
-              <p className="text-stone-500">הצלחה</p>
-              <p className="text-lg font-semibold text-[var(--accent-ink)]">
-                {formatPercent(stats.overall_success_rate)}
-              </p>
-            </div>
-            <div>
-              <p className="text-stone-500">טעויות</p>
-              <p className="text-lg font-semibold text-[var(--accent-ink)]">
-                {stats.active_mistakes_count}
-              </p>
-            </div>
+        <section className="rounded-3xl border border-[#ece1cb] bg-[#fffaf1]/85 p-5 shadow-[0_12px_36px_rgba(79,31,64,0.07)]">
+          <div className="mb-4 flex items-baseline justify-between">
+            <h2 className="font-display text-lg font-bold text-[var(--accent-ink)]">
+              מבט מהיר
+            </h2>
+            <span className="text-xs text-stone-500">סטטיסטיקה</span>
           </div>
-        </Card>
+          <div className="grid grid-cols-3 gap-2">
+            <StatBlock label="נענו" value={stats.total_answered} />
+            <StatBlock
+              label="הצלחה"
+              value={formatPercent(stats.overall_success_rate)}
+            />
+            <StatBlock label="טעויות" value={stats.active_mistakes_count} />
+          </div>
+          {successRate !== null && (
+            <div className="mt-4">
+              <div className="mb-1 flex items-center justify-between text-xs text-stone-500">
+                <span>אחוז הצלחה כולל</span>
+                <span>{Math.round(successRate)}%</span>
+              </div>
+              <Progress value={successRate} />
+            </div>
+          )}
+        </section>
       ) : (
         statsUnavailable && (
           <Card>

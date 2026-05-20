@@ -1,4 +1,8 @@
 import axios from "axios";
+import {
+  clearAccessToken,
+  getAccessToken,
+} from "../features/auth/authStorage";
 
 interface RuntimeImportMeta {
   readonly env?: {
@@ -18,26 +22,55 @@ export const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+api.interceptors.request.use((config) => {
+  const token = getAccessToken();
+  if (token) {
+    config.headers = config.headers ?? {};
+    (config.headers as Record<string, string>).Authorization =
+      `Bearer ${token}`;
+  }
+  return config;
+});
+
+let on401: (() => void) | null = null;
+
+export const setOnUnauthorized = (handler: (() => void) | null): void => {
+  on401 = handler;
+};
+
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (
+      axios.isAxiosError(err) &&
+      err.response?.status === 401 &&
+      err.config?.url !== "/auth/login"
+    ) {
+      clearAccessToken();
+      currentUserId = null;
+      on401?.();
+    }
+    return Promise.reject(err);
+  },
+);
+
+let currentUserId: number | null = null;
+
+export const setCurrentUserId = (id: number | null): void => {
+  currentUserId = id;
+};
+
+export const getCurrentUserId = (): number => {
+  if (currentUserId == null) {
+    throw new Error("No authenticated user");
+  }
+  return currentUserId;
+};
+
 export const isApiStatusError = (err: unknown, status: number): boolean =>
   axios.isAxiosError(err) && err.response?.status === status;
 
 export const getApiErrorDetail = (err: unknown): unknown => {
   if (!axios.isAxiosError(err)) return null;
   return (err.response?.data as { detail?: unknown } | undefined)?.detail;
-};
-
-interface DevUser {
-  id: number;
-  display_name: string;
-  user_key: string | null;
-  created_at: string;
-}
-
-let devUserPromise: Promise<DevUser> | null = null;
-
-// Dev-only user. Replace with real auth later.
-export const getDevUserId = async (): Promise<number> => {
-  devUserPromise ??= api.post<DevUser>("/users/dev").then(({ data }) => data);
-  const user = await devUserPromise;
-  return user.id;
 };
