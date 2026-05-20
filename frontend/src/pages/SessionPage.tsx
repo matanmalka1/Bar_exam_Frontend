@@ -3,7 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import Button from "../components/Button";
 import Card from "../components/Card";
 import ErrorState from "../components/ErrorState";
+import FixedFooter from "../components/FixedFooter";
 import OptionCard from "../components/OptionCard";
+import PageLoading from "../components/PageLoading";
 import {
   addBookmark,
   getBookmarks,
@@ -110,13 +112,7 @@ const SessionPage = () => {
     setReloadKey((k) => k + 1);
   };
 
-  if (status === "loading") {
-    return (
-      <div className="mx-auto w-full max-w-[720px] p-4">
-        <p className="text-stone-600">טוען...</p>
-      </div>
-    );
-  }
+  if (status === "loading") return <PageLoading />;
 
   if (status === "error" || !session || !current) {
     return (
@@ -354,49 +350,47 @@ const SessionPage = () => {
         </Button>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 border-t border-[#e2d5c2] bg-white/90 p-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] shadow-[0_-10px_30px_rgba(79,31,64,0.08)] backdrop-blur">
-        <div className="mx-auto w-full max-w-[720px] space-y-1">
-          {!answerSubmitted && (
-            <>
-              <Button
-                fullWidth
-                disabled={submitCtaDisabled}
-                onClick={handleSubmit}
-              >
-                {submitting ? "שומר…" : "בדוק תשובה"}
-              </Button>
-              {submitCtaReason && (
-                <p className="text-center text-xs text-gray-500">
-                  {submitCtaReason}
-                </p>
-              )}
-            </>
-          )}
-
-          {answerSubmitted && !isLast && (
-            <Button fullWidth onClick={handleNext}>
-              שאלה הבאה
+      <FixedFooter>
+        {!answerSubmitted && (
+          <>
+            <Button
+              fullWidth
+              disabled={submitCtaDisabled}
+              onClick={handleSubmit}
+            >
+              {submitting ? "שומר…" : "בדוק תשובה"}
             </Button>
-          )}
+            {submitCtaReason && (
+              <p className="text-center text-xs text-stone-500">
+                {submitCtaReason}
+              </p>
+            )}
+          </>
+        )}
 
-          {answerSubmitted && isLast && (
-            <>
-              <Button
-                fullWidth
-                disabled={!allAnswered || completing}
-                onClick={handleComplete}
-              >
-                {completing ? "מסיים…" : "סיום תרגול"}
-              </Button>
-              {completeDisabledReason && (
-                <p className="text-center text-xs text-gray-500">
-                  {completeDisabledReason}
-                </p>
-              )}
-            </>
-          )}
-        </div>
-      </div>
+        {answerSubmitted && !isLast && (
+          <Button fullWidth onClick={handleNext}>
+            שאלה הבאה
+          </Button>
+        )}
+
+        {answerSubmitted && isLast && (
+          <>
+            <Button
+              fullWidth
+              disabled={!allAnswered || completing}
+              onClick={handleComplete}
+            >
+              {completing ? "מסיים…" : "סיום תרגול"}
+            </Button>
+            {completeDisabledReason && (
+              <p className="text-center text-xs text-stone-500">
+                {completeDisabledReason}
+              </p>
+            )}
+          </>
+        )}
+      </FixedFooter>
     </div>
   );
 };

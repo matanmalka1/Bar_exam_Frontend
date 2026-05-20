@@ -4,6 +4,8 @@ import Button from "../components/Button";
 import Card from "../components/Card";
 import EmptyState from "../components/EmptyState";
 import ErrorState from "../components/ErrorState";
+import PageLoading from "../components/PageLoading";
+import ReviewOption from "../components/ReviewOption";
 import { getBookmarks, removeBookmark } from "../features/bookmarks/api";
 import type { BookmarkedQuestion } from "../features/bookmarks/types";
 import { createBookmarksSession } from "../features/sessions/api";
@@ -90,13 +92,7 @@ const BookmarksPage = () => {
     }
   };
 
-  if (status === "loading") {
-    return (
-      <div className="mx-auto w-full max-w-[720px] p-4">
-        <p className="text-stone-600">טוען...</p>
-      </div>
-    );
-  }
+  if (status === "loading") return <PageLoading />;
 
   if (status === "error") {
     return (
@@ -110,7 +106,7 @@ const BookmarksPage = () => {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[720px] p-4 pb-28 space-y-4">
+    <div className="mx-auto w-full max-w-[720px] space-y-4 p-4 pb-28">
       <header className="flex items-center justify-between gap-3">
         <div>
           <h1 className="font-display text-3xl font-bold text-[var(--accent-ink)]">
@@ -170,84 +166,55 @@ const BookmarksPage = () => {
               const removing = removingStableId === question.stable_id;
               return (
                 <Card key={question.stable_id} className="space-y-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0 space-y-1">
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-stone-500">
-                      {question.number !== null &&
-                        question.number !== undefined && (
-                          <span>שאלה {question.number}</span>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 space-y-1">
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-stone-500">
+                        {question.number !== null &&
+                          question.number !== undefined && (
+                            <span>שאלה {question.number}</span>
+                          )}
+                        {question.exam_date && (
+                          <span>{question.exam_date}</span>
                         )}
-                      {question.exam_date && <span>{question.exam_date}</span>}
-                      {question.part && <span>{partLabel(question.part)}</span>}
-                    </div>
-                    <p className="whitespace-pre-wrap text-base leading-8 text-[var(--ink)]">
-                      {question.body}
-                    </p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    className="shrink-0 px-3 py-2 text-sm text-red-700 hover:bg-red-50"
-                    disabled={removing}
-                    onClick={() => handleRemove(question.stable_id)}
-                  >
-                    {removing ? "מסיר…" : "הסר"}
-                  </Button>
-                </div>
-
-                <div className="grid gap-2">
-                  {OPTIONS.map((option) => {
-                    const text = question.options[option];
-                    const isCorrect = question.correct_answer === option;
-                    return (
-                      <div
-                        key={option}
-                        className={
-                          "flex items-start gap-3 rounded-2xl border p-3 " +
-                          (isCorrect
-                            ? "border-green-600 bg-green-50"
-                            : "border-[#dccfbb] bg-white/80")
-                        }
-                      >
-                        <span
-                          className={
-                            "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-semibold " +
-                            (isCorrect
-                              ? "border-green-600 text-green-700"
-                              : "border-[#d6c8b4] text-stone-600")
-                          }
-                        >
-                          {option}
-                        </span>
-                        <span className="flex-1 text-sm leading-6 text-[var(--ink)]">
-                          {text}
-                        </span>
+                        {question.part && (
+                          <span>{partLabel(question.part)}</span>
+                        )}
                       </div>
-                    );
-                  })}
-                </div>
-
-                {(question.correct_answer || question.reference) && (
-                  <div className="space-y-2 border-t border-[#eadfce] pt-3">
-                    {question.correct_answer && (
-                      <p className="text-sm text-stone-700">
-                        <span className="font-medium text-[var(--accent-ink)]">
-                          תשובה נכונה:
-                        </span>{" "}
-                        {question.correct_answer}
+                      <p className="whitespace-pre-wrap text-base leading-8 text-[var(--ink)]">
+                        {question.body}
                       </p>
-                    )}
-                    {question.reference && (
-                      <div>
-                        <p className="text-xs font-semibold text-[var(--accent)]">
-                          הפניה
-                        </p>
-                        <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-stone-800">
-                          {question.reference}
-                        </p>
-                      </div>
-                    )}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      className="shrink-0 px-3 py-2 text-sm"
+                      disabled={removing}
+                      onClick={() => handleRemove(question.stable_id)}
+                    >
+                      {removing ? "מסיר…" : "הסר"}
+                    </Button>
                   </div>
-                )}
+
+                  <div className="grid gap-2">
+                    {OPTIONS.map((option) => (
+                      <ReviewOption
+                        key={option}
+                        label={option}
+                        text={question.options[option]}
+                        isCorrect={question.correct_answer === option}
+                      />
+                    ))}
+                  </div>
+
+                  {question.reference && (
+                    <div className="rounded-xl border border-[var(--accent-soft)] bg-[#fff8fd] p-3">
+                      <p className="text-xs font-semibold text-[var(--accent)]">
+                        הפניה
+                      </p>
+                      <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-stone-800">
+                        {question.reference}
+                      </p>
+                    </div>
+                  )}
                 </Card>
               );
             })}

@@ -3,7 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import Button from "../components/Button";
 import Card from "../components/Card";
 import ErrorState from "../components/ErrorState";
+import FixedFooter from "../components/FixedFooter";
 import OptionCard from "../components/OptionCard";
+import PageLoading from "../components/PageLoading";
 import {
   addBookmark,
   getBookmarks,
@@ -95,13 +97,7 @@ const ExamSessionPage = () => {
     setReloadKey((k) => k + 1);
   };
 
-  if (status === "loading") {
-    return (
-      <div className="mx-auto w-full max-w-[720px] p-4">
-        <p className="text-stone-600">טוען...</p>
-      </div>
-    );
-  }
+  if (status === "loading") return <PageLoading />;
 
   if (status === "error" || !session || !current) {
     return (
@@ -325,42 +321,40 @@ const ExamSessionPage = () => {
         </Button>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 border-t border-[#e2d5c2] bg-white/90 p-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] shadow-[0_-10px_30px_rgba(79,31,64,0.08)] backdrop-blur">
-        <div className="mx-auto w-full max-w-[720px] space-y-1">
-          {!showComplete && (
-            <>
-              <Button
-                fullWidth
-                disabled={primaryDisabled}
-                onClick={handlePrimary}
-              >
-                {primaryLabel}
-              </Button>
-              {primaryReason && (
-                <p className="text-center text-xs text-gray-500">
-                  {primaryReason}
-                </p>
-              )}
-            </>
-          )}
-          {showComplete && (
-            <>
-              <Button
-                fullWidth
-                disabled={!allAnswered || completing}
-                onClick={handleComplete}
-              >
-                {completing ? "מסיים…" : "סיום בחינה"}
-              </Button>
-              {completeReason && (
-                <p className="text-center text-xs text-gray-500">
-                  {completeReason}
-                </p>
-              )}
-            </>
-          )}
-        </div>
-      </div>
+      <FixedFooter>
+        {!showComplete && (
+          <>
+            <Button
+              fullWidth
+              disabled={primaryDisabled}
+              onClick={handlePrimary}
+            >
+              {primaryLabel}
+            </Button>
+            {primaryReason && (
+              <p className="text-center text-xs text-stone-500">
+                {primaryReason}
+              </p>
+            )}
+          </>
+        )}
+        {showComplete && (
+          <>
+            <Button
+              fullWidth
+              disabled={!allAnswered || completing}
+              onClick={handleComplete}
+            >
+              {completing ? "מסיים…" : "סיום בחינה"}
+            </Button>
+            {completeReason && (
+              <p className="text-center text-xs text-stone-500">
+                {completeReason}
+              </p>
+            )}
+          </>
+        )}
+      </FixedFooter>
     </div>
   );
 };

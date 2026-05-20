@@ -3,6 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import Button from "../components/Button";
 import Card from "../components/Card";
 import ErrorState from "../components/ErrorState";
+import FixedFooter from "../components/FixedFooter";
+import PageLoading from "../components/PageLoading";
+import ReviewOption from "../components/ReviewOption";
 import { getPracticeSession } from "../features/sessions/api";
 import type {
   AnswerOption,
@@ -60,13 +63,7 @@ const ResultsPage = () => {
     [session],
   );
 
-  if (status === "loading") {
-    return (
-      <div className="mx-auto w-full max-w-[720px] p-4">
-        <p className="text-stone-600">טוען...</p>
-      </div>
-    );
-  }
+  if (status === "loading") return <PageLoading />;
 
   if (status === "error" || !session) {
     return (
@@ -99,7 +96,7 @@ const ResultsPage = () => {
     : "0";
 
   return (
-    <div className="mx-auto w-full max-w-[720px] p-4 pb-32 space-y-4">
+    <div className="mx-auto w-full max-w-[720px] space-y-4 p-4 pb-32">
       <header className="flex items-center justify-between">
         <Button variant="ghost" onClick={() => navigate("/")}>
           חזרה
@@ -111,7 +108,7 @@ const ResultsPage = () => {
       </header>
 
       <Card className="bg-[#fffaf1]">
-        <div className="text-center space-y-2">
+        <div className="space-y-2 text-center">
           <p className="text-sm font-medium text-[var(--accent)]">הציון שלך</p>
           <p className="font-display text-6xl font-black text-[var(--accent-ink)]">
             {scorePercent}%
@@ -153,7 +150,7 @@ const ResultsPage = () => {
           </Card>
         ) : (
           mistakes.map((q) => {
-            const selected = q.answer?.selected_answer;
+            const selected = q.answer?.selected_answer ?? null;
             const correctAns = q.correct_answer ?? null;
             return (
               <Card key={q.stable_id} className="space-y-3">
@@ -163,37 +160,20 @@ const ResultsPage = () => {
                 <p className="whitespace-pre-wrap text-sm leading-7 text-[var(--ink)]">
                   {q.body}
                 </p>
-                <div className="grid gap-1.5">
-                  {OPTIONS.map((opt) => {
-                    const isSel = selected === opt;
-                    const isCor = correctAns === opt;
-                    return (
-                      <div
-                        key={opt}
-                        className={
-                          "rounded-lg border p-2 text-sm " +
-                          (isCor
-                            ? "border-green-500 bg-green-50 text-green-900"
-                            : isSel
-                              ? "border-red-500 bg-red-50 text-red-900"
-                              : "border-[#dccfbb] bg-white text-stone-800")
-                        }
-                      >
-                        <span className="font-semibold">{opt}.</span>{" "}
-                        {q.options[opt]}
-                        {isCor && (
-                          <span className="mr-2 text-xs font-medium text-green-700">
-                            (תשובה נכונה)
-                          </span>
-                        )}
-                        {isSel && !isCor && (
-                          <span className="mr-2 text-xs font-medium text-red-700">
-                            (התשובה שלך)
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })}
+                <div className="grid gap-2">
+                  {OPTIONS.map((opt) => (
+                    <ReviewOption
+                      key={opt}
+                      label={opt}
+                      text={q.options[opt]}
+                      isCorrect={correctAns === opt}
+                      isSelectedWrong={
+                        selected === opt && correctAns !== opt
+                      }
+                      showCorrectHint
+                      showSelectedHint
+                    />
+                  ))}
                 </div>
                 {q.reference && (
                   <div className="rounded-xl border border-[var(--accent-soft)] bg-[#fff8fd] p-3">
@@ -211,8 +191,8 @@ const ResultsPage = () => {
         )}
       </section>
 
-      <div className="fixed inset-x-0 bottom-0 border-t border-[#e2d5c2] bg-white/90 p-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] shadow-[0_-10px_30px_rgba(79,31,64,0.08)] backdrop-blur">
-        <div className="mx-auto flex w-full max-w-[720px] gap-2">
+      <FixedFooter>
+        <div className="flex gap-2">
           <Button variant="secondary" fullWidth onClick={() => navigate("/")}>
             חזרה לבית
           </Button>
@@ -220,7 +200,7 @@ const ResultsPage = () => {
             תרגול חדש
           </Button>
         </div>
-      </div>
+      </FixedFooter>
     </div>
   );
 };

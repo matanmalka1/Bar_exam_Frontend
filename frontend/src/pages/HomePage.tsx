@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import ActionCard from "../components/ActionCard";
 import Button from "../components/Button";
 import Card from "../components/Card";
+import PageLoading from "../components/PageLoading";
 import {
-  createPracticeSession,
   createSimulationSession,
   listUserSessions,
 } from "../features/sessions/api";
@@ -19,7 +19,6 @@ type Status = "loading" | "ready";
 
 const NETWORK_ERR = "החיבור נכשל. נסה שוב";
 const SIM_422 = "אין מספיק שאלות זמינות למבחן";
-const PRACTICE_422 = "אין שאלות זמינות לתרגול הזה";
 
 const ROUTES = {
   practiceNew: "/practice/new",
@@ -27,12 +26,6 @@ const ROUTES = {
   bookmarks: "/bookmarks",
   session: (id: number) => `/session/${id}`,
   exam: (id: number) => `/session/${id}/exam`,
-} as const;
-
-const BUSY = {
-  sim: "sim",
-  practiceB: "practice-B",
-  practiceC: "practice-C",
 } as const;
 
 const resumePath = (s: SessionSummary) =>
@@ -72,7 +65,6 @@ const latestActiveSession = (sessions: SessionSummary[]) =>
 const HomePage = () => {
   const navigate = useNavigate();
   const [status, setStatus] = useState<Status>("loading");
-  const [sessions, setSessions] = useState<SessionSummary[]>([]);
   const [active, setActive] = useState<SessionSummary | null>(null);
   const [stats, setStats] = useState<StatsOverview | null>(null);
   const [statsUnavailable, setStatsUnavailable] = useState(false);
@@ -80,7 +72,7 @@ const HomePage = () => {
   const [bookmarksUnavailable, setBookmarksUnavailable] = useState(false);
   const [sessionsUnavailable, setSessionsUnavailable] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
-  const [busy, setBusy] = useState<string | null>(null);
+  const [startingSim, setStartingSim] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -93,11 +85,9 @@ const HomePage = () => {
       if (cancelled) return;
 
       if (sessionsResult.status === "fulfilled") {
-        setSessions(sessionsResult.value);
         setActive(latestActiveSession(sessionsResult.value));
         setSessionsUnavailable(false);
       } else {
-        setSessions([]);
         setActive(null);
         setSessionsUnavailable(true);
       }
@@ -128,51 +118,23 @@ const HomePage = () => {
 
   const handleStartSimulation = async () => {
     setActionError(null);
-    setBusy(BUSY.sim);
+    setStartingSim(true);
     try {
       const s = await createSimulationSession();
       navigate(ROUTES.exam(s.id));
     } catch (err) {
-      if (isApiStatusError(err, HTTP_UNPROCESSABLE)) {
-        setActionError(SIM_422);
-      } else {
-        setActionError(NETWORK_ERR);
-      }
+      setActionError(
+        isApiStatusError(err, HTTP_UNPROCESSABLE) ? SIM_422 : NETWORK_ERR,
+      );
     } finally {
-      setBusy(null);
+      setStartingSim(false);
     }
   };
 
-  const handleStartPractice = async (part: "B" | "C") => {
-    setActionError(null);
-    setBusy(part === "B" ? BUSY.practiceB : BUSY.practiceC);
-    try {
-      const s = await createPracticeSession({ part });
-      navigate(ROUTES.session(s.id));
-    } catch (err) {
-      if (isApiStatusError(err, HTTP_UNPROCESSABLE)) {
-        setActionError(PRACTICE_422);
-      } else {
-        setActionError(NETWORK_ERR);
-      }
-    } finally {
-      setBusy(null);
-    }
-  };
-
-  if (status === "loading") {
-    return (
-      <div className="mx-auto w-full max-w-[720px] p-4">
-        <p className="text-stone-600">טוען...</p>
-      </div>
-    );
-  }
-
-  const answered = stats?.total_answered ?? 0;
-  const hasStarted = Boolean(active) || answered > 0 || bookmarks.length > 0;
+  if (status === "loading") return <PageLoading />;
 
   return (
-    <div className="mx-auto w-full max-w-[720px] p-4 pb-28 space-y-4">
+    <div className="mx-auto w-full max-w-[720px] space-y-4 p-4 pb-28">
       <header className="rounded-[2rem] border border-[#e2d5c2] bg-[#fffaf1]/85 p-5 shadow-[0_16px_44px_rgba(79,31,64,0.08)]">
         <p className="text-sm font-medium text-[var(--accent)]">ברוך הבא</p>
         <h1 className="font-display mt-1 text-4xl font-black leading-tight text-[var(--accent-ink)]">
@@ -223,69 +185,33 @@ const HomePage = () => {
         </Card>
       )}
 
-      {!hasStarted && !statsUnavailable && (
-        <Card>
-          <p className="font-semibold text-[var(--accent-ink)]">מוכן להתחיל?</p>
-          <p className="mt-1 text-sm text-stone-600">
-            בחר תרגול קצר או מבחן מלא.
-          </p>
-        </Card>
-      )}
-
       <section className="grid grid-cols-2 gap-3">
+        <ActionCard onClick={() => navigate(ROUTES.practiceNew)}>
+          <p className="font-semibold text-[var(--accent-ink)]">תרגול חדש</p>
+          <p className="mt-1 text-sm text-stone-600">חלק, מועד וכמות</p>
+        </ActionCard>
+
         <ActionCard
-          onClick={() => navigate(ROUTES.mistakes)}
+          onClick={handleStartSimulation}
+          disabled={startingSim}
         >
+          <p className="font-semibold text-[var(--accent-ink)]">מבחן מלא</p>
+          <p className="mt-1 text-sm text-stone-600">
+            {startingSim ? "מתחיל…" : "סימולציה"}
+          </p>
+        </ActionCard>
+
+        <ActionCard onClick={() => navigate(ROUTES.mistakes)}>
           <p className="font-semibold text-[var(--accent-ink)]">טעויות</p>
           <p className="mt-1 text-sm text-stone-600">
             {stats ? `${stats.active_mistakes_count} פתוחות` : "לחזרה"}
           </p>
         </ActionCard>
 
-        <ActionCard
-          onClick={() => navigate(ROUTES.bookmarks)}
-        >
+        <ActionCard onClick={() => navigate(ROUTES.bookmarks)}>
           <p className="font-semibold text-[var(--accent-ink)]">סימניות</p>
           <p className="mt-1 text-sm text-stone-600">
             {bookmarksUnavailable ? "לצפייה" : `${bookmarks.length} שמורות`}
-          </p>
-        </ActionCard>
-
-        <ActionCard
-          onClick={handleStartSimulation}
-          disabled={busy !== null}
-        >
-          <p className="font-semibold text-[var(--accent-ink)]">מבחן מלא</p>
-          <p className="mt-1 text-sm text-stone-600">
-            {busy === BUSY.sim ? "מתחיל…" : "סימולציה"}
-          </p>
-        </ActionCard>
-        <ActionCard
-          onClick={() => navigate(ROUTES.practiceNew)}
-        >
-          <p className="font-semibold text-[var(--accent-ink)]">תרגול חדש</p>
-          <p className="mt-1 text-sm text-stone-600">חלק, מועד וכמות</p>
-        </ActionCard>
-      </section>
-
-      <section className="grid grid-cols-2 gap-3">
-        <ActionCard
-          onClick={() => handleStartPractice("B")}
-          disabled={busy !== null}
-        >
-          <p className="font-semibold text-[var(--accent-ink)]">דין דיוני</p>
-          <p className="mt-1 text-sm text-stone-600">
-            {busy === BUSY.practiceB ? "מתחיל…" : "חלק ב׳"}
-          </p>
-        </ActionCard>
-
-        <ActionCard
-          onClick={() => handleStartPractice("C")}
-          disabled={busy !== null}
-        >
-          <p className="font-semibold text-[var(--accent-ink)]">דין מהותי</p>
-          <p className="mt-1 text-sm text-stone-600">
-            {busy === BUSY.practiceC ? "מתחיל…" : "חלק ג׳"}
           </p>
         </ActionCard>
       </section>
@@ -295,29 +221,17 @@ const HomePage = () => {
           <p className="mb-3 text-sm font-semibold text-[var(--accent-ink)]">
             מבט מהיר
           </p>
-          <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="grid grid-cols-3 gap-3 text-sm">
             <div>
-              <p className="text-stone-500">סשנים</p>
+              <p className="text-stone-500">נענו</p>
               <p className="text-lg font-semibold text-[var(--accent-ink)]">
-                {sessions.length}
-              </p>
-            </div>
-            <div>
-              <p className="text-stone-500">מבחנים</p>
-              <p className="text-lg font-semibold text-[var(--accent-ink)]">
-                {stats.simulations_completed}
+                {stats.total_answered}
               </p>
             </div>
             <div>
               <p className="text-stone-500">הצלחה</p>
               <p className="text-lg font-semibold text-[var(--accent-ink)]">
                 {formatPercent(stats.overall_success_rate)}
-              </p>
-            </div>
-            <div>
-              <p className="text-stone-500">סימניות</p>
-              <p className="text-lg font-semibold text-[var(--accent-ink)]">
-                {bookmarksUnavailable ? "—" : bookmarks.length}
               </p>
             </div>
             <div>
@@ -331,7 +245,7 @@ const HomePage = () => {
       ) : (
         statsUnavailable && (
           <Card>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-stone-600">
               נתוני התקדמות לא זמינים כרגע.
             </p>
           </Card>

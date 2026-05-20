@@ -1,7 +1,14 @@
 import axios from "axios";
 
+interface RuntimeImportMeta {
+  readonly env?: {
+    readonly VITE_API_BASE_URL?: string;
+  };
+}
+
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api/v1";
+  (import.meta as RuntimeImportMeta).env?.VITE_API_BASE_URL ??
+  "http://localhost:8000/api/v1";
 
 export const HTTP_UNPROCESSABLE = 422;
 

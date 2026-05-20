@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import Card from "../components/Card";
 import ErrorState from "../components/ErrorState";
+import FixedFooter from "../components/FixedFooter";
+import PageLoading from "../components/PageLoading";
+import ReviewOption from "../components/ReviewOption";
 import { getMistakes } from "../features/mistakes/api";
 import type { MistakeItem } from "../features/mistakes/types";
 import { createMistakesSession } from "../features/sessions/api";
@@ -19,7 +22,6 @@ const PART_LABEL: Record<string, string> = {
 };
 
 const formatExamDate = (raw: string): string => {
-  // backend uses YYYY-MM
   const m = raw.match(/^(\d{4})-(\d{2})/);
   if (!m) return raw;
   return `${m[2]}/${m[1]}`;
@@ -62,23 +64,17 @@ const MistakesPage = () => {
       const s = await createMistakesSession();
       navigate(`/session/${s.id}`);
     } catch (err) {
-      if (isApiStatusError(err, HTTP_UNPROCESSABLE)) {
-        setStartError("אין טעויות זמינות לתרגול");
-      } else {
-        setStartError("לא ניתן להתחיל תרגול טעויות כרגע");
-      }
+      setStartError(
+        isApiStatusError(err, HTTP_UNPROCESSABLE)
+          ? "אין טעויות זמינות לתרגול"
+          : "לא ניתן להתחיל תרגול טעויות כרגע",
+      );
     } finally {
       setStarting(false);
     }
   };
 
-  if (status === "loading") {
-    return (
-      <div className="mx-auto w-full max-w-[720px] p-4">
-        <p className="text-stone-600">טוען...</p>
-      </div>
-    );
-  }
+  if (status === "loading") return <PageLoading />;
 
   if (status === "error") {
     return (
@@ -93,15 +89,14 @@ const MistakesPage = () => {
 
   if (items.length === 0) {
     return (
-      <div className="mx-auto w-full max-w-[720px] p-4 space-y-4">
-        <header className="flex items-center justify-between">
-          <span className="w-16" />
-          <h1 className="font-display text-2xl font-bold text-[var(--accent-ink)]">
+      <div className="mx-auto w-full max-w-[720px] space-y-4 p-4 pb-28">
+        <header>
+          <h1 className="font-display text-3xl font-bold text-[var(--accent-ink)]">
             טעויות
           </h1>
-          <span className="w-16" />
+          <p className="text-sm text-stone-600">חזרה על שאלות שטעית בהן</p>
         </header>
-        <Card className="text-center space-y-3">
+        <Card className="space-y-3 text-center">
           <h2 className="text-lg font-semibold text-[var(--accent-ink)]">
             אין טעויות עדיין
           </h2>
@@ -115,12 +110,14 @@ const MistakesPage = () => {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[720px] p-4 pb-32 space-y-4">
-      <header className="flex items-center justify-between">
-        <span className="w-16" />
-        <h1 className="font-display text-2xl font-bold text-[var(--accent-ink)]">
-          טעויות ({items.length})
-        </h1>
+    <div className="mx-auto w-full max-w-[720px] space-y-4 p-4 pb-32">
+      <header className="flex items-center justify-between gap-3">
+        <div>
+          <h1 className="font-display text-3xl font-bold text-[var(--accent-ink)]">
+            טעויות
+          </h1>
+          <p className="text-sm text-stone-600">{items.length} שאלות פתוחות</p>
+        </div>
         <Button variant="ghost" onClick={() => navigate("/practice/new")}>
           תרגול חדש
         </Button>
@@ -150,29 +147,16 @@ const MistakesPage = () => {
               <p className="whitespace-pre-wrap text-sm leading-7 text-[var(--ink)]">
                 {q.body}
               </p>
-              <div className="grid gap-1.5">
-                {OPTIONS.map((opt) => {
-                  const isCor = correct === opt;
-                  return (
-                    <div
-                      key={opt}
-                      className={
-                        "rounded-lg border p-2 text-sm " +
-                        (isCor
-                          ? "border-green-500 bg-green-50 text-green-900"
-                          : "border-[#dccfbb] bg-white text-stone-800")
-                      }
-                    >
-                      <span className="font-semibold">{opt}.</span>{" "}
-                      {q.options[opt]}
-                      {isCor && (
-                        <span className="mr-2 text-xs font-medium text-green-700">
-                          (תשובה נכונה)
-                        </span>
-                      )}
-                    </div>
-                  );
-                })}
+              <div className="grid gap-2">
+                {OPTIONS.map((opt) => (
+                  <ReviewOption
+                    key={opt}
+                    label={opt}
+                    text={q.options[opt]}
+                    isCorrect={correct === opt}
+                    showCorrectHint
+                  />
+                ))}
               </div>
               {q.reference && (
                 <div className="rounded-xl border border-[var(--accent-soft)] bg-[#fff8fd] p-3">
@@ -189,17 +173,11 @@ const MistakesPage = () => {
         })}
       </section>
 
-      <div className="fixed inset-x-0 bottom-0 border-t border-[#e2d5c2] bg-white/90 p-3 pb-[max(env(safe-area-inset-bottom),0.75rem)] shadow-[0_-10px_30px_rgba(79,31,64,0.08)] backdrop-blur">
-        <div className="mx-auto w-full max-w-[720px]">
-          <Button
-            fullWidth
-            disabled={starting}
-            onClick={handlePracticeMistakes}
-          >
-            {starting ? "מתחיל…" : "תרגל טעויות"}
-          </Button>
-        </div>
-      </div>
+      <FixedFooter>
+        <Button fullWidth disabled={starting} onClick={handlePracticeMistakes}>
+          {starting ? "מתחיל…" : "תרגל טעויות"}
+        </Button>
+      </FixedFooter>
     </div>
   );
 };
