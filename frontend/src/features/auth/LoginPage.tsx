@@ -2,13 +2,13 @@ import axios from "axios";
 import { useState, type FormEvent } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import Alert from "../../components/Alert";
-import Button from "../../components/Button";
+import AppHeader from "../../components/AppHeader";
 import AppLoader from "../../components/loader";
+import Button from "../../components/Button";
+import PasswordToggle from "../../components/PasswordToggle";
+import TextField from "../../components/TextField";
 import { LoginRequestSchema } from "./schemas";
 import { useAuth } from "./useAuth";
-
-const inputClass =
-  "focus-ring w-full rounded-2xl border border-default bg-white/90 px-4 py-3 text-base text-primary shadow-inner placeholder:text-black/45 outline-none transition focus:bg-white disabled:opacity-45";
 
 const LoginPage = () => {
   const { status, login } = useAuth();
@@ -52,131 +52,83 @@ const LoginPage = () => {
   };
 
   return (
-    <div
-      dir="rtl"
-      className="relative min-h-screen overflow-hidden bg-[var(--paper)] text-[var(--ink)]"
-    >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-32 -top-32 h-80 w-80 rounded-full bg-white opacity-50 blur-3xl"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-40 -left-24 h-96 w-96 rounded-full bg-white opacity-50 blur-3xl"
-      />
+    <div dir="rtl" className="min-h-svh bg-[var(--paper)] text-[var(--ink)]">
+      <div className="mx-auto flex min-h-svh w-full max-w-[480px] flex-col px-5 pb-8 pt-6">
+        <AppHeader
+          back={false}
+          eyebrow="התחברות"
+          title="ברוך הבא"
+          variant="inline"
+        />
 
-      <div className="relative mx-auto flex min-h-screen w-full max-w-[460px] flex-col justify-center p-5">
-        <div className="surface-muted relative overflow-hidden rounded-[2rem] border border-default p-7 shadow-[var(--shadow-elevated)]">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -left-12 -top-12 h-36 w-36 rounded-full bg-white/50 blur-2xl"
+        <form onSubmit={onSubmit} className="flex flex-1 flex-col gap-4">
+          <TextField
+            id="login-email"
+            label="אימייל"
+            type="email"
+            autoComplete="email"
+            inputMode="email"
+            dir="ltr"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={submitting}
+            placeholder="name@example.com"
+            className="text-right"
           />
-          <div className="relative">
-            <p className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-xs font-semibold text-[var(--accent)]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
-              ברוך הבא
-            </p>
-            <h1 className="font-display mt-3 text-[2.2rem] font-black leading-[1.05] text-[var(--accent-ink)]">
-              התחברות
-            </h1>
-            <p className="mt-2 text-sm leading-6 text-secondary">
-              הזן אימייל וסיסמה כדי להמשיך לתרגול.
-            </p>
 
-            <form onSubmit={onSubmit} className="mt-6 space-y-4">
-              <div className="space-y-1.5">
-                <label
-                  htmlFor="login-email"
-                  className="block text-xs font-semibold uppercase tracking-wide text-secondary"
-                >
-                  אימייל
-                </label>
-                <input
-                  id="login-email"
-                  type="email"
-                  autoComplete="email"
-                  inputMode="email"
-                  dir="ltr"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className={`${inputClass} text-right`}
-                  disabled={submitting}
-                  placeholder="name@example.com"
-                />
-              </div>
+          <TextField
+            id="login-password"
+            label="סיסמה"
+            type={showPassword ? "text" : "password"}
+            autoComplete="current-password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={submitting}
+            placeholder="••••••••"
+            endSlot={
+              <PasswordToggle
+                visible={showPassword}
+                onToggle={() => setShowPassword((v) => !v)}
+                disabled={submitting}
+              />
+            }
+          />
 
-              <div className="space-y-1.5">
-                <label
-                  htmlFor="login-password"
-                  className="block text-xs font-semibold uppercase tracking-wide text-secondary"
-                >
-                  סיסמה
-                </label>
-                <div className="relative">
-                  <input
-                    id="login-password"
-                    type={showPassword ? "text" : "password"}
-                    autoComplete="current-password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className={`${inputClass} pl-14`}
-                    disabled={submitting}
-                    placeholder="••••••••"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((v) => !v)}
-                    aria-label={showPassword ? "הסתר סיסמה" : "הצג סיסמה"}
-                    aria-pressed={showPassword}
-                    className="absolute inset-y-0 left-2 my-auto h-8 rounded-xl px-2 text-xs font-semibold text-secondary hover:text-primary disabled:opacity-45"
-                    disabled={submitting}
-                  >
-                    {showPassword ? "הסתר" : "הצג"}
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex justify-end">
-                <Link
-                  to="/forgot-password"
-                  className="text-xs font-semibold text-secondary hover:text-primary"
-                >
-                  שכחת סיסמה?
-                </Link>
-              </div>
-
-              {error && <Alert variant="error">{error}</Alert>}
-
-              <Button
-                type="submit"
-                fullWidth
-                disabled={submitting || !email || !password}
-                className="mt-2 shadow-lg shadow-black/10"
-              >
-                {submitting ? (
-                  <AppLoader variant="button" label="מתחבר..." />
-                ) : (
-                  "התחברות"
-                )}
-              </Button>
-            </form>
-
-            <p className="mt-5 text-center text-sm text-secondary">
-              אין לך חשבון?{" "}
-              <Link
-                to="/register"
-                className="font-semibold text-[var(--accent-ink)] underline"
-              >
-                הרשמה
-              </Link>
-            </p>
+          <div className="flex justify-end">
+            <Link
+              to="/forgot-password"
+              className="text-xs font-semibold text-secondary hover:text-primary"
+            >
+              שכחת סיסמה?
+            </Link>
           </div>
-        </div>
 
-        <p className="mt-5 text-center text-xs text-secondary">
-          תרגול בחינות לשכת עורכי הדין
+          {error && <Alert variant="error">{error}</Alert>}
+
+          <Button
+            type="submit"
+            fullWidth
+            disabled={submitting || !email || !password}
+            className="mt-2"
+          >
+            {submitting ? (
+              <AppLoader variant="button" label="מתחבר..." />
+            ) : (
+              "התחברות"
+            )}
+          </Button>
+        </form>
+
+        <p className="mt-6 text-center text-sm text-secondary">
+          אין לך חשבון?{" "}
+          <Link
+            to="/register"
+            className="font-semibold text-[var(--accent-ink)] underline"
+          >
+            הרשמה
+          </Link>
         </p>
       </div>
     </div>

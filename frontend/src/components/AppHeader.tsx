@@ -26,7 +26,12 @@ type AppHeaderProps = {
   progress?: AppHeaderProgress;
   children?: ReactNode;
   className?: string;
+  variant?: "sticky" | "inline";
 };
+
+const STICKY =
+  "sticky top-0 z-20 -mx-4 -mt-4 mb-4 border-b border-default bg-[var(--paper)]/85 px-4 pt-4 pb-3 backdrop-blur supports-[backdrop-filter]:bg-[var(--paper)]/70";
+const INLINE = "mb-6";
 
 const AppHeader = ({
   back,
@@ -37,6 +42,7 @@ const AppHeader = ({
   progress,
   children,
   className,
+  variant = "sticky",
 }: AppHeaderProps) => {
   const navigate = useNavigate();
 
@@ -63,10 +69,7 @@ const AppHeader = ({
 
   return (
     <header
-      className={cn(
-        "sticky top-0 z-20 -mx-4 -mt-4 mb-4 border-b border-default bg-[var(--paper)]/85 px-4 pt-4 pb-3 backdrop-blur supports-[backdrop-filter]:bg-[var(--paper)]/70",
-        className,
-      )}
+      className={cn(variant === "inline" ? INLINE : STICKY, className)}
     >
       <div className="flex items-center justify-between gap-2">
         {back !== false && back ? (

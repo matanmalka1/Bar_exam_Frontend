@@ -44,7 +44,9 @@ const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
             {...rest}
           />
           {endSlot && (
-            <span className="absolute start-4 flex items-center">{endSlot}</span>
+            <span className="pointer-events-auto absolute start-4 flex items-center">
+              {endSlot}
+            </span>
           )}
         </div>
 
