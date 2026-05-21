@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Check, ChevronLeft, ChevronRight, X } from "lucide-react";
 import Button from "../components/Button";
-import Card from "../components/Card";
 import ErrorState from "../components/ErrorState";
 import FixedFooter from "../components/FixedFooter";
 import OptionCard from "../components/OptionCard";
+import SessionTopBar from "../components/SessionTopBar";
 import AppLoader from "../components/loader";
 import {
   addBookmark,
@@ -23,6 +24,7 @@ import type {
   SessionDetail,
   SessionQuestion,
 } from "../features/sessions/types";
+import { cn } from "../lib/cn";
 
 type Status = "loading" | "ready" | "error";
 
@@ -237,70 +239,107 @@ const SessionPage = () => {
 
   const submitCtaDisabled = !selected || submitting;
   const submitCtaReason = !selected ? "בחר תשובה" : null;
-
   const completeDisabledReason = !allAnswered
     ? `יש לענות על כל ${total} השאלות לפני סיום`
     : null;
 
+  const modeLabel = (() => {
+    if (session.mode === "mistakes") return "חזרה על טעויות";
+    if (session.mode === "bookmarks") return "תרגול סימניות";
+    if (session.part === "B") return "תרגול · דין דיוני";
+    if (session.part === "C") return "תרגול · דין מהותי";
+    return "תרגול חופשי";
+  })();
+
   return (
-    <div className="mx-auto w-full max-w-[720px] space-y-4 p-4 pb-24">
-      <header className="flex items-center justify-between">
-        <Button variant="ghost" onClick={() => navigate("/")}>
-          חזרה
-        </Button>
-        <div className="text-center">
-          <p className="text-sm font-semibold text-secondary">
-            שאלה {currentIndex + 1} מתוך {total}
-          </p>
-          <p className="text-xs text-secondary">
-            נענו: {answeredCount}/{total}
-          </p>
-        </div>
-        <Button
-          variant="ghost"
-          className="min-h-10 px-3 py-2 text-sm"
-          disabled={bookmarkBusy}
-          onClick={handleToggleBookmark}
-        >
-          {bookmarkBusy ? (
-            <AppLoader variant="button" label="מעדכן..." />
-          ) : isBookmarked ? (
-            "הסר סימניה"
-          ) : (
-            "סימניה"
+    <div className="mx-auto w-full max-w-[720px] p-4 pb-32">
+      <SessionTopBar
+        modeLabel={modeLabel}
+        currentIndex={currentIndex}
+        total={total}
+        answeredCount={answeredCount}
+        isBookmarked={isBookmarked}
+        bookmarkBusy={bookmarkBusy}
+        onBack={() => navigate("/")}
+        onToggleBookmark={handleToggleBookmark}
+      />
+
+      {(submitError || bookmarkError) && (
+        <div className="mb-4 space-y-2">
+          {submitError && (
+            <div
+              role="alert"
+              className="rounded-2xl border-2 border-strong bg-white px-4 py-3"
+            >
+              <p className="text-sm font-semibold text-primary">
+                {submitError}
+              </p>
+            </div>
           )}
-        </Button>
-      </header>
-
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--color-beige-strong)]">
-        <div
-          className="h-full bg-[var(--accent)] transition-all"
-          style={{ width: `${(answeredCount / Math.max(total, 1)) * 100}%` }}
-        />
-      </div>
-
-      {submitError && (
-        <Card className="border-2 border-strong bg-white">
-          <p className="text-sm text-primary font-semibold">{submitError}</p>
-        </Card>
+          {bookmarkError && (
+            <div
+              role="alert"
+              className="rounded-2xl border-2 border-strong bg-white px-4 py-3"
+            >
+              <p className="text-sm font-semibold text-primary">
+                {bookmarkError}
+              </p>
+            </div>
+          )}
+        </div>
       )}
 
-      {bookmarkError && (
-        <Card className="border-2 border-strong bg-white">
-          <p className="text-sm text-primary font-semibold">{bookmarkError}</p>
-        </Card>
-      )}
-
-      <Card className="surface-muted">
-        <p className="text-xs font-medium text-[var(--accent)]">
-          שאלה {current.number}
-        </p>
-        <p className="mt-2 whitespace-pre-wrap text-base leading-8 text-[var(--ink)]">
+      <article className="rounded-3xl border border-default bg-[var(--surface-muted)] p-5 shadow-[var(--shadow-default)]">
+        <div className="flex items-baseline justify-between gap-2 border-b border-black/10 pb-3">
+          <div className="flex items-baseline gap-2">
+            <span className="font-display text-[10px] uppercase tracking-[0.22em] text-secondary">
+              שאלה
+            </span>
+            <span className="font-display text-xs font-bold tabular-nums text-[var(--accent-ink)]">
+              #{current.number}
+            </span>
+          </div>
+          {isBookmarked && (
+            <span className="font-display text-[10px] uppercase tracking-[0.22em] text-secondary">
+              שמורה
+            </span>
+          )}
+        </div>
+        <p className="mt-4 whitespace-pre-wrap text-[17px] leading-[1.85] text-primary">
           {current.body}
         </p>
-      </Card>
+      </article>
 
-      <div className="grid gap-2">
+      {answerSubmitted && practiceAnswer && (
+        <p
+          role="status"
+          aria-live="polite"
+          className={cn(
+            "mt-4 inline-flex items-center gap-2 text-sm font-semibold",
+            practiceAnswer.is_correct ? "text-primary" : "text-primary",
+          )}
+        >
+          {practiceAnswer.is_correct ? (
+            <>
+              <Check className="h-4 w-4" strokeWidth={2.6} />
+              <span>תשובה נכונה.</span>
+            </>
+          ) : (
+            <>
+              <X className="h-4 w-4" strokeWidth={2.6} />
+              <span>
+                התשובה הנכונה היא{" "}
+                <span className="font-display font-black">
+                  {correctAnswer ?? ""}
+                </span>
+                .
+              </span>
+            </>
+          )}
+        </p>
+      )}
+
+      <div className="mt-4 grid gap-2.5">
         {OPTIONS.map((opt) => {
           const text = current.options[opt];
           const isSelected = answered
@@ -331,29 +370,35 @@ const SessionPage = () => {
       </div>
 
       {answerSubmitted && current.reference && (
-        <Card className="border-default surface-muted">
-          <p className="text-xs font-semibold text-[var(--accent)]">הפניה</p>
-          <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-primary">
+        <section className="mt-6 border-t border-default pt-4">
+          <p className="font-display text-[10px] uppercase tracking-[0.22em] text-secondary">
+            הפניה
+          </p>
+          <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-primary">
             {current.reference}
           </p>
-        </Card>
+        </section>
       )}
 
-      <div className="flex items-center justify-between gap-2">
-        <Button
-          variant="ghost"
+      <div className="mt-6 flex items-center justify-between border-t border-default pt-3">
+        <button
+          type="button"
           onClick={handlePrev}
           disabled={currentIndex === 0}
+          className="focus-ring inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium text-secondary transition hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
         >
+          <ChevronRight className="h-4 w-4" aria-hidden="true" />
           הקודמת
-        </Button>
-        <Button
-          variant="ghost"
+        </button>
+        <button
+          type="button"
           onClick={handleNext}
           disabled={isLast || !answerSubmitted}
+          className="focus-ring inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium text-secondary transition hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
         >
           הבאה
-        </Button>
+          <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+        </button>
       </div>
 
       <FixedFooter>
