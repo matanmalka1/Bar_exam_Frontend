@@ -8,12 +8,8 @@ import {
 import { setOnUnauthorized } from "../../lib/api";
 import * as authApi from "./api";
 import { AuthContext, type AuthContextValue } from "./AuthContext";
-import {
-  clearAccessToken,
-  getAccessToken,
-  setAccessToken,
-} from "./authStorage";
-import type { AuthStatus, AuthUser } from "./types";
+import { clearAccessToken, setAccessToken } from "./authStorage";
+import type { AuthStatus, AuthUser, RegisterRequest } from "./types";
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -29,10 +25,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   const refreshMe = useCallback(async () => {
-    if (!getAccessToken()) {
-      applyUser(null);
-      return;
-    }
     try {
       const me = await authApi.getMe();
       applyUser(me);
@@ -51,6 +43,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     [applyUser],
   );
 
+  const register = useCallback(
+    async (input: RegisterRequest) => {
+      const res = await authApi.register(input);
+      setAccessToken(res.access_token);
+      applyUser(res.user);
+    },
+    [applyUser],
+  );
+
   const logout = useCallback(async () => {
     try {
       await authApi.logout();
@@ -63,6 +64,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   useEffect(() => {
     setOnUnauthorized(() => {
+      clearAccessToken();
       applyUser(null);
     });
     return () => setOnUnauthorized(null);
@@ -70,28 +72,28 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   useEffect(() => {
     let cancelled = false;
-    const run = async () => {
-      if (!getAccessToken()) {
-        if (!cancelled) applyUser(null);
-        return;
-      }
+    const bootstrap = async () => {
       try {
+        const res = await authApi.refresh();
+        if (cancelled) return;
+        setAccessToken(res.access_token);
         const me = await authApi.getMe();
-        if (!cancelled) applyUser(me);
+        if (cancelled) return;
+        applyUser(me);
       } catch {
         clearAccessToken();
         if (!cancelled) applyUser(null);
       }
     };
-    void run();
+    void bootstrap();
     return () => {
       cancelled = true;
     };
   }, [applyUser]);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, status, login, logout, refreshMe }),
-    [user, status, login, logout, refreshMe],
+    () => ({ user, status, login, register, logout, refreshMe }),
+    [user, status, login, register, logout, refreshMe],
   );
 
   return (

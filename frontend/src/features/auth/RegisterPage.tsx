@@ -3,35 +3,55 @@ import { useState, type FormEvent } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import Button from "../../components/Button";
 import AppLoader from "../../components/loader";
+import { getApiErrorDetail, isApiStatusError } from "../../lib/api";
 import { useAuth } from "./useAuth";
 
 const inputClass =
   "focus-ring w-full rounded-2xl border border-default bg-white/90 px-4 py-3 text-base text-primary shadow-inner placeholder:text-black/45 outline-none transition focus:bg-white disabled:opacity-45";
 
-const LoginPage = () => {
-  const { status, login } = useAuth();
+const RegisterPage = () => {
+  const { status, register } = useAuth();
   const navigate = useNavigate();
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   if (status === "authenticated") return <Navigate to="/" replace />;
 
+  const validate = (): string | null => {
+    if (!fullName.trim()) return "שם מלא הוא שדה חובה";
+    if (password.length < 8) return "הסיסמה חייבת להכיל לפחות 8 תווים";
+    if (password !== confirm) return "הסיסמאות אינן תואמות";
+    return null;
+  };
+
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (submitting) return;
+    const localErr = validate();
+    if (localErr) {
+      setError(localErr);
+      return;
+    }
     setError(null);
     setSubmitting(true);
     try {
-      await login(email, password);
+      await register({ full_name: fullName.trim(), email, password });
       navigate("/", { replace: true });
     } catch (err) {
-      if (axios.isAxiosError(err) && err.response) {
-        setError("פרטי ההתחברות שגויים");
+      if (isApiStatusError(err, 409)) {
+        setError("כבר קיים משתמש עם האימייל הזה");
+      } else if (isApiStatusError(err, 422)) {
+        setError("נתונים לא תקינים. בדוק שוב את הפרטים");
+      } else if (axios.isAxiosError(err) && err.response) {
+        const detail = getApiErrorDetail(err);
+        setError(typeof detail === "string" ? detail : "ההרשמה נכשלה");
       } else {
-        setError("החיבור נכשל. נסה שוב");
+        setError("ההרשמה נכשלה. נסה שוב");
       }
     } finally {
       setSubmitting(false);
@@ -64,22 +84,41 @@ const LoginPage = () => {
               ברוך הבא
             </p>
             <h1 className="font-display mt-3 text-[2.2rem] font-black leading-[1.05] text-[var(--accent-ink)]">
-              התחברות
+              הרשמה
             </h1>
             <p className="mt-2 text-sm leading-6 text-secondary">
-              הזן אימייל וסיסמה כדי להמשיך לתרגול.
+              צור חשבון חדש כדי להתחיל לתרגל.
             </p>
 
             <form onSubmit={onSubmit} className="mt-6 space-y-4">
               <div className="space-y-1.5">
                 <label
-                  htmlFor="login-email"
+                  htmlFor="reg-name"
+                  className="block text-xs font-semibold uppercase tracking-wide text-secondary"
+                >
+                  שם מלא
+                </label>
+                <input
+                  id="reg-name"
+                  type="text"
+                  autoComplete="name"
+                  required
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className={inputClass}
+                  disabled={submitting}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="reg-email"
                   className="block text-xs font-semibold uppercase tracking-wide text-secondary"
                 >
                   אימייל
                 </label>
                 <input
-                  id="login-email"
+                  id="reg-email"
                   type="email"
                   autoComplete="email"
                   inputMode="email"
@@ -95,22 +134,23 @@ const LoginPage = () => {
 
               <div className="space-y-1.5">
                 <label
-                  htmlFor="login-password"
+                  htmlFor="reg-password"
                   className="block text-xs font-semibold uppercase tracking-wide text-secondary"
                 >
                   סיסמה
                 </label>
                 <div className="relative">
                   <input
-                    id="login-password"
+                    id="reg-password"
                     type={showPassword ? "text" : "password"}
-                    autoComplete="current-password"
+                    autoComplete="new-password"
                     required
+                    minLength={8}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className={`${inputClass} pl-14`}
                     disabled={submitting}
-                    placeholder="••••••••"
+                    placeholder="לפחות 8 תווים"
                   />
                   <button
                     type="button"
@@ -125,6 +165,26 @@ const LoginPage = () => {
                 </div>
               </div>
 
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="reg-confirm"
+                  className="block text-xs font-semibold uppercase tracking-wide text-secondary"
+                >
+                  אימות סיסמה
+                </label>
+                <input
+                  id="reg-confirm"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="new-password"
+                  required
+                  minLength={8}
+                  value={confirm}
+                  onChange={(e) => setConfirm(e.target.value)}
+                  className={inputClass}
+                  disabled={submitting}
+                />
+              </div>
+
               {error && (
                 <div
                   role="alert"
@@ -137,35 +197,33 @@ const LoginPage = () => {
               <Button
                 type="submit"
                 fullWidth
-                disabled={submitting || !email || !password}
+                disabled={
+                  submitting || !fullName || !email || !password || !confirm
+                }
                 className="mt-2 shadow-lg shadow-black/10"
               >
                 {submitting ? (
-                  <AppLoader variant="button" label="מתחבר..." />
+                  <AppLoader variant="button" label="נרשם..." />
                 ) : (
-                  "התחברות"
+                  "הרשמה"
                 )}
               </Button>
             </form>
 
             <p className="mt-5 text-center text-sm text-secondary">
-              אין לך חשבון?{" "}
+              כבר יש לך חשבון?{" "}
               <Link
-                to="/register"
+                to="/login"
                 className="font-semibold text-[var(--accent-ink)] underline"
               >
-                הרשמה
+                התחברות
               </Link>
             </p>
           </div>
         </div>
-
-        <p className="mt-5 text-center text-xs text-secondary">
-          תרגול בחינות לשכת עורכי הדין
-        </p>
       </div>
     </div>
   );
 };
 
-export default LoginPage;
+export default RegisterPage;

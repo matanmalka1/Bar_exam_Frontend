@@ -1,25 +1,11 @@
-const TOKEN_KEY = "access_token";
+let accessToken: string | null = null;
 
-export const getAccessToken = (): string | null => {
-  try {
-    return localStorage.getItem(TOKEN_KEY);
-  } catch {
-    return null;
-  }
-};
+export const getAccessToken = (): string | null => accessToken;
 
-export const setAccessToken = (token: string): void => {
-  try {
-    localStorage.setItem(TOKEN_KEY, token);
-  } catch {
-    /* ignore */
-  }
+export const setAccessToken = (token: string | null): void => {
+  accessToken = token;
 };
 
 export const clearAccessToken = (): void => {
-  try {
-    localStorage.removeItem(TOKEN_KEY);
-  } catch {
-    /* ignore */
-  }
+  accessToken = null;
 };
