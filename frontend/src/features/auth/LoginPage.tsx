@@ -137,6 +137,15 @@ const LoginPage = () => {
                 </div>
               </div>
 
+              <div className="flex justify-end">
+                <Link
+                  to="/forgot-password"
+                  className="text-xs font-semibold text-secondary hover:text-primary"
+                >
+                  שכחת סיסמה?
+                </Link>
+              </div>
+
               {error && (
                 <div
                   role="alert"

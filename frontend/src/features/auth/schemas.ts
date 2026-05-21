@@ -12,7 +12,7 @@ export const LoginRequestSchema = z.object({
   password: z.string().min(1, "סיסמה היא שדה חובה").max(128),
 });
 
-const passwordSchema = z
+export const passwordSchema = z
   .string()
   .min(8, "הסיסמה חייבת להכיל לפחות 8 תווים")
   .max(128)
@@ -43,3 +43,21 @@ export const RefreshResponseSchema = z.object({
   access_token: z.string(),
   token_type: z.literal("bearer"),
 });
+
+export const ForgotPasswordResponseSchema = z.object({
+  message: z.string(),
+});
+
+export const ResetPasswordResponseSchema = z.object({
+  message: z.string(),
+});
+
+export const ResetPasswordFormSchema = z
+  .object({
+    new_password: passwordSchema,
+    confirm: z.string(),
+  })
+  .refine((d) => d.new_password === d.confirm, {
+    path: ["confirm"],
+    message: "הסיסמאות אינן תואמות",
+  });

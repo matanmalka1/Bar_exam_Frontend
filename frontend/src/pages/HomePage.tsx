@@ -1,22 +1,21 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import type { ComponentType } from "react";
 import { useNavigate } from "react-router-dom";
-import type { ReactNode } from "react";
+import {
+  ArrowLeft,
+  Bookmark,
+  CircleAlert,
+  ClipboardList,
+  PencilLine,
+  Play,
+} from "lucide-react";
 import Button from "../components/Button";
 import Card from "../components/Card";
 import AppLoader from "../components/loader";
-import {
-  createSimulationSession,
-  listUserSessions,
-} from "../features/sessions/api";
+import { createSimulationSession } from "../features/sessions/api";
 import type { SessionSummary } from "../features/sessions/types";
-import { getStatsOverview } from "../features/stats/api";
-import type { StatsOverview } from "../features/stats/types";
-import { getBookmarks } from "../features/bookmarks/api";
-import type { BookmarkedQuestion } from "../features/bookmarks/types";
 import { HTTP_UNPROCESSABLE, isApiStatusError } from "../lib/api";
-import { cn } from "../lib/cn";
-
-type Status = "loading" | "ready";
+import { useHomeOverview } from "./home/useHomeOverview";
 
 const NETWORK_ERR = "החיבור נכשל. נסה שוב";
 const SIM_422 = "אין מספיק שאלות זמינות למבחן";
@@ -29,7 +28,43 @@ const ROUTES = {
   exam: (id: number) => `/session/${id}/exam`,
 } as const;
 
-const resumePath = (s: SessionSummary) =>
+const HEBREW_WEEKDAYS = [
+  "ראשון",
+  "שני",
+  "שלישי",
+  "רביעי",
+  "חמישי",
+  "שישי",
+  "שבת",
+];
+
+const HEBREW_MONTHS = [
+  "ינואר",
+  "פברואר",
+  "מרץ",
+  "אפריל",
+  "מאי",
+  "יוני",
+  "יולי",
+  "אוגוסט",
+  "ספטמבר",
+  "אוקטובר",
+  "נובמבר",
+  "דצמבר",
+];
+
+const formatHebrewDate = (d: Date) =>
+  `יום ${HEBREW_WEEKDAYS[d.getDay()]}, ${d.getDate()} ב${HEBREW_MONTHS[d.getMonth()]}`;
+
+const greetingForHour = (h: number): string => {
+  if (h < 5) return "לילה טוב";
+  if (h < 12) return "בוקר טוב";
+  if (h < 17) return "צהריים טובים";
+  if (h < 21) return "ערב טוב";
+  return "לילה טוב";
+};
+
+const resumePath = (s: SessionSummary): string =>
   s.mode === "exam" || s.mode === "simulation"
     ? ROUTES.exam(s.id)
     : ROUTES.session(s.id);
@@ -40,7 +75,7 @@ const toNumber = (raw: number | string | null | undefined): number | null => {
   return Number.isNaN(n) ? null : n;
 };
 
-const formatPercent = (raw: number | string | null): string => {
+const formatPercent = (raw: number | string | null | undefined): string => {
   const n = toNumber(raw);
   return n === null ? "—" : `${Math.round(n)}%`;
 };
@@ -56,180 +91,95 @@ const modeLabel = (s: SessionSummary): string => {
       if (s.part === "C") return "דין מהותי";
       return "תרגול";
     case "mistakes":
-      return "טעויות";
+      return "חזרה על טעויות";
     case "bookmarks":
-      return "סימניות";
+      return "חזרה על סימניות";
     default:
       return "תרגול";
   }
 };
 
-const latestActiveSession = (sessions: SessionSummary[]) =>
-  sessions.find((session) => session.status === "active") ?? null;
-
-const Icon = ({ children }: { children: ReactNode }) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="h-5 w-5"
-    aria-hidden="true"
-  >
-    {children}
-  </svg>
-);
-
-const IconPlay = () => (
-  <Icon>
-    <path d="M7 5v14l12-7z" />
-  </Icon>
-);
-const IconExam = () => (
-  <Icon>
-    <path d="M5 4h11l3 3v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z" />
-    <path d="M8 11h8M8 15h5M8 7h5" />
-  </Icon>
-);
-const IconMistakes = () => (
-  <Icon>
-    <path d="M12 9v4M12 17h.01" />
-    <path d="M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.7 3.86a2 2 0 0 0-3.4 0Z" />
-  </Icon>
-);
-const IconBookmark = () => (
-  <Icon>
-    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-  </Icon>
-);
-const IconArrow = () => (
-  <Icon>
-    <path d="M15 6l-6 6 6 6" />
-  </Icon>
-);
-
-interface TileProps {
-  onClick?: () => void;
-  disabled?: boolean;
-  icon: ReactNode;
+interface RouteRowProps {
+  index: string;
+  icon: ComponentType<{ className?: string; strokeWidth?: number }>;
   title: string;
-  sub: ReactNode;
-  tone: "primary" | "plain" | "muted" | "strong";
+  hint: string;
+  onClick: () => void;
+  disabled?: boolean;
+  loading?: boolean;
 }
 
-const TONE: Record<TileProps["tone"], string> = {
-  primary: "surface-muted text-primary ring-black/10",
-  plain: "surface text-primary ring-black/20",
-  muted: "surface-muted text-primary ring-black/20",
-  strong: "surface text-primary ring-black/30",
-};
-
-const Tile = ({ onClick, disabled, icon, title, sub, tone }: TileProps) => (
+const RouteRow = ({
+  index,
+  icon: Icon,
+  title,
+  hint,
+  onClick,
+  disabled,
+  loading,
+}: RouteRowProps) => (
   <button
     type="button"
     onClick={onClick}
     disabled={disabled}
-    className={cn(
-      "focus-ring group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-default p-4 text-right shadow-[var(--shadow-default)] ring-1 transition active:scale-[0.98] hover:shadow-[var(--shadow-elevated)] disabled:cursor-not-allowed disabled:opacity-45",
-      TONE[tone],
-    )}
+    className="focus-ring group flex w-full items-center gap-4 py-4 text-right transition disabled:cursor-not-allowed disabled:opacity-45"
   >
-    <div className="flex items-start justify-between">
-      <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white/70 shadow-sm">
-        {icon}
+    <span className="font-display w-7 shrink-0 text-xs tabular-nums text-secondary opacity-60">
+      {index}
+    </span>
+    <span className="surface inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-default transition group-hover:border-strong group-active:scale-95">
+      <Icon className="h-5 w-5" strokeWidth={1.8} />
+    </span>
+    <span className="min-w-0 flex-1">
+      <span className="font-display block text-lg font-bold leading-tight text-[var(--accent-ink)]">
+        {title}
       </span>
-      <span className="opacity-50 transition group-hover:opacity-100">
-        <IconArrow />
+      <span className="mt-0.5 block truncate text-sm text-secondary">
+        {loading ? <AppLoader variant="inline" label="מתחיל..." /> : hint}
       </span>
-    </div>
-    <div className="mt-6">
-      <p className="font-display text-xl font-bold leading-tight">{title}</p>
-      <p className="mt-1 text-sm opacity-80">{sub}</p>
-    </div>
+    </span>
+    <ArrowLeft
+      className="h-5 w-5 shrink-0 text-secondary transition group-hover:-translate-x-1 group-hover:text-primary"
+      aria-hidden="true"
+    />
   </button>
 );
 
-const Progress = ({ value }: { value: number }) => (
-  <div className="h-2 w-full overflow-hidden rounded-full bg-white/70">
-    <div
-      className="h-full rounded-full bg-black transition-all"
-      style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
-    />
-  </div>
-);
-
-const StatBlock = ({
-  label,
-  value,
-}: {
+interface PartCellProps {
   label: string;
-  value: string | number;
-}) => (
-  <div className="rounded-2xl border border-default bg-white/70 px-3 py-3 text-center">
-    <p className="text-[11px] font-medium uppercase tracking-wide text-secondary">
+  answered: number;
+  rate: number | null;
+}
+
+const PartCell = ({ label, answered, rate }: PartCellProps) => (
+  <div className="surface px-4 py-4">
+    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-secondary">
       {label}
     </p>
-    <p className="font-display mt-1 text-2xl font-black text-[var(--accent-ink)]">
-      {value}
-    </p>
+    <div className="mt-2 flex items-baseline justify-between gap-2">
+      <span className="font-display text-2xl font-black tabular-nums text-[var(--accent-ink)]">
+        {formatPercent(rate)}
+      </span>
+      <span className="text-xs tabular-nums text-secondary">
+        {answered} שאלות
+      </span>
+    </div>
   </div>
 );
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const [status, setStatus] = useState<Status>("loading");
-  const [active, setActive] = useState<SessionSummary | null>(null);
-  const [stats, setStats] = useState<StatsOverview | null>(null);
-  const [statsUnavailable, setStatsUnavailable] = useState(false);
-  const [bookmarks, setBookmarks] = useState<BookmarkedQuestion[]>([]);
-  const [bookmarksUnavailable, setBookmarksUnavailable] = useState(false);
-  const [sessionsUnavailable, setSessionsUnavailable] = useState(false);
+  const {
+    status,
+    active,
+    stats,
+    bookmarks,
+    sessionsUnavailable,
+    statsUnavailable,
+    bookmarksUnavailable,
+  } = useHomeOverview();
   const [actionError, setActionError] = useState<string | null>(null);
   const [startingSim, setStartingSim] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    Promise.allSettled([
-      listUserSessions(),
-      getStatsOverview(),
-      getBookmarks(),
-    ]).then(([sessionsResult, statsResult, bookmarksResult]) => {
-      if (cancelled) return;
-
-      if (sessionsResult.status === "fulfilled") {
-        setActive(latestActiveSession(sessionsResult.value));
-        setSessionsUnavailable(false);
-      } else {
-        setActive(null);
-        setSessionsUnavailable(true);
-      }
-
-      if (statsResult.status === "fulfilled") {
-        setStats(statsResult.value);
-        setStatsUnavailable(false);
-      } else {
-        setStats(null);
-        setStatsUnavailable(true);
-      }
-
-      if (bookmarksResult.status === "fulfilled") {
-        setBookmarks(bookmarksResult.value);
-        setBookmarksUnavailable(false);
-      } else {
-        setBookmarks([]);
-        setBookmarksUnavailable(true);
-      }
-
-      setStatus("ready");
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const handleStartSimulation = async () => {
     setActionError(null);
@@ -250,167 +200,237 @@ const HomePage = () => {
     return <AppLoader variant="page" label="טוען נתונים..." />;
   }
 
-  const activeProgress = active
-    ? active.total_questions > 0
+  const now = new Date();
+  const activeProgress =
+    active && active.total_questions > 0
       ? (active.answered_count / active.total_questions) * 100
-      : 0
-    : 0;
+      : 0;
 
-  const successRate = stats ? toNumber(stats.overall_success_rate) : null;
+  const successRateNum = stats ? toNumber(stats.overall_success_rate) : null;
+  const successRateDisplay =
+    successRateNum === null ? "—" : Math.round(successRateNum);
+
+  const mistakesCount = stats?.active_mistakes_count ?? 0;
+  const simulationsDone = stats?.simulations_completed ?? 0;
+  const answeredCount = stats?.total_answered ?? null;
+
+  const mistakesHint = statsUnavailable
+    ? "לחזרה ולשיפור"
+    : mistakesCount === 0
+      ? "אין טעויות פתוחות לתרגול"
+      : `${mistakesCount} שאלות פתוחות לתרגול`;
+
+  const bookmarksHint = bookmarksUnavailable
+    ? "לצפייה בסימניות שמורות"
+    : bookmarks.length === 0
+      ? "אין סימניות שמורות"
+      : `${bookmarks.length} סימניות שמורות`;
 
   return (
-    <div className="mx-auto w-full max-w-[720px] space-y-5 p-4">
-      <header className="surface-muted relative overflow-hidden rounded-[2rem] border border-default p-6 shadow-[var(--shadow-elevated)]">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -left-16 -top-16 h-48 w-48 rounded-full bg-[var(--accent-soft)] opacity-50 blur-2xl"
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -bottom-20 -right-10 h-56 w-56 rounded-full bg-white opacity-45 blur-3xl"
-        />
-        <div className="relative">
-          <p className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-xs font-semibold text-[var(--accent)]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
-            ברוך הבא
-          </p>
-          <h1 className="font-display mt-3 text-[2.6rem] font-black leading-[1.05] text-[var(--accent-ink)]">
-            תרגול בחינות
-            <br />
-            לשכת עורכי הדין
-          </h1>
-          <p className="mt-3 max-w-[26ch] text-sm leading-6 text-secondary">
-            בחר מסלול, המשך סשן פעיל או חזור לשאלות שסימנת.
-          </p>
-          <Button
-            fullWidth
-            className="mt-5 shadow-lg shadow-black/10"
-            onClick={() => navigate(ROUTES.practiceNew)}
-          >
-            התחל תרגול
-          </Button>
+    <div className="mx-auto w-full max-w-[560px] px-5 pb-10 pt-6">
+      {/* Top meta strip */}
+      <div className="flex items-baseline justify-between">
+        <span className="text-[11px] uppercase tracking-[0.22em] text-secondary">
+          {formatHebrewDate(now)}
+        </span>
+        <span className="font-display text-xs text-secondary">
+          לשכת עוה״ד · תרגול
+        </span>
+      </div>
+
+      {/* Greeting */}
+      <h1 className="font-display mt-4 text-[2.5rem] font-black leading-[1.02] text-[var(--accent-ink)]">
+        {greetingForHour(now.getHours())}
+      </h1>
+      <p className="mt-1 text-sm text-secondary">
+        מוכנים להמשיך לעבוד לקראת הבחינה ?
+      </p>
+
+      {/* Hero metric */}
+      <section className="mt-7" aria-label="אחוז הצלחה כולל">
+        <div className="flex items-end justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-secondary">
+              אחוז הצלחה כולל
+            </p>
+            <div className="mt-1 flex items-baseline gap-1.5">
+              <span className="font-display text-[5.25rem] font-black leading-none tabular-nums text-[var(--accent-ink)]">
+                {successRateDisplay}
+              </span>
+              <span className="font-display text-3xl font-bold text-secondary">
+                %
+              </span>
+            </div>
+          </div>
+          <div className="pb-2 text-left">
+            <p className="text-[11px] uppercase tracking-[0.18em] text-secondary">
+              נענו
+            </p>
+            <p className="font-display mt-1 text-2xl font-bold tabular-nums text-[var(--accent-ink)]">
+              {answeredCount ?? "—"}
+            </p>
+          </div>
         </div>
-      </header>
 
-      {actionError && (
-        <Card className="border-2 border-strong bg-white">
-          <p className="text-sm text-primary font-semibold">{actionError}</p>
-        </Card>
-      )}
+        <div className="mt-4 h-[3px] w-full overflow-hidden rounded-full bg-black/10">
+          <div
+            className="h-full rounded-full bg-black transition-all duration-500"
+            style={{
+              width: `${Math.min(100, Math.max(0, successRateNum ?? 0))}%`,
+            }}
+          />
+        </div>
 
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[12px] text-secondary">
+          <span className="tabular-nums">{mistakesCount} טעויות פתוחות</span>
+          <span className="tabular-nums">
+            {simulationsDone} סימולציות הושלמו
+          </span>
+        </div>
+      </section>
+
+      {/* Active session strip */}
       {active && (
         <button
           type="button"
           onClick={() => navigate(resumePath(active))}
-          className="focus-ring surface-muted group relative w-full overflow-hidden rounded-3xl border border-default p-5 text-right shadow-[var(--shadow-default)] transition hover:shadow-[var(--shadow-elevated)]"
+          className="focus-ring group mt-7 block w-full overflow-hidden rounded-2xl bg-[var(--accent-ink)] p-4 text-right text-white shadow-[var(--shadow-elevated)] transition active:scale-[0.99]"
         >
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--accent)]">
-                המשך תרגול
+          <div className="flex items-center gap-4">
+            <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/25 transition group-hover:bg-white/25">
+              <Play className="h-5 w-5" fill="currentColor" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] uppercase tracking-[0.22em] text-white/70">
+                המשך תרגול פעיל
               </p>
-              <p className="font-display mt-1 text-xl font-bold text-[var(--accent-ink)]">
+              <p className="font-display mt-0.5 truncate text-lg font-bold leading-tight">
                 {modeLabel(active)}
               </p>
-              <p className="mt-1 text-sm text-secondary">
+              <p className="mt-1 text-xs tabular-nums text-white/70">
                 {active.answered_count}/{active.total_questions} שאלות
               </p>
             </div>
-            <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--accent)] text-white shadow-md transition group-hover:bg-[var(--accent-ink)]">
-              <IconPlay />
-            </span>
+            <ArrowLeft
+              className="h-5 w-5 shrink-0 text-white/70 transition group-hover:-translate-x-1 group-hover:text-white"
+              aria-hidden="true"
+            />
           </div>
-          <div className="mt-4">
-            <Progress value={activeProgress} />
+          <div className="mt-3 h-[3px] w-full overflow-hidden rounded-full bg-white/15">
+            <div
+              className="h-full rounded-full bg-white transition-all duration-500"
+              style={{ width: `${activeProgress}%` }}
+            />
           </div>
         </button>
       )}
 
-      {sessionsUnavailable && (
-        <Card className="border-strong bg-[var(--surface-muted)]">
-          <p className="text-sm text-primary">לא ניתן לטעון תרגול פעיל כרגע.</p>
+      {actionError && (
+        <Card className="mt-5 border-2 border-strong">
+          <p className="text-sm font-semibold text-primary">{actionError}</p>
         </Card>
       )}
 
-      <section>
-        <div className="mb-2 flex items-baseline justify-between px-1">
-          <h2 className="font-display text-lg font-bold text-[var(--accent-ink)]">
-            מסלולים
+      {sessionsUnavailable && !actionError && (
+        <p className="mt-5 text-xs text-secondary">
+          לא ניתן לטעון תרגול פעיל כרגע.
+        </p>
+      )}
+
+      {/* Primary CTAs */}
+      <div className="mt-7 flex gap-2">
+        <Button fullWidth onClick={() => navigate(ROUTES.practiceNew)}>
+          התחל תרגול
+        </Button>
+        <Button
+          variant="secondary"
+          onClick={handleStartSimulation}
+          disabled={startingSim}
+          className="shrink-0 px-5"
+        >
+          {startingSim ? (
+            <AppLoader variant="button" label="מתחיל" />
+          ) : (
+            "מבחן מלא"
+          )}
+        </Button>
+      </div>
+
+      {/* Routes list */}
+      <section className="mt-9">
+        <div className="flex items-baseline justify-between border-b border-default pb-2">
+          <h2 className="font-display text-base font-bold text-[var(--accent-ink)]">
+            מסלולי לימוד
           </h2>
-          <span className="text-xs text-secondary">בחר כיוון</span>
+          <span className="text-[10px] uppercase tracking-[0.22em] text-secondary">
+            בחר כיוון
+          </span>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <Tile
-            tone="primary"
-            icon={<IconPlay />}
-            title="תרגול חדש"
-            sub="חלק, מועד וכמות"
-            onClick={() => navigate(ROUTES.practiceNew)}
-          />
-          <Tile
-            tone="plain"
-            icon={<IconExam />}
-            title="מבחן מלא"
-            sub={
-              startingSim ? (
-                <AppLoader variant="inline" label="מתחיל..." />
-              ) : (
-                "סימולציה"
-              )
-            }
-            onClick={handleStartSimulation}
-            disabled={startingSim}
-          />
-          <Tile
-            tone="strong"
-            icon={<IconMistakes />}
-            title="טעויות"
-            sub={stats ? `${stats.active_mistakes_count} פתוחות` : "לחזרה"}
-            onClick={() => navigate(ROUTES.mistakes)}
-          />
-          <Tile
-            tone="muted"
-            icon={<IconBookmark />}
-            title="סימניות"
-            sub={bookmarksUnavailable ? "לצפייה" : `${bookmarks.length} שמורות`}
-            onClick={() => navigate(ROUTES.bookmarks)}
-          />
-        </div>
+
+        <ul className="divide-y divide-black/10">
+          <li>
+            <RouteRow
+              index="01"
+              icon={PencilLine}
+              title="תרגול חדש"
+              hint="בחר חלק, מועד וכמות שאלות"
+              onClick={() => navigate(ROUTES.practiceNew)}
+            />
+          </li>
+          <li>
+            <RouteRow
+              index="02"
+              icon={ClipboardList}
+              title="סימולציית מבחן מלא"
+              hint="התחל מבחן בתנאי בחינה"
+              onClick={handleStartSimulation}
+              disabled={startingSim}
+              loading={startingSim}
+            />
+          </li>
+          <li>
+            <RouteRow
+              index="03"
+              icon={CircleAlert}
+              title="חזרה על טעויות"
+              hint={mistakesHint}
+              onClick={() => navigate(ROUTES.mistakes)}
+            />
+          </li>
+          <li>
+            <RouteRow
+              index="04"
+              icon={Bookmark}
+              title="שאלות שסומנו"
+              hint={bookmarksHint}
+              onClick={() => navigate(ROUTES.bookmarks)}
+            />
+          </li>
+        </ul>
       </section>
 
+      {/* Part breakdown */}
       {stats ? (
-        <section className="surface-muted rounded-3xl border border-default p-5 shadow-[var(--shadow-default)]">
-          <div className="mb-4 flex items-baseline justify-between">
-            <h2 className="font-display text-lg font-bold text-[var(--accent-ink)]">
-              מבט מהיר
-            </h2>
-            <span className="text-xs text-secondary">סטטיסטיקה</span>
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            <StatBlock label="נענו" value={stats.total_answered} />
-            <StatBlock
-              label="הצלחה"
-              value={formatPercent(stats.overall_success_rate)}
-            />
-            <StatBlock label="טעויות" value={stats.active_mistakes_count} />
-          </div>
-          {successRate !== null && (
-            <div className="mt-4">
-              <div className="mb-1 flex items-center justify-between text-xs text-secondary">
-                <span>אחוז הצלחה כולל</span>
-                <span>{Math.round(successRate)}%</span>
-              </div>
-              <Progress value={successRate} />
-            </div>
-          )}
+        <section
+          className="mt-9 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-default bg-black/10"
+          aria-label="פירוט לפי חלקי הבחינה"
+        >
+          <PartCell
+            label="דין דיוני · חלק ב׳"
+            answered={stats.part_b.total_answered}
+            rate={stats.part_b.success_rate}
+          />
+          <PartCell
+            label="דין מהותי · חלק ג׳"
+            answered={stats.part_c.total_answered}
+            rate={stats.part_c.success_rate}
+          />
         </section>
       ) : (
         statsUnavailable && (
-          <Card>
-            <p className="text-sm text-secondary">
-              נתוני התקדמות לא זמינים כרגע.
-            </p>
-          </Card>
+          <p className="mt-9 text-center text-xs text-secondary">
+            נתוני התקדמות לא זמינים כרגע.
+          </p>
         )
       )}
     </div>

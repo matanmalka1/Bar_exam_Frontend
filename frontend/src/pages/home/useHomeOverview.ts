@@ -1,0 +1,86 @@
+import { useEffect, useState } from "react";
+import { getBookmarks } from "../../features/bookmarks/api";
+import type { BookmarkedQuestion } from "../../features/bookmarks/types";
+import { listUserSessions } from "../../features/sessions/api";
+import type { SessionSummary } from "../../features/sessions/types";
+import { getStatsOverview } from "../../features/stats/api";
+import type { StatsOverview } from "../../features/stats/types";
+
+type Status = "loading" | "ready";
+
+export interface HomeOverview {
+  status: Status;
+  active: SessionSummary | null;
+  stats: StatsOverview | null;
+  bookmarks: BookmarkedQuestion[];
+  sessionsUnavailable: boolean;
+  statsUnavailable: boolean;
+  bookmarksUnavailable: boolean;
+}
+
+const latestActiveSession = (
+  sessions: SessionSummary[],
+): SessionSummary | null =>
+  sessions.find((session) => session.status === "active") ?? null;
+
+export const useHomeOverview = (): HomeOverview => {
+  const [status, setStatus] = useState<Status>("loading");
+  const [active, setActive] = useState<SessionSummary | null>(null);
+  const [stats, setStats] = useState<StatsOverview | null>(null);
+  const [statsUnavailable, setStatsUnavailable] = useState(false);
+  const [bookmarks, setBookmarks] = useState<BookmarkedQuestion[]>([]);
+  const [bookmarksUnavailable, setBookmarksUnavailable] = useState(false);
+  const [sessionsUnavailable, setSessionsUnavailable] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    Promise.allSettled([
+      listUserSessions(),
+      getStatsOverview(),
+      getBookmarks(),
+    ]).then(([sessionsResult, statsResult, bookmarksResult]) => {
+      if (cancelled) return;
+
+      if (sessionsResult.status === "fulfilled") {
+        setActive(latestActiveSession(sessionsResult.value));
+        setSessionsUnavailable(false);
+      } else {
+        setActive(null);
+        setSessionsUnavailable(true);
+      }
+
+      if (statsResult.status === "fulfilled") {
+        setStats(statsResult.value);
+        setStatsUnavailable(false);
+      } else {
+        setStats(null);
+        setStatsUnavailable(true);
+      }
+
+      if (bookmarksResult.status === "fulfilled") {
+        setBookmarks(bookmarksResult.value);
+        setBookmarksUnavailable(false);
+      } else {
+        setBookmarks([]);
+        setBookmarksUnavailable(true);
+      }
+
+      setStatus("ready");
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return {
+    status,
+    active,
+    stats,
+    bookmarks,
+    sessionsUnavailable,
+    statsUnavailable,
+    bookmarksUnavailable,
+  };
+};

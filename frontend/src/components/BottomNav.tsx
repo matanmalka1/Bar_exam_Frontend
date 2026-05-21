@@ -18,10 +18,10 @@ const ITEMS = [
 
 const BottomNav = () => (
   <nav
-    className="fixed inset-x-0 bottom-0 z-40 border-t border-default bg-white/90 shadow-[0_-10px_30px_rgba(0,0,0,0.08)] backdrop-blur supports-[backdrop-filter]:bg-white/75"
+    className="fixed inset-x-0 bottom-0 z-40 border-t border-default bg-white/85 shadow-[0_-10px_30px_rgba(0,0,0,0.06)] backdrop-blur-md supports-[backdrop-filter]:bg-white/70"
     aria-label="ניווט תחתון"
   >
-    <ul className="grid grid-cols-5 px-1 pb-[calc(env(safe-area-inset-bottom)_+_0.25rem)] pt-1">
+    <ul className="grid grid-cols-5 px-1 pb-[calc(env(safe-area-inset-bottom)_+_0.25rem)] pt-1.5">
       {ITEMS.map(({ to, label, icon: Icon }) => (
         <li key={to}>
           <NavLink
@@ -29,11 +29,11 @@ const BottomNav = () => (
             end={to === "/"}
             className={({ isActive }) =>
               cn(
-                "group relative flex h-14 flex-col items-center justify-center gap-1 rounded-xl text-[11px] font-medium transition-colors",
-                "focus-ring",
+                "focus-ring group relative flex h-14 flex-col items-center justify-center gap-1 rounded-2xl text-[11px] transition-colors duration-200",
+                "active:scale-95",
                 isActive
                   ? "text-primary"
-                  : "text-secondary hover:bg-[var(--surface-muted)] hover:text-primary",
+                  : "text-secondary hover:text-primary",
               )
             }
           >
@@ -41,21 +41,30 @@ const BottomNav = () => (
               <>
                 <span
                   className={cn(
-                    "absolute top-1 h-1 w-6 rounded-full transition-opacity",
-                    isActive ? "bg-black opacity-100" : "opacity-0",
+                    "inline-flex h-9 w-12 items-center justify-center rounded-full transition-all duration-300 ease-out",
+                    isActive
+                      ? "bg-[var(--accent-ink)] shadow-sm"
+                      : "bg-transparent group-hover:bg-[var(--surface-muted)]",
                   )}
-                />
+                >
+                  <Icon
+                    className={cn(
+                      "size-5 transition-colors duration-200",
+                      isActive ? "text-white" : "text-current",
+                    )}
+                    strokeWidth={isActive ? 2.2 : 1.8}
+                    aria-hidden="true"
+                  />
+                </span>
 
-                <Icon
+                <span
                   className={cn(
-                    "mt-1 size-5 transition-transform",
-                    isActive && "scale-110",
+                    "leading-none transition-[font-weight,color] duration-200",
+                    isActive ? "font-semibold" : "font-medium",
                   )}
-                  strokeWidth={isActive ? 2.5 : 2}
-                  aria-hidden="true"
-                />
-
-                <span className={cn(isActive && "font-semibold")}>{label}</span>
+                >
+                  {label}
+                </span>
               </>
             )}
           </NavLink>
