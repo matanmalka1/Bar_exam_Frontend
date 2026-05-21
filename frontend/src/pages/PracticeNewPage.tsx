@@ -1,4 +1,3 @@
-import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Check, ChevronRight } from "lucide-react";
@@ -8,76 +7,9 @@ import Chip from "../components/Chip";
 import ErrorState from "../components/ErrorState";
 import FixedFooter from "../components/FixedFooter";
 import AppLoader from "../components/loader";
-import { getExams } from "../features/exams/api";
-import type { ExamSummary } from "../features/exams/types";
-import {
-  createExamSession,
-  createPracticeSession,
-} from "../features/sessions/api";
-import type { QuestionPart } from "../features/sessions/types";
-import {
-  getApiErrorDetail,
-  HTTP_UNPROCESSABLE,
-  isApiStatusError,
-} from "../lib/api";
+import { useExamsList } from "../features/exams/hooks/useExamsList";
+import { usePracticeNewForm } from "../features/sessions/hooks/usePracticeNewForm";
 import { cn } from "../lib/cn";
-
-type Status = "loading" | "ready" | "error";
-type PartChoice = QuestionPart | "both";
-type CountChoice = 10 | 20 | 40 | "all";
-
-const NETWORK_ERR = "לא ניתן להתחיל תרגול כרגע";
-const DEFAULT_422 = "לא ניתן להתחיל תרגול כרגע";
-const ERR_INSUFFICIENT = "אין מספיק שאלות זמינות לצירוף הזה";
-const ERR_NEED_DATE = "צריך לבחור מועד בחינה";
-const ERR_COUNT_EXCEEDS = "אין מספיק שאלות לכמות שבחרת";
-
-const map422 = (raw: unknown): string => {
-  const text = typeof raw === "string" ? raw : JSON.stringify(raw ?? "");
-  const lower = text.toLowerCase();
-  if (lower.includes("exam") && lower.includes("date")) return ERR_NEED_DATE;
-  if (lower.includes("exceed") || lower.includes("too many"))
-    return ERR_COUNT_EXCEEDS;
-  if (
-    lower.includes("insufficient") ||
-    lower.includes("not enough") ||
-    lower.includes("no questions")
-  ) {
-    return ERR_INSUFFICIENT;
-  }
-  return DEFAULT_422;
-};
-
-const extractApiError = (err: unknown): string => {
-  if (isApiStatusError(err, HTTP_UNPROCESSABLE))
-    return map422(getApiErrorDetail(err));
-  return NETWORK_ERR;
-};
-
-interface ExamDateGroup {
-  exam_date: string;
-  label: string;
-  total: number;
-}
-
-const groupByDate = (exams: ExamSummary[]): ExamDateGroup[] => {
-  const map = new Map<string, ExamDateGroup>();
-  for (const e of exams) {
-    const g = map.get(e.exam_date) ?? {
-      exam_date: e.exam_date,
-      label: e.label,
-      total: 0,
-    };
-    g.total += e.question_count;
-    map.set(e.exam_date, g);
-  }
-  return [...map.values()].sort((a, b) =>
-    b.exam_date.localeCompare(a.exam_date),
-  );
-};
-
-const partToApi = (p: PartChoice): QuestionPart | null =>
-  p === "both" ? null : p;
 
 interface PageHeaderProps {
   title: string;
@@ -113,7 +45,12 @@ interface StepSectionProps {
   children: ReactNode;
 }
 
-const StepSection = ({ index, title, complete, children }: StepSectionProps) => (
+const StepSection = ({
+  index,
+  title,
+  complete,
+  children,
+}: StepSectionProps) => (
   <section className="mt-7">
     <div className="flex items-baseline justify-between gap-2 border-b border-default pb-2">
       <h2 className="font-display flex items-baseline gap-2 text-base font-bold text-[var(--accent-ink)]">
@@ -141,41 +78,25 @@ const PracticeNewPage = () => {
   const [searchParams] = useSearchParams();
   const flow: "practice" | "exam" =
     searchParams.get("flow") === "exam" ? "exam" : "practice";
+  const { status, groups, retry } = useExamsList();
+  const {
+    part,
+    examDate,
+    allDates,
+    count,
+    submitting,
+    submitError,
+    canSubmit,
+    disabledReason,
+    dateSelected,
+    setPart,
+    setCount,
+    selectAllDates,
+    selectExamDate,
+    startExam,
+    startPractice,
+  } = usePracticeNewForm(flow);
 
-  const [status, setStatus] = useState<Status>("loading");
-  const [exams, setExams] = useState<ExamSummary[]>([]);
-  const [reloadKey, setReloadKey] = useState(0);
-
-  const [part, setPart] = useState<PartChoice | null>(null);
-  const [examDate, setExamDate] = useState<string | null>(null);
-  const [allDates, setAllDates] = useState(false);
-  const [count, setCount] = useState<CountChoice | null>(null);
-
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    getExams()
-      .then((data) => {
-        if (cancelled) return;
-        setExams(data);
-        setStatus("ready");
-      })
-      .catch(() => {
-        if (!cancelled) setStatus("error");
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [reloadKey]);
-
-  const groups = useMemo(() => groupByDate(exams), [exams]);
-
-  const retry = () => {
-    setStatus("loading");
-    setReloadKey((k) => k + 1);
-  };
   const goBack = () => navigate(-1);
 
   if (status === "loading") {
@@ -194,29 +115,13 @@ const PracticeNewPage = () => {
   }
 
   if (flow === "exam") {
-    const canSubmit = examDate !== null && !submitting;
-    const disabledReason = !examDate ? "בחר מועד בחינה" : null;
-
-    const handleStartExam = async () => {
-      if (!examDate) return;
-      setSubmitError(null);
-      setSubmitting(true);
-      try {
-        const s = await createExamSession(examDate);
-        navigate(`/session/${s.id}/exam`);
-      } catch (err) {
-        setSubmitError(extractApiError(err));
-      } finally {
-        setSubmitting(false);
-      }
-    };
-
     return (
       <div className="mx-auto w-full max-w-[720px] p-4 pb-32">
         <PageHeader title="בחינת מועד מלאה" onBack={goBack} />
 
         <p className="text-sm leading-6 text-secondary">
-          בחר מועד בחינה. כל השאלות מאותו מועד יוצגו בסדר המקורי, ללא משוב מיידי.
+          בחר מועד בחינה. כל השאלות מאותו מועד יוצגו בסדר המקורי, ללא משוב
+          מיידי.
         </p>
 
         {submitError && (
@@ -228,11 +133,7 @@ const PracticeNewPage = () => {
           </div>
         )}
 
-        <StepSection
-          index="01"
-          title="בחר מועד"
-          complete={examDate !== null}
-        >
+        <StepSection index="01" title="בחר מועד" complete={examDate !== null}>
           {groups.length === 0 ? (
             <p className="rounded-2xl border border-default bg-[var(--surface-muted)] p-4 text-sm text-secondary">
               אין מועדים זמינים
@@ -244,7 +145,7 @@ const PracticeNewPage = () => {
                 return (
                   <ActionCard
                     key={g.exam_date}
-                    onClick={() => setExamDate(g.exam_date)}
+                    onClick={() => selectExamDate(g.exam_date)}
                     aria-pressed={selected}
                     selected={selected}
                   >
@@ -264,7 +165,7 @@ const PracticeNewPage = () => {
         </StepSection>
 
         <FixedFooter>
-          <Button fullWidth disabled={!canSubmit} onClick={handleStartExam}>
+          <Button fullWidth disabled={!canSubmit} onClick={startExam}>
             {submitting ? (
               <AppLoader variant="button" label="מתחיל..." />
             ) : (
@@ -280,42 +181,6 @@ const PracticeNewPage = () => {
       </div>
     );
   }
-
-  const canSubmit =
-    part !== null &&
-    (examDate !== null || allDates) &&
-    count !== null &&
-    !submitting;
-
-  let disabledReason: string | null = null;
-  if (part === null) disabledReason = "בחר חלק";
-  else if (!examDate && !allDates) disabledReason = "בחר מועד";
-  else if (count === null) disabledReason = "בחר מספר שאלות";
-
-  const handleStartPractice = async () => {
-    if (!canSubmit || part === null || count === null) return;
-    setSubmitError(null);
-    setSubmitting(true);
-    try {
-      const payload: {
-        part?: QuestionPart | null;
-        exam_date?: string;
-        question_count?: number;
-      } = {
-        part: partToApi(part),
-      };
-      if (!allDates && examDate) payload.exam_date = examDate;
-      if (count !== "all") payload.question_count = count;
-      const s = await createPracticeSession(payload);
-      navigate(`/session/${s.id}`);
-    } catch (err) {
-      setSubmitError(extractApiError(err));
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const dateSelected = allDates || examDate !== null;
 
   return (
     <div className="mx-auto w-full max-w-[720px] p-4 pb-32">
@@ -352,23 +217,14 @@ const PracticeNewPage = () => {
       {part !== null && (
         <StepSection index="02" title="מועד" complete={dateSelected}>
           <div className="flex flex-wrap gap-2">
-            <Chip
-              selected={allDates}
-              onClick={() => {
-                setAllDates(true);
-                setExamDate(null);
-              }}
-            >
+            <Chip selected={allDates} onClick={selectAllDates}>
               כל המועדים
             </Chip>
             {groups.map((g) => (
               <Chip
                 key={g.exam_date}
                 selected={!allDates && examDate === g.exam_date}
-                onClick={() => {
-                  setAllDates(false);
-                  setExamDate(g.exam_date);
-                }}
+                onClick={() => selectExamDate(g.exam_date)}
               >
                 {g.label}
               </Chip>
@@ -393,7 +249,7 @@ const PracticeNewPage = () => {
       )}
 
       <FixedFooter>
-        <Button fullWidth disabled={!canSubmit} onClick={handleStartPractice}>
+        <Button fullWidth disabled={!canSubmit} onClick={startPractice}>
           {submitting ? (
             <AppLoader variant="button" label="מתחיל..." />
           ) : (

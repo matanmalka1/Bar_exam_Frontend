@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Check, ChevronLeft, ChevronRight, X } from "lucide-react";
 import Button from "../components/Button";
@@ -7,116 +7,72 @@ import FixedFooter from "../components/FixedFooter";
 import OptionCard from "../components/OptionCard";
 import SessionTopBar from "../components/SessionTopBar";
 import AppLoader from "../components/loader";
-import {
-  addBookmark,
-  getBookmarks,
-  removeBookmark,
-} from "../features/bookmarks/api";
-import {
-  completeSession,
-  getPracticeSession,
-  submitAnswer,
-} from "../features/sessions/api";
-import type {
-  AnswerOption,
-  AnswerPracticeOut,
-  AnswerResult,
-  SessionDetail,
-  SessionQuestion,
-} from "../features/sessions/types";
+import { usePracticeSession } from "../features/sessions/hooks/usePracticeSession";
+import type { AnswerOption } from "../features/sessions/types";
 import { cn } from "../lib/cn";
-
-type Status = "loading" | "ready" | "error";
 
 const OPTIONS: AnswerOption[] = ["א", "ב", "ג", "ד"];
 
 const NETWORK_ERR = "החיבור נכשל. נסה שוב";
-const SUBMIT_ERR = "לא ניתן לשמור תשובה. נסה שוב";
-const COMPLETE_ERR = "לא ניתן לסיים את התרגול כרגע";
-
-const findFirstUnansweredIndex = (qs: SessionQuestion[]): number => {
-  const idx = qs.findIndex((q) => q.answer === null);
-  return idx === -1 ? qs.length - 1 : idx;
-};
-
-const isPracticeAnswer = (
-  a: SessionQuestion["answer"],
-): a is NonNullable<SessionQuestion["answer"]> & { is_correct: boolean } =>
-  a !== null && typeof a.is_correct === "boolean";
-
-const isPracticeResult = (result: AnswerResult): result is AnswerPracticeOut =>
-  "is_correct" in result;
 
 const SessionPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const [status, setStatus] = useState<Status>("loading");
-  const [session, setSession] = useState<SessionDetail | null>(null);
-  const [reloadKey, setReloadKey] = useState(0);
-
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [selected, setSelected] = useState<AnswerOption | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [completing, setCompleting] = useState(false);
-  const [bookmarkIds, setBookmarkIds] = useState<Set<string>>(() => new Set());
-  const [bookmarkBusy, setBookmarkBusy] = useState(false);
-  const [bookmarkError, setBookmarkError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!id) return;
-    let cancelled = false;
-    getPracticeSession(id)
-      .then((data) => {
-        if (cancelled) return;
-        if (data.mode === "exam" || data.mode === "simulation") {
-          navigate(`/session/${id}/exam`, { replace: true });
-          return;
-        }
-        setSession(data);
-        setCurrentIndex(findFirstUnansweredIndex(data.questions));
-        setStatus("ready");
-        getBookmarks()
-          .then((items) => {
-            if (!cancelled) {
-              setBookmarkIds(new Set(items.map((item) => item.stable_id)));
-            }
-          })
-          .catch(() => {
-            if (!cancelled) setBookmarkIds(new Set());
-          });
-      })
-      .catch(() => {
-        if (!cancelled) setStatus("error");
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [id, navigate, reloadKey]);
-
-  const current = useMemo<SessionQuestion | null>(
-    () => session?.questions[currentIndex] ?? null,
-    [session, currentIndex],
+  const handleRedirectToExam = useCallback(
+    (sessionId: string) => {
+      navigate(`/session/${sessionId}/exam`, { replace: true });
+    },
+    [navigate],
   );
 
-  const resetTransient = () => {
-    setSelected(null);
-    setSubmitError(null);
-    setBookmarkError(null);
-  };
+  const handleCompleteRedirect = useCallback(
+    (sessionId: string) => {
+      navigate(`/session/${sessionId}/results`);
+    },
+    [navigate],
+  );
 
-  const retry = () => {
-    setStatus("loading");
-    setBookmarkError(null);
-    setReloadKey((k) => k + 1);
-  };
+  const {
+    status,
+    current,
+    currentIndex,
+    submitting,
+    completing,
+    actionError,
+    bookmarkBusy,
+    bookmarkError,
+    total,
+    answeredCount,
+    allAnswered,
+    isLast,
+    answerSubmitted,
+    practiceAnswer,
+    correctAnswer,
+    isBookmarked,
+    displaySelected,
+    submitDisabled,
+    submitReason,
+    completeReason,
+    modeLabel,
+    retry,
+    selectAnswer,
+    submit,
+    prev,
+    next,
+    complete,
+    toggleBookmark,
+  } = usePracticeSession({
+    sessionId: id,
+    onRedirectToExam: handleRedirectToExam,
+    onComplete: handleCompleteRedirect,
+  });
 
   if (status === "loading") {
     return <AppLoader variant="page" label="טוען נתונים..." />;
   }
 
-  if (status === "error" || !session || !current) {
+  if (status === "error" || !current) {
     return (
       <div className="mx-auto w-full max-w-[720px] p-4">
         <ErrorState
@@ -127,129 +83,7 @@ const SessionPage = () => {
     );
   }
 
-  const questionsCount = session.questions.length;
-  const total = questionsCount || session.total_questions;
-  const answeredCount = session.questions.filter((q) => q.answer).length;
-  const allAnswered = questionsCount > 0 && answeredCount >= questionsCount;
-  const isLast = currentIndex === questionsCount - 1;
   const answered = current.answer;
-  const answerSubmitted = answered !== null;
-  const isBookmarked = bookmarkIds.has(current.stable_id);
-
-  const handleSelect = (opt: AnswerOption) => {
-    if (answerSubmitted || submitting) return;
-    setSelected(opt);
-    setBookmarkError(null);
-  };
-
-  const handleToggleBookmark = async () => {
-    if (bookmarkBusy) return;
-    setBookmarkError(null);
-    setBookmarkBusy(true);
-    try {
-      if (isBookmarked) {
-        await removeBookmark(current.stable_id);
-        setBookmarkIds((ids) => {
-          const next = new Set(ids);
-          next.delete(current.stable_id);
-          return next;
-        });
-      } else {
-        await addBookmark(current.stable_id);
-        setBookmarkIds((ids) => new Set(ids).add(current.stable_id));
-      }
-    } catch {
-      setBookmarkError("לא ניתן לעדכן סימניה כרגע");
-    } finally {
-      setBookmarkBusy(false);
-    }
-  };
-
-  const handleSubmit = async () => {
-    if (!selected || !id) return;
-    setSubmitError(null);
-    setSubmitting(true);
-    try {
-      const result = await submitAnswer(id, {
-        stable_id: current.stable_id,
-        selected_answer: selected,
-      });
-      if (!isPracticeResult(result)) {
-        throw new Error("Expected practice answer result");
-      }
-      // Server answer wins. Patch the current question with server result.
-      setSession((s) => {
-        if (!s) return s;
-        const updated = s.questions.map((q, i) =>
-          i === currentIndex
-            ? {
-                ...q,
-                answer: {
-                  selected_answer: result.selected_answer,
-                  is_correct: result.is_correct,
-                  answered_at: result.answered_at,
-                },
-                correct_answer:
-                  result.correct_answer ?? q.correct_answer ?? null,
-                reference: result.reference ?? q.reference ?? null,
-              }
-            : q,
-        );
-        const newAnswered = updated.filter((q) => q.answer).length;
-        return { ...s, questions: updated, answered_count: newAnswered };
-      });
-    } catch {
-      setSubmitError(SUBMIT_ERR);
-      // Per invariant: never navigate after failed answer save.
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleNext = () => {
-    if (currentIndex < questionsCount - 1) {
-      setCurrentIndex((i) => i + 1);
-      resetTransient();
-    }
-  };
-
-  const handlePrev = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex((i) => i - 1);
-      resetTransient();
-    }
-  };
-
-  const handleComplete = async () => {
-    if (!allAnswered || !id) return;
-    setSubmitError(null);
-    setCompleting(true);
-    try {
-      await completeSession(id);
-      navigate(`/session/${id}/results`);
-    } catch {
-      setSubmitError(COMPLETE_ERR);
-    } finally {
-      setCompleting(false);
-    }
-  };
-
-  const correctAnswer = current.correct_answer ?? null;
-  const practiceAnswer = isPracticeAnswer(answered) ? answered : null;
-
-  const submitCtaDisabled = !selected || submitting;
-  const submitCtaReason = !selected ? "בחר תשובה" : null;
-  const completeDisabledReason = !allAnswered
-    ? `יש לענות על כל ${total} השאלות לפני סיום`
-    : null;
-
-  const modeLabel = (() => {
-    if (session.mode === "mistakes") return "חזרה על טעויות";
-    if (session.mode === "bookmarks") return "תרגול סימניות";
-    if (session.part === "B") return "תרגול · דין דיוני";
-    if (session.part === "C") return "תרגול · דין מהותי";
-    return "תרגול חופשי";
-  })();
 
   return (
     <div className="mx-auto w-full max-w-[720px] p-4 pb-32">
@@ -261,18 +95,18 @@ const SessionPage = () => {
         isBookmarked={isBookmarked}
         bookmarkBusy={bookmarkBusy}
         onBack={() => navigate("/")}
-        onToggleBookmark={handleToggleBookmark}
+        onToggleBookmark={toggleBookmark}
       />
 
-      {(submitError || bookmarkError) && (
+      {(actionError || bookmarkError) && (
         <div className="mb-4 space-y-2">
-          {submitError && (
+          {actionError && (
             <div
               role="alert"
               className="rounded-2xl border-2 border-strong bg-white px-4 py-3"
             >
               <p className="text-sm font-semibold text-primary">
-                {submitError}
+                {actionError}
               </p>
             </div>
           )}
@@ -344,7 +178,7 @@ const SessionPage = () => {
           const text = current.options[opt];
           const isSelected = answered
             ? answered.selected_answer === opt
-            : selected === opt;
+            : displaySelected === opt;
           const showCorrectness = answerSubmitted;
           const isCorrect =
             showCorrectness && correctAnswer !== null && opt === correctAnswer;
@@ -363,7 +197,7 @@ const SessionPage = () => {
               isCorrect={isCorrect}
               isWrong={isWrong}
               disabled={answerSubmitted || submitting}
-              onClick={() => handleSelect(opt)}
+              onClick={() => selectAnswer(opt)}
             />
           );
         })}
@@ -383,7 +217,7 @@ const SessionPage = () => {
       <div className="mt-6 flex items-center justify-between border-t border-default pt-3">
         <button
           type="button"
-          onClick={handlePrev}
+          onClick={prev}
           disabled={currentIndex === 0}
           className="focus-ring inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium text-secondary transition hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
         >
@@ -392,7 +226,7 @@ const SessionPage = () => {
         </button>
         <button
           type="button"
-          onClick={handleNext}
+          onClick={next}
           disabled={isLast || !answerSubmitted}
           className="focus-ring inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium text-secondary transition hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
         >
@@ -404,27 +238,23 @@ const SessionPage = () => {
       <FixedFooter>
         {!answerSubmitted && (
           <>
-            <Button
-              fullWidth
-              disabled={submitCtaDisabled}
-              onClick={handleSubmit}
-            >
+            <Button fullWidth disabled={submitDisabled} onClick={submit}>
               {submitting ? (
                 <AppLoader variant="button" label="שומר..." />
               ) : (
                 "בדוק תשובה"
               )}
             </Button>
-            {submitCtaReason && (
+            {submitReason && (
               <p className="text-center text-xs text-secondary">
-                {submitCtaReason}
+                {submitReason}
               </p>
             )}
           </>
         )}
 
         {answerSubmitted && !isLast && (
-          <Button fullWidth onClick={handleNext}>
+          <Button fullWidth onClick={next}>
             שאלה הבאה
           </Button>
         )}
@@ -434,7 +264,7 @@ const SessionPage = () => {
             <Button
               fullWidth
               disabled={!allAnswered || completing}
-              onClick={handleComplete}
+              onClick={complete}
             >
               {completing ? (
                 <AppLoader variant="button" label="מסיים..." />
@@ -442,9 +272,9 @@ const SessionPage = () => {
                 "סיום תרגול"
               )}
             </Button>
-            {completeDisabledReason && (
+            {completeReason && (
               <p className="text-center text-xs text-secondary">
-                {completeDisabledReason}
+                {completeReason}
               </p>
             )}
           </>

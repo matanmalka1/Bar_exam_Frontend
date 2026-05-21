@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { getBookmarks } from "../../features/bookmarks/api";
-import type { BookmarkedQuestion } from "../../features/bookmarks/types";
-import { listUserSessions } from "../../features/sessions/api";
-import type { SessionSummary } from "../../features/sessions/types";
-import { getStatsOverview } from "../../features/stats/api";
-import type { StatsOverview } from "../../features/stats/types";
+import { getBookmarks } from "../../bookmarks/api";
+import type { BookmarkedQuestion } from "../../bookmarks/types";
+import { listUserSessions } from "../../sessions/api";
+import type { SessionSummary } from "../../sessions/types";
+import { getStatsOverview } from "../../stats/api";
+import type { StatsOverview } from "../../stats/types";
 
 type Status = "loading" | "ready";
 

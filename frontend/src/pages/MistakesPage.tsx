@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import Card from "../components/Card";
@@ -6,13 +5,8 @@ import ErrorState from "../components/ErrorState";
 import FixedFooter from "../components/FixedFooter";
 import ReviewOption from "../components/ReviewOption";
 import AppLoader from "../components/loader";
-import { getMistakes } from "../features/mistakes/api";
-import type { MistakeItem } from "../features/mistakes/types";
-import { createMistakesSession } from "../features/sessions/api";
+import { useMistakes } from "../features/mistakes/hooks/useMistakes";
 import type { AnswerOption } from "../features/sessions/types";
-import { HTTP_UNPROCESSABLE, isApiStatusError } from "../lib/api";
-
-type Status = "loading" | "ready" | "error";
 
 const OPTIONS: AnswerOption[] = ["א", "ב", "ג", "ד"];
 
@@ -29,50 +23,8 @@ const formatExamDate = (raw: string): string => {
 
 const MistakesPage = () => {
   const navigate = useNavigate();
-  const [status, setStatus] = useState<Status>("loading");
-  const [items, setItems] = useState<MistakeItem[]>([]);
-  const [reloadKey, setReloadKey] = useState(0);
-  const [starting, setStarting] = useState(false);
-  const [startError, setStartError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    getMistakes()
-      .then((data) => {
-        if (cancelled) return;
-        setItems(data);
-        setStatus("ready");
-      })
-      .catch(() => {
-        if (!cancelled) setStatus("error");
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [reloadKey]);
-
-  const retry = () => {
-    setStatus("loading");
-    setReloadKey((k) => k + 1);
-  };
-
-  const handlePracticeMistakes = async () => {
-    if (starting || items.length === 0) return;
-    setStartError(null);
-    setStarting(true);
-    try {
-      const s = await createMistakesSession();
-      navigate(`/session/${s.id}`);
-    } catch (err) {
-      setStartError(
-        isApiStatusError(err, HTTP_UNPROCESSABLE)
-          ? "אין טעויות זמינות לתרגול"
-          : "לא ניתן להתחיל תרגול טעויות כרגע",
-      );
-    } finally {
-      setStarting(false);
-    }
-  };
+  const { status, items, starting, startError, retry, startMistakesPractice } =
+    useMistakes();
 
   if (status === "loading") {
     return <AppLoader variant="page" label="טוען נתונים..." />;
@@ -176,7 +128,7 @@ const MistakesPage = () => {
       </section>
 
       <FixedFooter>
-        <Button fullWidth disabled={starting} onClick={handlePracticeMistakes}>
+        <Button fullWidth disabled={starting} onClick={startMistakesPractice}>
           {starting ? (
             <AppLoader variant="button" label="מתחיל..." />
           ) : (

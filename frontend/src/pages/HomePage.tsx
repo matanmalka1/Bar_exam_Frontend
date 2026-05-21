@@ -15,7 +15,7 @@ import AppLoader from "../components/loader";
 import { createSimulationSession } from "../features/sessions/api";
 import type { SessionSummary } from "../features/sessions/types";
 import { HTTP_UNPROCESSABLE, isApiStatusError } from "../lib/api";
-import { useHomeOverview } from "./home/useHomeOverview";
+import { useHomeOverview } from "../features/dashboard/hooks/useHomeOverview";
 
 const NETWORK_ERR = "החיבור נכשל. נסה שוב";
 const SIM_422 = "אין מספיק שאלות זמינות למבחן";

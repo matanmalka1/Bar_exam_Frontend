@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import Card from "../components/Card";
@@ -6,19 +5,11 @@ import EmptyState from "../components/EmptyState";
 import ErrorState from "../components/ErrorState";
 import ReviewOption from "../components/ReviewOption";
 import AppLoader from "../components/loader";
-import { getBookmarks, removeBookmark } from "../features/bookmarks/api";
-import type { BookmarkedQuestion } from "../features/bookmarks/types";
-import { createBookmarksSession } from "../features/sessions/api";
+import { useBookmarks } from "../features/bookmarks/hooks/useBookmarks";
 import type { AnswerOption, QuestionPart } from "../features/sessions/types";
-import { HTTP_UNPROCESSABLE, isApiStatusError } from "../lib/api";
-
-type Status = "loading" | "ready" | "error";
 
 const OPTIONS: AnswerOption[] = ["א", "ב", "ג", "ד"];
 const NETWORK_ERR = "החיבור נכשל. נסה שוב";
-const REMOVE_ERR = "לא ניתן להסיר סימניה. נסה שוב";
-const START_ERR = "לא ניתן להתחיל תרגול סימניות כרגע";
-const START_EMPTY_ERR = "אין סימניות זמינות לתרגול";
 
 const partLabel = (part: QuestionPart) => {
   if (part === "B") return "דין דיוני";
@@ -28,69 +19,17 @@ const partLabel = (part: QuestionPart) => {
 
 const BookmarksPage = () => {
   const navigate = useNavigate();
-  const [status, setStatus] = useState<Status>("loading");
-  const [bookmarks, setBookmarks] = useState<BookmarkedQuestion[]>([]);
-  const [reloadKey, setReloadKey] = useState(0);
-  const [removeError, setRemoveError] = useState<string | null>(null);
-  const [removingStableId, setRemovingStableId] = useState<string | null>(null);
-  const [starting, setStarting] = useState(false);
-  const [startError, setStartError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    getBookmarks()
-      .then((data) => {
-        if (cancelled) return;
-        setBookmarks(data);
-        setStatus("ready");
-      })
-      .catch(() => {
-        if (!cancelled) setStatus("error");
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [reloadKey]);
-
-  const retry = () => {
-    setRemoveError(null);
-    setStartError(null);
-    setStatus("loading");
-    setReloadKey((k) => k + 1);
-  };
-
-  const handleRemove = async (stableId: string) => {
-    setRemoveError(null);
-    setStartError(null);
-    setRemovingStableId(stableId);
-    try {
-      await removeBookmark(stableId);
-      setBookmarks((items) =>
-        items.filter((item) => item.stable_id !== stableId),
-      );
-    } catch {
-      setRemoveError(REMOVE_ERR);
-    } finally {
-      setRemovingStableId(null);
-    }
-  };
-
-  const handlePracticeBookmarks = async () => {
-    if (starting || bookmarks.length === 0) return;
-    setRemoveError(null);
-    setStartError(null);
-    setStarting(true);
-    try {
-      const session = await createBookmarksSession();
-      navigate(`/session/${session.id}`);
-    } catch (err) {
-      setStartError(
-        isApiStatusError(err, HTTP_UNPROCESSABLE) ? START_EMPTY_ERR : START_ERR,
-      );
-    } finally {
-      setStarting(false);
-    }
-  };
+  const {
+    status,
+    bookmarks,
+    removeError,
+    removingStableId,
+    starting,
+    startError,
+    retry,
+    remove,
+    startBookmarksPractice,
+  } = useBookmarks();
 
   if (status === "loading") {
     return <AppLoader variant="page" label="טוען נתונים..." />;
@@ -157,7 +96,7 @@ const BookmarksPage = () => {
                   צור סשן מכל השאלות ששמרת.
                 </p>
               </div>
-              <Button disabled={starting} onClick={handlePracticeBookmarks}>
+              <Button disabled={starting} onClick={startBookmarksPractice}>
                 {starting ? (
                   <AppLoader variant="button" label="מתחיל..." />
                 ) : (
@@ -194,7 +133,7 @@ const BookmarksPage = () => {
                       variant="ghost"
                       className="shrink-0 px-3 py-2 text-sm"
                       disabled={removing}
-                      onClick={() => handleRemove(question.stable_id)}
+                      onClick={() => remove(question.stable_id)}
                     >
                       {removing ? (
                         <AppLoader variant="button" label="מסיר..." />
