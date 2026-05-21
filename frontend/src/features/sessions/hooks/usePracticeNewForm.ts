@@ -1,11 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  getApiErrorDetail,
-  getApiErrorMessage,
-  HTTP_UNPROCESSABLE,
-  isApiStatusError,
-} from "../../../lib/api";
+import { extractApiError } from "../../../lib/api-errors";
+import { notifyError } from "../../../lib/toast";
 import { createExamSession, createPracticeSession } from "../api";
 import type { QuestionPart } from "../types";
 
@@ -14,35 +10,6 @@ export type CountChoice = 10 | 20 | 40 | "all";
 export type PracticeNewFlow = "practice" | "exam";
 
 const NETWORK_ERR = "לא ניתן להתחיל תרגול כרגע";
-const DEFAULT_422 = "לא ניתן להתחיל תרגול כרגע";
-const ERR_INSUFFICIENT = "אין מספיק שאלות זמינות לצירוף הזה";
-const ERR_NEED_DATE = "צריך לבחור מועד בחינה";
-const ERR_COUNT_EXCEEDS = "אין מספיק שאלות לכמות שבחרת";
-
-const map422 = (raw: unknown): string => {
-  const text = typeof raw === "string" ? raw : JSON.stringify(raw ?? "");
-  const lower = text.toLowerCase();
-  if (lower.includes("exam") && lower.includes("date")) return ERR_NEED_DATE;
-  if (lower.includes("exceed") || lower.includes("too many"))
-    return ERR_COUNT_EXCEEDS;
-  if (
-    lower.includes("insufficient") ||
-    lower.includes("not enough") ||
-    lower.includes("no questions")
-  ) {
-    return ERR_INSUFFICIENT;
-  }
-  return DEFAULT_422;
-};
-
-const extractApiError = (err: unknown): string => {
-  if (isApiStatusError(err, HTTP_UNPROCESSABLE)) {
-    const detail = getApiErrorDetail(err);
-    const mapped = map422(detail);
-    return mapped === DEFAULT_422 ? (getApiErrorMessage(err) ?? mapped) : mapped;
-  }
-  return NETWORK_ERR;
-};
 
 const partToApi = (part: PartChoice): QuestionPart | null =>
   part === "both" ? null : part;
@@ -54,7 +21,6 @@ export const usePracticeNewForm = (flow: PracticeNewFlow) => {
   const [allDates, setAllDates] = useState(false);
   const [count, setCount] = useState<CountChoice | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const dateSelected = allDates || examDate !== null;
 
@@ -83,13 +49,12 @@ export const usePracticeNewForm = (flow: PracticeNewFlow) => {
 
   const startExam = async () => {
     if (!examDate) return;
-    setSubmitError(null);
     setSubmitting(true);
     try {
       const session = await createExamSession(examDate);
       navigate(`/session/${session.id}/exam`);
     } catch (err) {
-      setSubmitError(extractApiError(err));
+      notifyError(extractApiError(err, NETWORK_ERR));
     } finally {
       setSubmitting(false);
     }
@@ -97,7 +62,6 @@ export const usePracticeNewForm = (flow: PracticeNewFlow) => {
 
   const startPractice = async () => {
     if (!canSubmit || part === null || count === null) return;
-    setSubmitError(null);
     setSubmitting(true);
     try {
       const payload: {
@@ -113,7 +77,7 @@ export const usePracticeNewForm = (flow: PracticeNewFlow) => {
       const session = await createPracticeSession(payload);
       navigate(`/session/${session.id}`);
     } catch (err) {
-      setSubmitError(extractApiError(err));
+      notifyError(extractApiError(err, NETWORK_ERR));
     } finally {
       setSubmitting(false);
     }
@@ -125,7 +89,6 @@ export const usePracticeNewForm = (flow: PracticeNewFlow) => {
     allDates,
     count,
     submitting,
-    submitError,
     canSubmit,
     disabledReason,
     dateSelected,

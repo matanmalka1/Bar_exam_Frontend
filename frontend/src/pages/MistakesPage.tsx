@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import Alert from "../components/Alert";
 import AppHeader from "../components/AppHeader";
 import Button from "../components/Button";
 import Card from "../components/Card";
@@ -22,7 +21,7 @@ const formatExamDate = (raw: string): string => {
 
 const MistakesPage = () => {
   const navigate = useNavigate();
-  const { status, items, starting, startError, retry, startMistakesPractice } =
+  const { status, items, starting, retry, startMistakesPractice } =
     useMistakes();
 
   if (status === "loading") {
@@ -75,8 +74,6 @@ const MistakesPage = () => {
           </Button>
         }
       />
-
-      {startError && <Alert variant="error">{startError}</Alert>}
 
       <section className="space-y-3">
         {items.map((q) => {

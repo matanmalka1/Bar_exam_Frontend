@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { addBookmark, getBookmarks, removeBookmark } from "../../bookmarks/api";
+import { notifyError, notifySuccess } from "../../../lib/toast";
 import { completeSession, getPracticeSession, submitAnswer } from "../api";
 import type {
   AnswerExamOut,
@@ -7,12 +7,12 @@ import type {
   SessionDetail,
   SessionQuestion,
 } from "../types";
+import { useSessionBookmarks } from "./useSessionBookmarks";
 
 type Status = "loading" | "ready" | "error";
 
 const SUBMIT_ERR = "לא ניתן לשמור תשובה. נסה שוב";
 const COMPLETE_ERR = "לא ניתן לסיים את הבחינה כרגע";
-const BOOKMARK_ERR = "לא ניתן לעדכן סימניה כרגע";
 
 const findFirstUnansweredIndex = (questions: SessionQuestion[]): number => {
   const index = questions.findIndex((question) => question.answer === null);
@@ -31,9 +31,7 @@ interface UseExamSessionResult {
   currentIndex: number;
   submitting: boolean;
   completing: boolean;
-  actionError: string | null;
   bookmarkBusy: boolean;
-  bookmarkError: string | null;
   total: number;
   answeredCount: number;
   allAnswered: boolean;
@@ -67,12 +65,14 @@ export const useExamSession = ({
   const [selected, setSelected] = useState<AnswerOption | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
-  const [actionError, setActionError] = useState<string | null>(null);
   const [completing, setCompleting] = useState(false);
   const completingRef = useRef(false);
-  const [bookmarkIds, setBookmarkIds] = useState<Set<string>>(() => new Set());
-  const [bookmarkBusy, setBookmarkBusy] = useState(false);
-  const [bookmarkError, setBookmarkError] = useState<string | null>(null);
+  const {
+    bookmarkBusy,
+    bookmarkIds,
+    loadBookmarks,
+    toggleBookmark: toggleBookmarkById,
+  } = useSessionBookmarks();
 
   useEffect(() => {
     let cancelled = false;
@@ -86,8 +86,6 @@ export const useExamSession = ({
       setStatus("loading");
       setSession(null);
       setSelected(null);
-      setActionError(null);
-      setBookmarkError(null);
 
       try {
         const data = await getPracticeSession(sessionId);
@@ -110,14 +108,7 @@ export const useExamSession = ({
         setCurrentIndex(findFirstUnansweredIndex(data.questions));
         setStatus("ready");
 
-        try {
-          const items = await getBookmarks();
-          if (!cancelled) {
-            setBookmarkIds(new Set(items.map((item) => item.stable_id)));
-          }
-        } catch {
-          if (!cancelled) setBookmarkIds(new Set());
-        }
+        void loadBookmarks(() => cancelled);
       } catch {
         if (!cancelled) setStatus("error");
       }
@@ -128,7 +119,7 @@ export const useExamSession = ({
     return () => {
       cancelled = true;
     };
-  }, [sessionId, onRedirectToPractice, reloadKey]);
+  }, [sessionId, onRedirectToPractice, reloadKey, loadBookmarks]);
 
   const current = useMemo<SessionQuestion | null>(
     () => session?.questions[currentIndex] ?? null,
@@ -165,8 +156,6 @@ export const useExamSession = ({
 
   const clearTransientState = useCallback(() => {
     setSelected(null);
-    setActionError(null);
-    setBookmarkError(null);
   }, []);
 
   const retry = useCallback(() => {
@@ -174,8 +163,6 @@ export const useExamSession = ({
     setSession(null);
     setCurrentIndex(0);
     setSelected(null);
-    setActionError(null);
-    setBookmarkError(null);
     setReloadKey((key) => key + 1);
   }, []);
 
@@ -183,8 +170,6 @@ export const useExamSession = ({
     (option: AnswerOption) => {
       if (submitting || answerSubmitted) return;
       setSelected(option);
-      setActionError(null);
-      setBookmarkError(null);
     },
     [answerSubmitted, submitting],
   );
@@ -203,27 +188,10 @@ export const useExamSession = ({
 
   const toggleBookmark = useCallback(async () => {
     if (!current || bookmarkBusy) return;
-
-    setBookmarkError(null);
-    setBookmarkBusy(true);
-    try {
-      if (isBookmarked) {
-        await removeBookmark(current.stable_id);
-        setBookmarkIds((ids) => {
-          const nextIds = new Set(ids);
-          nextIds.delete(current.stable_id);
-          return nextIds;
-        });
-      } else {
-        await addBookmark(current.stable_id);
-        setBookmarkIds((ids) => new Set(ids).add(current.stable_id));
-      }
-    } catch {
-      setBookmarkError(BOOKMARK_ERR);
-    } finally {
-      setBookmarkBusy(false);
-    }
-  }, [bookmarkBusy, current, isBookmarked]);
+    await toggleBookmarkById(current.stable_id, isBookmarked, {
+      optimistic: false,
+    });
+  }, [bookmarkBusy, current, isBookmarked, toggleBookmarkById]);
 
   const submitOrNext = useCallback(async () => {
     if (!sessionId || !current || submitting || submittingRef.current) return;
@@ -236,7 +204,6 @@ export const useExamSession = ({
     if (!displaySelected) return;
 
     const answeredStableId = current.stable_id;
-    setActionError(null);
     submittingRef.current = true;
     setSubmitting(true);
     try {
@@ -271,7 +238,7 @@ export const useExamSession = ({
 
       if (!isLast) next();
     } catch {
-      setActionError(SUBMIT_ERR);
+      notifyError(SUBMIT_ERR);
     } finally {
       submittingRef.current = false;
       setSubmitting(false);
@@ -291,14 +258,14 @@ export const useExamSession = ({
       return;
     }
 
-    setActionError(null);
     completingRef.current = true;
     setCompleting(true);
     try {
       await completeSession(sessionId);
+      notifySuccess("הבחינה הסתיימה בהצלחה");
       onComplete(sessionId);
     } catch {
-      setActionError(COMPLETE_ERR);
+      notifyError(COMPLETE_ERR);
     } finally {
       completingRef.current = false;
       setCompleting(false);
@@ -311,9 +278,7 @@ export const useExamSession = ({
     currentIndex,
     submitting,
     completing,
-    actionError,
     bookmarkBusy,
-    bookmarkError,
     total,
     answeredCount,
     allAnswered,

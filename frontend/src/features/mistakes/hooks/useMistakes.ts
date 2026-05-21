@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HTTP_UNPROCESSABLE, isApiStatusError } from "../../../lib/api";
+import { notifyError } from "../../../lib/toast";
 import { createMistakesSession } from "../../sessions/api";
 import { getMistakes } from "../api";
 import type { MistakeItem } from "../types";
@@ -13,7 +14,6 @@ export const useMistakes = () => {
   const [items, setItems] = useState<MistakeItem[]>([]);
   const [reloadKey, setReloadKey] = useState(0);
   const [starting, setStarting] = useState(false);
-  const [startError, setStartError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -40,13 +40,12 @@ export const useMistakes = () => {
 
   const startMistakesPractice = async () => {
     if (starting || items.length === 0) return;
-    setStartError(null);
     setStarting(true);
     try {
       const session = await createMistakesSession();
       navigate(`/session/${session.id}`);
     } catch (err) {
-      setStartError(
+      notifyError(
         isApiStatusError(err, HTTP_UNPROCESSABLE)
           ? "אין טעויות זמינות לתרגול"
           : "לא ניתן להתחיל תרגול טעויות כרגע",
@@ -60,7 +59,6 @@ export const useMistakes = () => {
     status,
     items,
     starting,
-    startError,
     retry,
     startMistakesPractice,
   };

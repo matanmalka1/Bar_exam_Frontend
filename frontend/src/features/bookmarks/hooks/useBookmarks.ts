@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HTTP_UNPROCESSABLE, isApiStatusError } from "../../../lib/api";
+import { notifyError, notifySuccess } from "../../../lib/toast";
 import { createBookmarksSession } from "../../sessions/api";
 import { getBookmarks, removeBookmark } from "../api";
 import type { BookmarkedQuestion } from "../types";
@@ -16,10 +17,8 @@ export const useBookmarks = () => {
   const [status, setStatus] = useState<Status>("loading");
   const [bookmarks, setBookmarks] = useState<BookmarkedQuestion[]>([]);
   const [reloadKey, setReloadKey] = useState(0);
-  const [removeError, setRemoveError] = useState<string | null>(null);
   const [removingStableId, setRemovingStableId] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
-  const [startError, setStartError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -40,23 +39,20 @@ export const useBookmarks = () => {
   }, [reloadKey]);
 
   const retry = () => {
-    setRemoveError(null);
-    setStartError(null);
     setStatus("loading");
     setReloadKey((key) => key + 1);
   };
 
   const remove = async (stableId: string) => {
-    setRemoveError(null);
-    setStartError(null);
     setRemovingStableId(stableId);
     try {
       await removeBookmark(stableId);
       setBookmarks((items) =>
         items.filter((item) => item.stable_id !== stableId),
       );
+      notifySuccess("הסימניה הוסרה");
     } catch {
-      setRemoveError(REMOVE_ERR);
+      notifyError(REMOVE_ERR);
     } finally {
       setRemovingStableId(null);
     }
@@ -64,14 +60,12 @@ export const useBookmarks = () => {
 
   const startBookmarksPractice = async () => {
     if (starting || bookmarks.length === 0) return;
-    setRemoveError(null);
-    setStartError(null);
     setStarting(true);
     try {
       const session = await createBookmarksSession();
       navigate(`/session/${session.id}`);
     } catch (err) {
-      setStartError(
+      notifyError(
         isApiStatusError(err, HTTP_UNPROCESSABLE) ? START_EMPTY_ERR : START_ERR,
       );
     } finally {
@@ -82,10 +76,8 @@ export const useBookmarks = () => {
   return {
     status,
     bookmarks,
-    removeError,
     removingStableId,
     starting,
-    startError,
     retry,
     remove,
     startBookmarksPractice,

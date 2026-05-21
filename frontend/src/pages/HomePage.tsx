@@ -11,12 +11,12 @@ import {
   Play,
 } from "lucide-react";
 import Button from "../components/Button";
-import Card from "../components/Card";
 import AppLoader from "../components/loader";
 import { createSimulationSession } from "../features/sessions/api";
 import type { SessionSummary } from "../features/sessions/types";
 import { HTTP_UNPROCESSABLE, isApiStatusError } from "../lib/api";
 import { useHomeOverview } from "../features/dashboard/hooks/useHomeOverview";
+import { notifyError } from "../lib/toast";
 
 const NETWORK_ERR = "החיבור נכשל. נסה שוב";
 const SIM_422 = "אין מספיק שאלות זמינות למבחן";
@@ -179,17 +179,15 @@ const HomePage = () => {
     statsUnavailable,
     bookmarksUnavailable,
   } = useHomeOverview();
-  const [actionError, setActionError] = useState<string | null>(null);
   const [startingSim, setStartingSim] = useState(false);
 
   const handleStartSimulation = async () => {
-    setActionError(null);
     setStartingSim(true);
     try {
       const s = await createSimulationSession();
       navigate(ROUTES.exam(s.id));
     } catch (err) {
-      setActionError(
+      notifyError(
         isApiStatusError(err, HTTP_UNPROCESSABLE) ? SIM_422 : NETWORK_ERR,
       );
     } finally {
@@ -336,13 +334,7 @@ const HomePage = () => {
         </button>
       )}
 
-      {actionError && (
-        <Card className="mt-5 border-2 border-strong">
-          <p className="text-sm font-semibold text-primary">{actionError}</p>
-        </Card>
-      )}
-
-      {sessionsUnavailable && !actionError && (
+      {sessionsUnavailable && (
         <p className="mt-5 text-xs text-secondary">
           לא ניתן לטעון תרגול פעיל כרגע.
         </p>

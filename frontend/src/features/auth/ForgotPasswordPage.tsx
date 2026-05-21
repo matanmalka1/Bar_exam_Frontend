@@ -1,23 +1,21 @@
 import axios from "axios";
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import Alert from "../../components/Alert";
 import AppHeader from "../../components/AppHeader";
 import AppLoader from "../../components/loader";
 import Button from "../../components/Button";
 import TextField from "../../components/TextField";
+import { notifyApiError, notifyError } from "../../lib/toast";
 import { forgotPassword } from "./api";
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (submitting || success) return;
-    setError(null);
     setSubmitting(true);
     try {
       const res = await forgotPassword(email);
@@ -25,9 +23,9 @@ const ForgotPasswordPage = () => {
       setEmail("");
     } catch (err) {
       if (axios.isAxiosError(err) && err.response?.status === 422) {
-        setError("אימייל לא תקין");
+        notifyError("אימייל לא תקין");
       } else {
-        setError("שגיאה בשרת, נסה שוב");
+        notifyApiError(err, "שגיאה בשרת, נסה שוב");
       }
     } finally {
       setSubmitting(false);
@@ -49,7 +47,9 @@ const ForgotPasswordPage = () => {
         </p>
 
         {success ? (
-          <Alert variant="success">{success}</Alert>
+          <div className="rounded-2xl border border-default bg-[var(--surface)] p-4 text-sm leading-6 text-secondary">
+            אפשר לבדוק את תיבת האימייל ולהמשיך לפי ההוראות שנשלחו.
+          </div>
         ) : (
           <form onSubmit={onSubmit} className="flex flex-1 flex-col gap-4">
             <TextField
@@ -66,8 +66,6 @@ const ForgotPasswordPage = () => {
               placeholder="name@example.com"
               className="text-right"
             />
-
-            {error && <Alert variant="error">{error}</Alert>}
 
             <Button
               type="submit"

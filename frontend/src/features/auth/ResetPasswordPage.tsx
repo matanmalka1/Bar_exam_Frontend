@@ -9,6 +9,7 @@ import ErrorState from "../../components/ErrorState";
 import PasswordToggle from "../../components/PasswordToggle";
 import TextField from "../../components/TextField";
 import { getApiErrorMessage } from "../../lib/api";
+import { notifyError, notifySuccess } from "../../lib/toast";
 import { resetPassword } from "./api";
 import { ResetPasswordFormSchema } from "./schemas";
 
@@ -65,14 +66,14 @@ const ResetPasswordPage = () => {
     try {
       await resetPassword(token, newPassword);
       setSuccess(true);
+      notifySuccess("הסיסמה אופסה בהצלחה");
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        setError(
-          getApiErrorMessage(err) ??
-            "לא ניתן לאפס סיסמה. נסה לבקש קישור חדש",
+        notifyError(
+          getApiErrorMessage(err) ?? "לא ניתן לאפס סיסמה. נסה לבקש קישור חדש",
         );
       } else {
-        setError("לא ניתן לאפס סיסמה. נסה לבקש קישור חדש");
+        notifyError("לא ניתן לאפס סיסמה. נסה לבקש קישור חדש");
       }
     } finally {
       setSubmitting(false);
@@ -91,7 +92,9 @@ const ResetPasswordPage = () => {
 
         {success ? (
           <div className="flex flex-col gap-4">
-            <Alert variant="success">הסיסמה אופסה בהצלחה</Alert>
+            <p className="rounded-2xl border border-default bg-[var(--surface)] p-4 text-sm leading-6 text-secondary">
+              אפשר להתחבר עכשיו עם הסיסמה החדשה.
+            </p>
             <Button
               type="button"
               fullWidth

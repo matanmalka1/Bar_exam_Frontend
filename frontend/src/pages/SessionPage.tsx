@@ -1,7 +1,6 @@
 import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Check, ChevronLeft, ChevronRight, X } from "lucide-react";
-import Alert from "../components/Alert";
 import AppHeader from "../components/AppHeader";
 import BookmarkButton from "../components/BookmarkButton";
 import Button from "../components/Button";
@@ -40,9 +39,7 @@ const SessionPage = () => {
     currentIndex,
     submitting,
     completing,
-    actionError,
     bookmarkBusy,
-    bookmarkError,
     total,
     answeredCount,
     allAnswered,
@@ -100,17 +97,6 @@ const SessionPage = () => {
           />
         }
       />
-
-      {actionError && (
-        <Alert variant="error" className="mb-4">
-          {actionError}
-        </Alert>
-      )}
-      {bookmarkError && (
-        <Alert variant="error" className="mb-4">
-          {bookmarkError}
-        </Alert>
-      )}
 
       <article className="rounded-3xl border border-default bg-[var(--surface-muted)] p-5 shadow-[var(--shadow-default)]">
         <div className="flex items-baseline justify-between gap-2 border-b border-black/10 pb-3">

@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useState, type FormEvent } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import Alert from "../../components/Alert";
@@ -7,7 +6,8 @@ import AppLoader from "../../components/loader";
 import Button from "../../components/Button";
 import PasswordToggle from "../../components/PasswordToggle";
 import TextField from "../../components/TextField";
-import { getApiErrorMessage, isApiStatusError } from "../../lib/api";
+import { isApiStatusError } from "../../lib/api";
+import { notifyApiError, notifyError } from "../../lib/toast";
 import { RegisterFormSchema } from "./schemas";
 import type { RegisterRequest } from "./types";
 import { useAuth } from "./useAuth";
@@ -65,13 +65,11 @@ const RegisterPage = () => {
       navigate("/", { replace: true });
     } catch (err) {
       if (isApiStatusError(err, 409)) {
-        setError("כבר קיים משתמש עם האימייל הזה");
+        notifyError("כבר קיים משתמש עם האימייל הזה");
       } else if (isApiStatusError(err, 422)) {
-        setError("נתונים לא תקינים. בדוק שוב את הפרטים");
-      } else if (axios.isAxiosError(err) && err.response) {
-        setError(getApiErrorMessage(err) ?? "ההרשמה נכשלה");
+        notifyError("נתונים לא תקינים. בדוק שוב את הפרטים");
       } else {
-        setError("ההרשמה נכשלה. נסה שוב");
+        notifyApiError(err, "ההרשמה נכשלה. נסה שוב");
       }
     } finally {
       setSubmitting(false);

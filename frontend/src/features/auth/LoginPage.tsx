@@ -7,6 +7,7 @@ import AppLoader from "../../components/loader";
 import Button from "../../components/Button";
 import PasswordToggle from "../../components/PasswordToggle";
 import TextField from "../../components/TextField";
+import { notifyApiError, notifyError } from "../../lib/toast";
 import { LoginRequestSchema } from "./schemas";
 import { useAuth } from "./useAuth";
 
@@ -83,9 +84,9 @@ const LoginPage = () => {
       navigate("/", { replace: true });
     } catch (err) {
       if (axios.isAxiosError(err) && err.response) {
-        setError("פרטי ההתחברות שגויים");
+        notifyError("פרטי ההתחברות שגויים");
       } else {
-        setError("החיבור נכשל. נסה שוב");
+        notifyApiError(err, "החיבור נכשל. נסה שוב");
       }
     } finally {
       setSubmitting(false);

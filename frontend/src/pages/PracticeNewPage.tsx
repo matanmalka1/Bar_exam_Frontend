@@ -3,7 +3,6 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { Check } from "lucide-react";
 import ActionCard from "../components/ActionCard";
 import AppHeader from "../components/AppHeader";
-import Alert from "../components/Alert";
 import Button from "../components/Button";
 import Chip from "../components/Chip";
 import ErrorState from "../components/ErrorState";
@@ -55,7 +54,6 @@ const PracticeNewPage = () => {
     allDates,
     count,
     submitting,
-    submitError,
     canSubmit,
     disabledReason,
     dateSelected,
@@ -96,12 +94,6 @@ const PracticeNewPage = () => {
         <p className="text-sm leading-6 text-secondary">
           בחר מועד בחינה. כל השאלות מאותו מועד יוצגו בסדר המקורי, ללא משוב מיידי.
         </p>
-
-        {submitError && (
-          <Alert variant="error" className="mt-4">
-            {submitError}
-          </Alert>
-        )}
 
         <StepSection index="01" title="בחר מועד" complete={examDate !== null}>
           {groups.length === 0 ? (
@@ -161,12 +153,6 @@ const PracticeNewPage = () => {
       <p className="text-sm leading-6 text-secondary">
         הרכב סשן תרגול לפי חלק, מועד וכמות שאלות. במצב זה תקבל משוב מיידי על כל תשובה.
       </p>
-
-      {submitError && (
-        <Alert variant="error" className="mt-4">
-          {submitError}
-        </Alert>
-      )}
 
       <StepSection index="01" title="חלק" complete={part !== null}>
         <div className="flex flex-wrap gap-2">

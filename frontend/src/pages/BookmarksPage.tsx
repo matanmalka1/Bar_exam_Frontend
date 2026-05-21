@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import Alert from "../components/Alert";
 import AppHeader from "../components/AppHeader";
 import Button from "../components/Button";
 import Card from "../components/Card";
@@ -18,10 +17,8 @@ const BookmarksPage = () => {
   const {
     status,
     bookmarks,
-    removeError,
     removingStableId,
     starting,
-    startError,
     retry,
     remove,
     startBookmarksPractice,
@@ -61,9 +58,6 @@ const BookmarksPage = () => {
           </Button>
         }
       />
-
-      {removeError && <Alert variant="error">{removeError}</Alert>}
-      {startError && <Alert variant="error">{startError}</Alert>}
 
       {bookmarks.length === 0 ? (
         <Card>
