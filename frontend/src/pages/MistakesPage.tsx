@@ -4,8 +4,8 @@ import Button from "../components/Button";
 import Card from "../components/Card";
 import ErrorState from "../components/ErrorState";
 import FixedFooter from "../components/FixedFooter";
-import PageLoading from "../components/PageLoading";
 import ReviewOption from "../components/ReviewOption";
+import AppLoader from "../components/loader";
 import { getMistakes } from "../features/mistakes/api";
 import type { MistakeItem } from "../features/mistakes/types";
 import { createMistakesSession } from "../features/sessions/api";
@@ -74,7 +74,13 @@ const MistakesPage = () => {
     }
   };
 
-  if (status === "loading") return <PageLoading />;
+  if (status === "loading") {
+    return (
+      <div className="mx-auto w-full max-w-[720px] p-4">
+        <AppLoader variant="list" rows={4} />
+      </div>
+    );
+  }
 
   if (status === "error") {
     return (
@@ -94,13 +100,13 @@ const MistakesPage = () => {
           <h1 className="font-display text-3xl font-bold text-[var(--accent-ink)]">
             טעויות
           </h1>
-          <p className="text-sm text-stone-600">חזרה על שאלות שטעית בהן</p>
+          <p className="text-sm text-secondary">חזרה על שאלות שטעית בהן</p>
         </header>
         <Card className="space-y-3 text-center">
           <h2 className="text-lg font-semibold text-[var(--accent-ink)]">
             אין טעויות עדיין
           </h2>
-          <p className="text-sm text-stone-600">
+          <p className="text-sm text-secondary">
             טעויות מתרגולים יופיעו כאן כדי שתוכל לחזור עליהן.
           </p>
           <Button onClick={() => navigate("/practice/new")}>התחל תרגול</Button>
@@ -116,7 +122,7 @@ const MistakesPage = () => {
           <h1 className="font-display text-3xl font-bold text-[var(--accent-ink)]">
             טעויות
           </h1>
-          <p className="text-sm text-stone-600">{items.length} שאלות פתוחות</p>
+          <p className="text-sm text-secondary">{items.length} שאלות פתוחות</p>
         </div>
         <Button variant="ghost" onClick={() => navigate("/practice/new")}>
           תרגול חדש
@@ -124,8 +130,8 @@ const MistakesPage = () => {
       </header>
 
       {startError && (
-        <Card className="border-red-200 bg-red-50">
-          <p className="text-sm text-red-700">{startError}</p>
+        <Card className="border-2 border-strong bg-white">
+          <p className="text-sm text-primary font-semibold">{startError}</p>
         </Card>
       )}
 
@@ -134,12 +140,12 @@ const MistakesPage = () => {
           const correct = q.correct_answer;
           return (
             <Card key={q.stable_id} className="space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-stone-500">
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-secondary">
                 <span>שאלה {q.number}</span>
                 <div className="flex gap-2">
                   {q.exam_date && <span>{formatExamDate(q.exam_date)}</span>}
                   {q.part && <span>{PART_LABEL[q.part] ?? q.part}</span>}
-                  <span className="text-red-700">
+                  <span className="text-primary font-semibold">
                     {q.times_wrong}/{q.times_answered} טעויות
                   </span>
                 </div>
@@ -159,11 +165,11 @@ const MistakesPage = () => {
                 ))}
               </div>
               {q.reference && (
-                <div className="rounded-xl border border-[var(--accent-soft)] bg-[#fff8fd] p-3">
+                <div className="rounded-xl border border-default surface-muted p-3">
                   <p className="text-xs font-semibold text-[var(--accent)]">
                     הפניה
                   </p>
-                  <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-stone-800">
+                  <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-primary">
                     {q.reference}
                   </p>
                 </div>
@@ -175,7 +181,11 @@ const MistakesPage = () => {
 
       <FixedFooter>
         <Button fullWidth disabled={starting} onClick={handlePracticeMistakes}>
-          {starting ? "מתחיל…" : "תרגל טעויות"}
+          {starting ? (
+            <AppLoader variant="button" label="מתחיל..." />
+          ) : (
+            "תרגל טעויות"
+          )}
         </Button>
       </FixedFooter>
     </div>

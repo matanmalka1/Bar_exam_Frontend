@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import type { ReactNode } from "react";
 import Button from "../components/Button";
 import Card from "../components/Card";
-import PageLoading from "../components/PageLoading";
+import AppLoader from "../components/loader";
 import {
   createSimulationSession,
   listUserSessions,
@@ -115,16 +115,15 @@ interface TileProps {
   disabled?: boolean;
   icon: ReactNode;
   title: string;
-  sub: string;
-  tone: "primary" | "ink" | "amber" | "rose";
+  sub: ReactNode;
+  tone: "primary" | "plain" | "muted" | "strong";
 }
 
 const TONE: Record<TileProps["tone"], string> = {
-  primary:
-    "from-[#fbe7f1] to-[#f7d6e6] text-[var(--accent-ink)] ring-[var(--accent-soft)]",
-  ink: "from-[#efe5d4] to-[#e7d8bf] text-[#3a2a1c] ring-[#dac9a8]",
-  amber: "from-[#fde9c8] to-[#f7d8a3] text-[#5a3a0b] ring-[#eccb87]",
-  rose: "from-[#fde2e2] to-[#f6c9c9] text-[#6e2323] ring-[#eeb4b4]",
+  primary: "surface-muted text-primary ring-black/10",
+  plain: "surface text-primary ring-black/20",
+  muted: "surface-muted text-primary ring-black/20",
+  strong: "surface text-primary ring-black/30",
 };
 
 const Tile = ({ onClick, disabled, icon, title, sub, tone }: TileProps) => (
@@ -133,7 +132,7 @@ const Tile = ({ onClick, disabled, icon, title, sub, tone }: TileProps) => (
     onClick={onClick}
     disabled={disabled}
     className={cn(
-      "group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/60 bg-gradient-to-br p-4 text-right shadow-[0_10px_30px_rgba(79,31,64,0.08)] ring-1 transition active:scale-[0.98] hover:shadow-[0_14px_38px_rgba(79,31,64,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-70",
+      "focus-ring group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-default p-4 text-right shadow-[var(--shadow-default)] ring-1 transition active:scale-[0.98] hover:shadow-[var(--shadow-elevated)] disabled:cursor-not-allowed disabled:opacity-45",
       TONE[tone],
     )}
   >
@@ -155,7 +154,7 @@ const Tile = ({ onClick, disabled, icon, title, sub, tone }: TileProps) => (
 const Progress = ({ value }: { value: number }) => (
   <div className="h-2 w-full overflow-hidden rounded-full bg-white/70">
     <div
-      className="h-full rounded-full bg-gradient-to-l from-[var(--accent)] to-[#c66ba2] transition-all"
+      className="h-full rounded-full bg-black transition-all"
       style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
     />
   </div>
@@ -168,8 +167,8 @@ const StatBlock = ({
   label: string;
   value: string | number;
 }) => (
-  <div className="rounded-2xl border border-[#ece1cb] bg-white/70 px-3 py-3 text-center">
-    <p className="text-[11px] font-medium uppercase tracking-wide text-stone-500">
+  <div className="rounded-2xl border border-default bg-white/70 px-3 py-3 text-center">
+    <p className="text-[11px] font-medium uppercase tracking-wide text-secondary">
       {label}
     </p>
     <p className="font-display mt-1 text-2xl font-black text-[var(--accent-ink)]">
@@ -247,7 +246,9 @@ const HomePage = () => {
     }
   };
 
-  if (status === "loading") return <PageLoading />;
+  if (status === "loading") {
+    return <AppLoader variant="page" label="טוען נתונים..." />;
+  }
 
   const activeProgress = active
     ? active.total_questions > 0
@@ -259,14 +260,14 @@ const HomePage = () => {
 
   return (
     <div className="mx-auto w-full max-w-[720px] space-y-5 p-4 pb-28">
-      <header className="relative overflow-hidden rounded-[2rem] border border-white/60 bg-gradient-to-br from-[#fff4e8] via-[#fdeaf3] to-[#f3dcec] p-6 shadow-[0_20px_50px_rgba(79,31,64,0.12)]">
+      <header className="surface-muted relative overflow-hidden rounded-[2rem] border border-default p-6 shadow-[var(--shadow-elevated)]">
         <div
           aria-hidden
           className="pointer-events-none absolute -left-16 -top-16 h-48 w-48 rounded-full bg-[var(--accent-soft)] opacity-50 blur-2xl"
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute -bottom-20 -right-10 h-56 w-56 rounded-full bg-[#fde2c4] opacity-60 blur-3xl"
+          className="pointer-events-none absolute -bottom-20 -right-10 h-56 w-56 rounded-full bg-white opacity-45 blur-3xl"
         />
         <div className="relative">
           <p className="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 text-xs font-semibold text-[var(--accent)]">
@@ -278,12 +279,12 @@ const HomePage = () => {
             <br />
             לשכת עורכי הדין
           </h1>
-          <p className="mt-3 max-w-[26ch] text-sm leading-6 text-stone-700">
+          <p className="mt-3 max-w-[26ch] text-sm leading-6 text-secondary">
             בחר מסלול, המשך סשן פעיל או חזור לשאלות שסימנת.
           </p>
           <Button
             fullWidth
-            className="mt-5 shadow-lg shadow-[var(--accent-soft)]/60"
+            className="mt-5 shadow-lg shadow-black/10"
             onClick={() => navigate(ROUTES.practiceNew)}
           >
             התחל תרגול
@@ -292,8 +293,8 @@ const HomePage = () => {
       </header>
 
       {actionError && (
-        <Card className="border-red-200 bg-red-50">
-          <p className="text-sm text-red-700">{actionError}</p>
+        <Card className="border-2 border-strong bg-white">
+          <p className="text-sm text-primary font-semibold">{actionError}</p>
         </Card>
       )}
 
@@ -301,7 +302,7 @@ const HomePage = () => {
         <button
           type="button"
           onClick={() => navigate(resumePath(active))}
-          className="group relative w-full overflow-hidden rounded-3xl border border-[var(--accent-soft)] bg-gradient-to-l from-[#fff8fd] to-[#fbe7f1] p-5 text-right shadow-[0_14px_40px_rgba(79,31,64,0.1)] transition hover:shadow-[0_18px_48px_rgba(79,31,64,0.15)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
+          className="focus-ring surface-muted group relative w-full overflow-hidden rounded-3xl border border-default p-5 text-right shadow-[var(--shadow-default)] transition hover:shadow-[var(--shadow-elevated)]"
         >
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
@@ -311,7 +312,7 @@ const HomePage = () => {
               <p className="font-display mt-1 text-xl font-bold text-[var(--accent-ink)]">
                 {modeLabel(active)}
               </p>
-              <p className="mt-1 text-sm text-stone-600">
+              <p className="mt-1 text-sm text-secondary">
                 {active.answered_count}/{active.total_questions} שאלות
               </p>
             </div>
@@ -326,10 +327,8 @@ const HomePage = () => {
       )}
 
       {sessionsUnavailable && (
-        <Card className="border-amber-200 bg-amber-50">
-          <p className="text-sm text-amber-800">
-            לא ניתן לטעון תרגול פעיל כרגע.
-          </p>
+        <Card className="border-strong bg-[var(--surface-muted)]">
+          <p className="text-sm text-primary">לא ניתן לטעון תרגול פעיל כרגע.</p>
         </Card>
       )}
 
@@ -338,7 +337,7 @@ const HomePage = () => {
           <h2 className="font-display text-lg font-bold text-[var(--accent-ink)]">
             מסלולים
           </h2>
-          <span className="text-xs text-stone-500">בחר כיוון</span>
+          <span className="text-xs text-secondary">בחר כיוון</span>
         </div>
         <div className="grid grid-cols-2 gap-3">
           <Tile
@@ -349,39 +348,43 @@ const HomePage = () => {
             onClick={() => navigate(ROUTES.practiceNew)}
           />
           <Tile
-            tone="ink"
+            tone="plain"
             icon={<IconExam />}
             title="מבחן מלא"
-            sub={startingSim ? "מתחיל…" : "סימולציה"}
+            sub={
+              startingSim ? (
+                <AppLoader variant="inline" label="מתחיל..." />
+              ) : (
+                "סימולציה"
+              )
+            }
             onClick={handleStartSimulation}
             disabled={startingSim}
           />
           <Tile
-            tone="rose"
+            tone="strong"
             icon={<IconMistakes />}
             title="טעויות"
             sub={stats ? `${stats.active_mistakes_count} פתוחות` : "לחזרה"}
             onClick={() => navigate(ROUTES.mistakes)}
           />
           <Tile
-            tone="amber"
+            tone="muted"
             icon={<IconBookmark />}
             title="סימניות"
-            sub={
-              bookmarksUnavailable ? "לצפייה" : `${bookmarks.length} שמורות`
-            }
+            sub={bookmarksUnavailable ? "לצפייה" : `${bookmarks.length} שמורות`}
             onClick={() => navigate(ROUTES.bookmarks)}
           />
         </div>
       </section>
 
       {stats ? (
-        <section className="rounded-3xl border border-[#ece1cb] bg-[#fffaf1]/85 p-5 shadow-[0_12px_36px_rgba(79,31,64,0.07)]">
+        <section className="surface-muted rounded-3xl border border-default p-5 shadow-[var(--shadow-default)]">
           <div className="mb-4 flex items-baseline justify-between">
             <h2 className="font-display text-lg font-bold text-[var(--accent-ink)]">
               מבט מהיר
             </h2>
-            <span className="text-xs text-stone-500">סטטיסטיקה</span>
+            <span className="text-xs text-secondary">סטטיסטיקה</span>
           </div>
           <div className="grid grid-cols-3 gap-2">
             <StatBlock label="נענו" value={stats.total_answered} />
@@ -393,7 +396,7 @@ const HomePage = () => {
           </div>
           {successRate !== null && (
             <div className="mt-4">
-              <div className="mb-1 flex items-center justify-between text-xs text-stone-500">
+              <div className="mb-1 flex items-center justify-between text-xs text-secondary">
                 <span>אחוז הצלחה כולל</span>
                 <span>{Math.round(successRate)}%</span>
               </div>
@@ -404,7 +407,7 @@ const HomePage = () => {
       ) : (
         statsUnavailable && (
           <Card>
-            <p className="text-sm text-stone-600">
+            <p className="text-sm text-secondary">
               נתוני התקדמות לא זמינים כרגע.
             </p>
           </Card>

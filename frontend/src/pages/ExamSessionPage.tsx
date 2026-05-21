@@ -5,7 +5,7 @@ import Card from "../components/Card";
 import ErrorState from "../components/ErrorState";
 import FixedFooter from "../components/FixedFooter";
 import OptionCard from "../components/OptionCard";
-import PageLoading from "../components/PageLoading";
+import AppLoader from "../components/loader";
 import {
   addBookmark,
   getBookmarks,
@@ -49,9 +49,7 @@ const ExamSessionPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [completing, setCompleting] = useState(false);
-  const [bookmarkIds, setBookmarkIds] = useState<Set<string>>(
-    () => new Set(),
-  );
+  const [bookmarkIds, setBookmarkIds] = useState<Set<string>>(() => new Set());
   const [bookmarkBusy, setBookmarkBusy] = useState(false);
   const [bookmarkError, setBookmarkError] = useState<string | null>(null);
 
@@ -97,7 +95,9 @@ const ExamSessionPage = () => {
     setReloadKey((k) => k + 1);
   };
 
-  if (status === "loading") return <PageLoading />;
+  if (status === "loading") {
+    return <AppLoader variant="page" label="טוען נתונים..." />;
+  }
 
   if (status === "error" || !session || !current) {
     return (
@@ -225,13 +225,11 @@ const ExamSessionPage = () => {
 
   const showComplete = isLast && answerSubmitted;
   const primaryDisabled = !answerSubmitted && (!displaySelected || submitting);
-  const primaryLabel = submitting
-    ? "שומר…"
-    : answerSubmitted
-      ? "הבאה"
-      : isLast
-        ? "שמור תשובה"
-        : "שמור והמשך";
+  const primaryLabel = answerSubmitted
+    ? "הבאה"
+    : isLast
+      ? "שמור תשובה"
+      : "שמור והמשך";
   const primaryReason =
     !answerSubmitted && !displaySelected ? "בחר תשובה" : null;
   const completeReason = !allAnswered
@@ -245,10 +243,10 @@ const ExamSessionPage = () => {
           חזרה
         </Button>
         <div className="text-center">
-          <p className="text-sm font-semibold text-stone-700">
+          <p className="text-sm font-semibold text-secondary">
             שאלה {currentIndex + 1} מתוך {total}
           </p>
-          <p className="text-xs text-stone-500">
+          <p className="text-xs text-secondary">
             נענו: {answeredCount}/{total}
           </p>
         </div>
@@ -258,11 +256,17 @@ const ExamSessionPage = () => {
           disabled={bookmarkBusy}
           onClick={handleToggleBookmark}
         >
-          {isBookmarked ? "הסר סימניה" : "סימניה"}
+          {bookmarkBusy ? (
+            <AppLoader variant="button" label="מעדכן..." />
+          ) : isBookmarked ? (
+            "הסר סימניה"
+          ) : (
+            "סימניה"
+          )}
         </Button>
       </header>
 
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#e1d3be]">
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--color-beige-strong)]">
         <div
           className="h-full bg-[var(--accent)] transition-all"
           style={{ width: `${(answeredCount / Math.max(total, 1)) * 100}%` }}
@@ -270,18 +274,18 @@ const ExamSessionPage = () => {
       </div>
 
       {submitError && (
-        <Card className="border-red-200 bg-red-50">
-          <p className="text-sm text-red-700">{submitError}</p>
+        <Card className="border-2 border-strong bg-white">
+          <p className="text-sm text-primary font-semibold">{submitError}</p>
         </Card>
       )}
 
       {bookmarkError && (
-        <Card className="border-red-200 bg-red-50">
-          <p className="text-sm text-red-700">{bookmarkError}</p>
+        <Card className="border-2 border-strong bg-white">
+          <p className="text-sm text-primary font-semibold">{bookmarkError}</p>
         </Card>
       )}
 
-      <Card className="bg-[#fffaf1]">
+      <Card className="surface-muted">
         <p className="text-xs font-medium text-[var(--accent)]">
           שאלה {current.number}
         </p>
@@ -329,10 +333,14 @@ const ExamSessionPage = () => {
               disabled={primaryDisabled}
               onClick={handlePrimary}
             >
-              {primaryLabel}
+              {submitting ? (
+                <AppLoader variant="button" label="שומר..." />
+              ) : (
+                primaryLabel
+              )}
             </Button>
             {primaryReason && (
-              <p className="text-center text-xs text-stone-500">
+              <p className="text-center text-xs text-secondary">
                 {primaryReason}
               </p>
             )}
@@ -345,10 +353,14 @@ const ExamSessionPage = () => {
               disabled={!allAnswered || completing}
               onClick={handleComplete}
             >
-              {completing ? "מסיים…" : "סיום בחינה"}
+              {completing ? (
+                <AppLoader variant="button" label="מסיים..." />
+              ) : (
+                "סיום בחינה"
+              )}
             </Button>
             {completeReason && (
-              <p className="text-center text-xs text-stone-500">
+              <p className="text-center text-xs text-secondary">
                 {completeReason}
               </p>
             )}

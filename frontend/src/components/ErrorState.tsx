@@ -8,8 +8,8 @@ interface ErrorStateProps {
 
 const ErrorState = ({ title = "שגיאה", message, action }: ErrorStateProps) => (
   <div className="flex flex-col items-center justify-center gap-2 p-8 text-center">
-    <h3 className="text-lg font-semibold text-red-700">{title}</h3>
-    {message && <p className="text-sm text-stone-600">{message}</p>}
+    <h3 className="text-lg font-bold text-primary">{title}</h3>
+    {message && <p className="text-sm text-secondary">{message}</p>}
     {action && <div className="mt-2">{action}</div>}
   </div>
 );

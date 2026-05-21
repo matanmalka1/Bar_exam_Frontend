@@ -2,10 +2,11 @@ import axios from "axios";
 import { useState, type FormEvent } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import Button from "../../components/Button";
+import AppLoader from "../../components/loader";
 import { useAuth } from "./useAuth";
 
 const inputClass =
-  "w-full rounded-2xl border border-[#e6dcc9] bg-white/90 px-4 py-3 text-base text-[var(--ink)] shadow-inner placeholder:text-stone-400 outline-none transition focus:border-[var(--accent)] focus:bg-white focus:ring-2 focus:ring-[var(--accent-soft)] disabled:opacity-60";
+  "focus-ring w-full rounded-2xl border border-default bg-white/90 px-4 py-3 text-base text-primary shadow-inner placeholder:text-black/45 outline-none transition focus:bg-white disabled:opacity-45";
 
 const LoginPage = () => {
   const { status, login } = useAuth();
@@ -43,15 +44,15 @@ const LoginPage = () => {
     >
       <div
         aria-hidden
-        className="pointer-events-none absolute -right-32 -top-32 h-80 w-80 rounded-full bg-[var(--accent-soft)] opacity-60 blur-3xl"
+        className="pointer-events-none absolute -right-32 -top-32 h-80 w-80 rounded-full bg-white opacity-50 blur-3xl"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -bottom-40 -left-24 h-96 w-96 rounded-full bg-[#fde2c4] opacity-60 blur-3xl"
+        className="pointer-events-none absolute -bottom-40 -left-24 h-96 w-96 rounded-full bg-white opacity-50 blur-3xl"
       />
 
       <div className="relative mx-auto flex min-h-screen w-full max-w-[460px] flex-col justify-center p-5">
-        <div className="relative overflow-hidden rounded-[2rem] border border-white/60 bg-gradient-to-br from-[#fff4e8] via-[#fdeaf3] to-[#f3dcec] p-7 shadow-[0_20px_50px_rgba(79,31,64,0.12)]">
+        <div className="surface-muted relative overflow-hidden rounded-[2rem] border border-default p-7 shadow-[var(--shadow-elevated)]">
           <div
             aria-hidden
             className="pointer-events-none absolute -left-12 -top-12 h-36 w-36 rounded-full bg-white/50 blur-2xl"
@@ -64,7 +65,7 @@ const LoginPage = () => {
             <h1 className="font-display mt-3 text-[2.2rem] font-black leading-[1.05] text-[var(--accent-ink)]">
               התחברות
             </h1>
-            <p className="mt-2 text-sm leading-6 text-stone-700">
+            <p className="mt-2 text-sm leading-6 text-secondary">
               הזן אימייל וסיסמה כדי להמשיך לתרגול.
             </p>
 
@@ -72,7 +73,7 @@ const LoginPage = () => {
               <div className="space-y-1.5">
                 <label
                   htmlFor="login-email"
-                  className="block text-xs font-semibold uppercase tracking-wide text-stone-600"
+                  className="block text-xs font-semibold uppercase tracking-wide text-secondary"
                 >
                   אימייל
                 </label>
@@ -94,7 +95,7 @@ const LoginPage = () => {
               <div className="space-y-1.5">
                 <label
                   htmlFor="login-password"
-                  className="block text-xs font-semibold uppercase tracking-wide text-stone-600"
+                  className="block text-xs font-semibold uppercase tracking-wide text-secondary"
                 >
                   סיסמה
                 </label>
@@ -114,7 +115,7 @@ const LoginPage = () => {
               {error && (
                 <div
                   role="alert"
-                  className="rounded-2xl border border-red-200 bg-red-50/90 px-3 py-2 text-sm text-red-700"
+                  className="rounded-2xl border-2 border-strong bg-white px-3 py-2 text-sm font-semibold text-primary"
                 >
                   {error}
                 </div>
@@ -124,15 +125,19 @@ const LoginPage = () => {
                 type="submit"
                 fullWidth
                 disabled={submitting || !email || !password}
-                className="mt-2 shadow-lg shadow-[var(--accent-soft)]/60"
+                className="mt-2 shadow-lg shadow-black/10"
               >
-                {submitting ? "מתחבר…" : "התחברות"}
+                {submitting ? (
+                  <AppLoader variant="button" label="מתחבר..." />
+                ) : (
+                  "התחברות"
+                )}
               </Button>
             </form>
           </div>
         </div>
 
-        <p className="mt-5 text-center text-xs text-stone-500">
+        <p className="mt-5 text-center text-xs text-secondary">
           תרגול בחינות לשכת עורכי הדין
         </p>
       </div>

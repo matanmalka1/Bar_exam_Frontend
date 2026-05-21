@@ -1,0 +1,732 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>App Loader Preview</title>
+    <style>
+      :root {
+        --color-black: #000000;
+        --color-white: #ffffff;
+        --color-beige: #f4ead8;
+        --color-beige-strong: #e6d6bc;
+        --surface: var(--color-white);
+        --surface-muted: var(--color-beige);
+        --text-primary: var(--color-black);
+        --text-secondary: rgba(0, 0, 0, 0.68);
+        --border-default: rgba(0, 0, 0, 0.16);
+        --border-strong: rgba(0, 0, 0, 0.72);
+        --shadow-default: 0 10px 30px rgba(0, 0, 0, 0.08);
+        --shadow-elevated: 0 18px 46px rgba(0, 0, 0, 0.12);
+        --accent: var(--color-black);
+        --accent-soft: var(--color-beige);
+        --accent-ink: var(--color-black);
+        --paper: var(--color-beige);
+        --paper-2: var(--color-white);
+        --ink: var(--color-black);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        background:
+          radial-gradient(
+            circle at top left,
+            rgba(230, 214, 188, 0.9),
+            transparent 34%
+          ),
+          linear-gradient(180deg, var(--surface), var(--surface-muted));
+        color: var(--text-primary);
+      }
+
+      .page {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 40px 0 64px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 24px;
+        align-items: stretch;
+        margin-bottom: 28px;
+      }
+
+      .hero-card,
+      .section {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--border-default);
+        border-radius: 32px;
+        background: rgba(255, 255, 255, 0.76);
+        box-shadow: var(--shadow-default);
+        backdrop-filter: blur(10px);
+      }
+
+      .hero-card {
+        padding: 34px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        height: 30px;
+        padding: 0 12px;
+        border: 1px solid var(--border-default);
+        border-radius: 999px;
+        background: var(--paper);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .eyebrow::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: var(--ink);
+        animation: loader-pulse-dot 1.35s ease-in-out infinite;
+      }
+
+      h1 {
+        max-width: 680px;
+        margin: 20px 0 10px;
+        font-size: clamp(34px, 6vw, 74px);
+        line-height: 0.95;
+        letter-spacing: -0.06em;
+      }
+
+      .subtitle {
+        max-width: 590px;
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 17px;
+        line-height: 1.7;
+      }
+
+      .hero-loader {
+        display: grid;
+        place-items: center;
+        min-height: 320px;
+        background: var(--paper);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .section {
+        padding: 24px;
+      }
+
+      .section-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .section-title h2 {
+        margin: 0;
+        font-size: 20px;
+        letter-spacing: -0.03em;
+      }
+
+      .tag {
+        border: 1px solid var(--border-default);
+        border-radius: 999px;
+        padding: 6px 10px;
+        background: var(--paper);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .big-loader-wrap {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 18px;
+      }
+
+      .big-loader {
+        position: relative;
+        width: 108px;
+        height: 108px;
+        border: 1px solid var(--border-strong);
+        border-radius: 34px;
+        background: var(--paper);
+        box-shadow: var(--shadow-elevated);
+        transition:
+          transform 240ms ease,
+          box-shadow 240ms ease;
+      }
+
+      .big-loader-wrap:hover .big-loader {
+        transform: rotate(3deg) translateY(-3px);
+        box-shadow: 0 26px 62px rgba(0, 0, 0, 0.17);
+      }
+
+      .big-loader::before {
+        content: "";
+        position: absolute;
+        inset: 14px;
+        border: 1px solid rgba(0, 0, 0, 0.28);
+        border-radius: 24px;
+      }
+
+      .big-loader-core {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        background: var(--ink);
+        transform: translate(-50%, -50%);
+        animation: loader-core 1.4s ease-in-out infinite;
+      }
+
+      .big-loader-dot {
+        position: absolute;
+        width: 13px;
+        height: 13px;
+        border-radius: 999px;
+        background: var(--ink);
+      }
+
+      .big-loader-dot.one {
+        top: -7px;
+        left: 50%;
+        transform: translateX(-50%);
+        animation: dot-one 1.4s ease-in-out infinite;
+      }
+
+      .big-loader-dot.two {
+        bottom: 10px;
+        left: -7px;
+        animation: dot-two 1.4s ease-in-out infinite 0.15s;
+      }
+
+      .big-loader-dot.three {
+        bottom: 10px;
+        right: -7px;
+        animation: dot-three 1.4s ease-in-out infinite 0.3s;
+      }
+
+      .loader-label {
+        text-align: center;
+      }
+
+      .loader-label strong {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 15px;
+      }
+
+      .loader-label span {
+        color: var(--text-secondary);
+        font-size: 13px;
+      }
+
+      .card-loader {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--border-default);
+        border-radius: 26px;
+        padding: 22px;
+        background: var(--paper);
+        box-shadow: var(--shadow-default);
+        transition:
+          transform 200ms ease,
+          box-shadow 200ms ease;
+      }
+
+      .card-loader:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-elevated);
+      }
+
+      .card-loader:hover .glow {
+        opacity: 1;
+      }
+
+      .glow {
+        pointer-events: none;
+        position: absolute;
+        inset: -80px;
+        opacity: 0;
+        transition: opacity 240ms ease;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.84),
+          transparent 42%
+        );
+      }
+
+      .skeleton {
+        position: relative;
+        overflow: hidden;
+        height: 14px;
+        border-radius: 999px;
+        background: rgba(0, 0, 0, 0.1);
+      }
+
+      .skeleton::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        transform: translateX(100%);
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.82),
+          transparent
+        );
+        animation: shimmer 1.35s infinite;
+      }
+
+      .stack {
+        position: relative;
+        display: grid;
+        gap: 12px;
+      }
+
+      .w-30 {
+        width: 30%;
+      }
+      .w-42 {
+        width: 42%;
+      }
+      .w-55 {
+        width: 55%;
+      }
+      .w-70 {
+        width: 70%;
+      }
+      .w-84 {
+        width: 84%;
+      }
+      .w-100 {
+        width: 100%;
+      }
+      .h-5 {
+        height: 20px;
+      }
+      .h-11 {
+        height: 44px;
+      }
+
+      .pills {
+        display: flex;
+        gap: 8px;
+        padding-top: 4px;
+      }
+
+      .pill {
+        width: 72px;
+        height: 32px;
+        border: 1px solid var(--border-default);
+        border-radius: 999px;
+        background: rgba(0, 0, 0, 0.08);
+      }
+
+      .table-loader {
+        display: grid;
+        gap: 10px;
+      }
+
+      .table-row {
+        display: grid;
+        grid-template-columns: 0.7fr 1.4fr 0.8fr 0.6fr;
+        gap: 10px;
+        padding: 14px;
+        border: 1px solid var(--border-default);
+        border-radius: 18px;
+        background: var(--paper-2);
+      }
+
+      .list-loader {
+        display: grid;
+        gap: 10px;
+      }
+
+      .list-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 13px;
+        border: 1px solid var(--border-default);
+        border-radius: 20px;
+        background: var(--paper-2);
+      }
+
+      .orb {
+        position: relative;
+        flex: 0 0 auto;
+        width: 34px;
+        height: 34px;
+        border: 1px solid rgba(0, 0, 0, 0.22);
+        border-radius: 999px;
+        background: var(--paper);
+      }
+
+      .orb::before {
+        content: "";
+        position: absolute;
+        inset: 5px;
+        border: 1px solid var(--ink);
+        border-radius: 999px;
+        animation: orbit 1.2s linear infinite;
+      }
+
+      .orb::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 5px;
+        height: 5px;
+        border-radius: 999px;
+        background: var(--ink);
+        transform: translate(-50%, -50%);
+      }
+
+      .form-loader {
+        display: grid;
+        gap: 16px;
+      }
+
+      .field {
+        display: grid;
+        gap: 8px;
+      }
+
+      .button-demo {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 44px;
+        padding: 0 18px;
+        border: 1px solid var(--ink);
+        border-radius: 999px;
+        background: var(--ink);
+        color: var(--color-white);
+        font-weight: 800;
+        cursor: wait;
+        transition:
+          transform 180ms ease,
+          box-shadow 180ms ease;
+      }
+
+      .button:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-default);
+      }
+
+      .button .spinner {
+        position: relative;
+        width: 16px;
+        height: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.42);
+        border-top-color: var(--color-white);
+        border-radius: 999px;
+        animation: spin 850ms linear infinite;
+      }
+
+      .inline-loader {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        color: var(--text-secondary);
+        font-size: 14px;
+        font-weight: 650;
+      }
+
+      @keyframes shimmer {
+        100% {
+          transform: translateX(-100%);
+        }
+      }
+
+      @keyframes orbit {
+        0% {
+          transform: rotate(0deg) translateX(2px) rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg) translateX(2px) rotate(-360deg);
+        }
+      }
+
+      @keyframes loader-core {
+        0%,
+        100% {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: translate(-50%, -50%) scale(1.75);
+          opacity: 0.35;
+        }
+      }
+
+      @keyframes dot-one {
+        0%,
+        100% {
+          transform: translateX(-50%) translateY(0);
+        }
+        50% {
+          transform: translateX(-50%) translateY(-9px);
+        }
+      }
+
+      @keyframes dot-two {
+        0%,
+        100% {
+          transform: translate(0, 0);
+        }
+        50% {
+          transform: translate(-7px, 7px);
+        }
+      }
+
+      @keyframes dot-three {
+        0%,
+        100% {
+          transform: translate(0, 0);
+        }
+        50% {
+          transform: translate(7px, 7px);
+        }
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes loader-pulse-dot {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.8);
+          opacity: 0.35;
+        }
+      }
+
+      @media (max-width: 880px) {
+        .hero,
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <div class="hero-card">
+          <span class="eyebrow">מערכת loaders אחידה</span>
+          <h1>טעינה שלא נראית כמו עוד spinner גנרי</h1>
+          <p class="subtitle">
+            כל המצבים על אותו בסיס ויזואלי: שחור, לבן ובז׳. יש skeletons, loader
+            מרכזי, כפתור, טבלה, רשימה וטופס.
+          </p>
+        </div>
+
+        <div class="section hero-loader">
+          <div class="big-loader-wrap" aria-live="polite">
+            <div class="big-loader">
+              <span class="big-loader-core"></span>
+              <span class="big-loader-dot one"></span>
+              <span class="big-loader-dot two"></span>
+              <span class="big-loader-dot three"></span>
+            </div>
+            <div class="loader-label">
+              <strong>טוען מבחן...</strong>
+              <span>מסדרים את הנתונים בצורה נקייה</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid">
+        <div class="section">
+          <div class="section-title">
+            <h2>Card Loader</h2>
+            <span class="tag">variant="card"</span>
+          </div>
+          <div class="card-loader">
+            <div class="glow"></div>
+            <div class="stack">
+              <div class="skeleton h-5 w-55"></div>
+              <div class="skeleton w-100"></div>
+              <div class="skeleton w-84"></div>
+              <div class="pills">
+                <div class="pill"></div>
+                <div class="pill"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">
+            <h2>Button + Inline</h2>
+            <span class="tag">button / inline</span>
+          </div>
+          <div class="button-demo">
+            <button class="button" type="button">
+              <span class="spinner"></span>
+              שומר...
+            </button>
+
+            <span class="inline-loader">
+              <span class="orb"></span>
+              מעדכן נתונים...
+            </span>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">
+            <h2>Table Loader</h2>
+            <span class="tag">variant="table"</span>
+          </div>
+          <div class="table-loader">
+            <div class="table-row">
+              <div class="skeleton"></div>
+              <div class="skeleton"></div>
+              <div class="skeleton"></div>
+              <div class="skeleton"></div>
+            </div>
+            <div class="table-row">
+              <div class="skeleton"></div>
+              <div class="skeleton"></div>
+              <div class="skeleton"></div>
+              <div class="skeleton"></div>
+            </div>
+            <div class="table-row">
+              <div class="skeleton"></div>
+              <div class="skeleton"></div>
+              <div class="skeleton"></div>
+              <div class="skeleton"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">
+            <h2>List Loader</h2>
+            <span class="tag">variant="list"</span>
+          </div>
+          <div class="list-loader">
+            <div class="list-row">
+              <span class="orb"></span>
+              <div class="stack" style="width: 100%">
+                <div class="skeleton w-70"></div>
+                <div class="skeleton w-30"></div>
+              </div>
+            </div>
+            <div class="list-row">
+              <span class="orb"></span>
+              <div class="stack" style="width: 100%">
+                <div class="skeleton w-84"></div>
+                <div class="skeleton w-42"></div>
+              </div>
+            </div>
+            <div class="list-row">
+              <span class="orb"></span>
+              <div class="stack" style="width: 100%">
+                <div class="skeleton w-55"></div>
+                <div class="skeleton w-30"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">
+            <h2>Form Loader</h2>
+            <span class="tag">variant="form"</span>
+          </div>
+          <div class="form-loader">
+            <div class="field">
+              <div class="skeleton w-30"></div>
+              <div class="skeleton h-11 w-100"></div>
+            </div>
+            <div class="field">
+              <div class="skeleton w-42"></div>
+              <div class="skeleton h-11 w-100"></div>
+            </div>
+            <div class="field">
+              <div class="skeleton w-30"></div>
+              <div class="skeleton h-11 w-100"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">
+            <h2>Compact Card Stack</h2>
+            <span class="tag">dashboard</span>
+          </div>
+          <div class="stack">
+            <div class="card-loader">
+              <div class="glow"></div>
+              <div class="stack">
+                <div class="skeleton h-5 w-42"></div>
+                <div class="skeleton w-100"></div>
+                <div class="skeleton w-70"></div>
+              </div>
+            </div>
+            <div class="card-loader">
+              <div class="glow"></div>
+              <div class="stack">
+                <div class="skeleton h-5 w-55"></div>
+                <div class="skeleton w-84"></div>
+                <div class="skeleton w-42"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

@@ -18,7 +18,7 @@ const ITEMS = [
 
 const BottomNav = () => (
   <nav
-    className="fixed inset-x-0 bottom-0 z-40 border-t border-[#e2d5c2] bg-white/90 shadow-[0_-10px_30px_rgba(79,31,64,0.08)] backdrop-blur supports-[backdrop-filter]:bg-white/75"
+    className="fixed inset-x-0 bottom-0 z-40 border-t border-default bg-white/90 shadow-[0_-10px_30px_rgba(0,0,0,0.08)] backdrop-blur supports-[backdrop-filter]:bg-white/75"
     aria-label="ניווט תחתון"
   >
     <ul className="grid grid-cols-5 px-1 pb-[max(env(safe-area-inset-bottom),0.25rem)] pt-1">
@@ -30,10 +30,10 @@ const BottomNav = () => (
             className={({ isActive }) =>
               cn(
                 "group relative flex h-14 flex-col items-center justify-center gap-1 rounded-xl text-[11px] font-medium transition-colors",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2",
+                "focus-ring",
                 isActive
-                  ? "text-[var(--accent)]"
-                  : "text-stone-500 hover:bg-[var(--accent-soft)] hover:text-[var(--accent-ink)]",
+                  ? "text-primary"
+                  : "text-secondary hover:bg-[var(--surface-muted)] hover:text-primary",
               )
             }
           >
@@ -42,7 +42,7 @@ const BottomNav = () => (
                 <span
                   className={cn(
                     "absolute top-1 h-1 w-6 rounded-full transition-opacity",
-                    isActive ? "bg-[var(--accent)] opacity-100" : "opacity-0",
+                    isActive ? "bg-black opacity-100" : "opacity-0",
                   )}
                 />
 

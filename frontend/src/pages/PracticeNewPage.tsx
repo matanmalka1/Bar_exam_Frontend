@@ -6,7 +6,7 @@ import Card from "../components/Card";
 import Chip from "../components/Chip";
 import ErrorState from "../components/ErrorState";
 import FixedFooter from "../components/FixedFooter";
-import PageLoading from "../components/PageLoading";
+import AppLoader from "../components/loader";
 import { getExams } from "../features/exams/api";
 import type { ExamSummary } from "../features/exams/types";
 import {
@@ -119,7 +119,13 @@ const PracticeNewPage = () => {
   };
   const goBack = () => navigate(-1);
 
-  if (status === "loading") return <PageLoading />;
+  if (status === "loading") {
+    return (
+      <div className="mx-auto w-full max-w-[720px] p-4">
+        <AppLoader variant="form" rows={4} />
+      </div>
+    );
+  }
 
   if (status === "error") {
     return (
@@ -163,16 +169,16 @@ const PracticeNewPage = () => {
         </header>
 
         {submitError && (
-          <Card className="border-red-200 bg-red-50">
-            <p className="text-sm text-red-700">{submitError}</p>
+          <Card className="border-2 border-strong bg-white">
+            <p className="text-sm text-primary font-semibold">{submitError}</p>
           </Card>
         )}
 
         <section className="space-y-2">
-          <p className="text-sm font-semibold text-stone-700">בחר מועד</p>
+          <p className="text-sm font-semibold text-secondary">בחר מועד</p>
           {groups.length === 0 ? (
             <Card>
-              <p className="text-sm text-stone-600">אין מועדים זמינים</p>
+              <p className="text-sm text-secondary">אין מועדים זמינים</p>
             </Card>
           ) : (
             <div className="grid gap-2">
@@ -189,7 +195,7 @@ const PracticeNewPage = () => {
                       <span className="font-medium text-[var(--accent-ink)]">
                         {g.label}
                       </span>
-                      <span className="text-sm text-stone-600">
+                      <span className="text-sm text-secondary">
                         {g.total} שאלות
                       </span>
                     </div>
@@ -202,10 +208,14 @@ const PracticeNewPage = () => {
 
         <FixedFooter>
           <Button fullWidth disabled={!canSubmit} onClick={handleStartExam}>
-            {submitting ? "מתחיל…" : "התחל בחינה"}
+            {submitting ? (
+              <AppLoader variant="button" label="מתחיל..." />
+            ) : (
+              "התחל בחינה"
+            )}
           </Button>
           {disabledReason && (
-            <p className="text-center text-xs text-stone-500">
+            <p className="text-center text-xs text-secondary">
               {disabledReason}
             </p>
           )}
@@ -266,13 +276,13 @@ const PracticeNewPage = () => {
       </p>
 
       {submitError && (
-        <Card className="border-red-200 bg-red-50">
-          <p className="text-sm text-red-700">{submitError}</p>
+        <Card className="border-2 border-strong bg-white">
+          <p className="text-sm text-primary font-semibold">{submitError}</p>
         </Card>
       )}
 
       <section className="space-y-2">
-        <p className="text-sm font-semibold text-stone-700">בחר חלק</p>
+        <p className="text-sm font-semibold text-secondary">בחר חלק</p>
         <div className="flex flex-wrap gap-2">
           <Chip selected={part === "B"} onClick={() => setPart("B")}>
             דין דיוני
@@ -288,7 +298,7 @@ const PracticeNewPage = () => {
 
       {part !== null && (
         <section className="space-y-2">
-          <p className="text-sm font-semibold text-stone-700">בחר מועד</p>
+          <p className="text-sm font-semibold text-secondary">בחר מועד</p>
           <div className="flex flex-wrap gap-2">
             <Chip
               selected={allDates}
@@ -317,7 +327,7 @@ const PracticeNewPage = () => {
 
       {part !== null && (examDate !== null || allDates) && (
         <section className="space-y-2">
-          <p className="text-sm font-semibold text-stone-700">מספר שאלות</p>
+          <p className="text-sm font-semibold text-secondary">מספר שאלות</p>
           <div className="flex flex-wrap gap-2">
             {([10, 20, 40] as const).map((n) => (
               <Chip key={n} selected={count === n} onClick={() => setCount(n)}>
@@ -333,12 +343,14 @@ const PracticeNewPage = () => {
 
       <FixedFooter>
         <Button fullWidth disabled={!canSubmit} onClick={handleStartPractice}>
-          {submitting ? "מתחיל…" : "התחל תרגול"}
+          {submitting ? (
+            <AppLoader variant="button" label="מתחיל..." />
+          ) : (
+            "התחל תרגול"
+          )}
         </Button>
         {disabledReason && (
-          <p className="text-center text-xs text-stone-500">
-            {disabledReason}
-          </p>
+          <p className="text-center text-xs text-secondary">{disabledReason}</p>
         )}
       </FixedFooter>
     </div>

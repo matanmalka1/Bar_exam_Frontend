@@ -4,8 +4,8 @@ import Button from "../components/Button";
 import Card from "../components/Card";
 import ErrorState from "../components/ErrorState";
 import FixedFooter from "../components/FixedFooter";
-import PageLoading from "../components/PageLoading";
 import ReviewOption from "../components/ReviewOption";
+import AppLoader from "../components/loader";
 import { getPracticeSession } from "../features/sessions/api";
 import type {
   AnswerOption,
@@ -63,7 +63,9 @@ const ResultsPage = () => {
     [session],
   );
 
-  if (status === "loading") return <PageLoading />;
+  if (status === "loading") {
+    return <AppLoader variant="page" label="טוען נתונים..." />;
+  }
 
   if (status === "error" || !session) {
     return (
@@ -107,33 +109,33 @@ const ResultsPage = () => {
         <span className="w-16" />
       </header>
 
-      <Card className="bg-[#fffaf1]">
+      <Card className="surface-muted">
         <div className="space-y-2 text-center">
           <p className="text-sm font-medium text-[var(--accent)]">הציון שלך</p>
           <p className="font-display text-6xl font-black text-[var(--accent-ink)]">
             {scorePercent}%
           </p>
-          <p className="text-sm text-stone-600">
+          <p className="text-sm text-secondary">
             {correct} נכונות מתוך {total}
           </p>
           <div className="grid grid-cols-3 gap-2 pt-3 text-sm">
             <div>
-              <p className="text-stone-500">נענו</p>
+              <p className="text-secondary">נענו</p>
               <p className="font-semibold text-[var(--accent-ink)]">
                 {answered}/{total}
               </p>
             </div>
             <div>
-              <p className="text-stone-500">נכונות</p>
-              <p className="font-semibold text-green-700">{correct}</p>
+              <p className="text-secondary">נכונות</p>
+              <p className="font-semibold text-primary">{correct}</p>
             </div>
             <div>
-              <p className="text-stone-500">טעויות</p>
-              <p className="font-semibold text-red-700">{mistakes.length}</p>
+              <p className="text-secondary">טעויות</p>
+              <p className="font-semibold text-primary">{mistakes.length}</p>
             </div>
           </div>
           {session.completed_at && (
-            <p className="pt-2 text-xs text-stone-500">
+            <p className="pt-2 text-xs text-secondary">
               הושלם: {formatDate(session.completed_at)}
             </p>
           )}
@@ -146,7 +148,7 @@ const ResultsPage = () => {
         </h2>
         {mistakes.length === 0 ? (
           <Card>
-            <p className="text-sm text-stone-600">אין טעויות.</p>
+            <p className="text-sm text-secondary">אין טעויות.</p>
           </Card>
         ) : (
           mistakes.map((q) => {
@@ -167,20 +169,18 @@ const ResultsPage = () => {
                       label={opt}
                       text={q.options[opt]}
                       isCorrect={correctAns === opt}
-                      isSelectedWrong={
-                        selected === opt && correctAns !== opt
-                      }
+                      isSelectedWrong={selected === opt && correctAns !== opt}
                       showCorrectHint
                       showSelectedHint
                     />
                   ))}
                 </div>
                 {q.reference && (
-                  <div className="rounded-xl border border-[var(--accent-soft)] bg-[#fff8fd] p-3">
+                  <div className="rounded-xl border border-default surface-muted p-3">
                     <p className="text-xs font-semibold text-[var(--accent)]">
                       הפניה
                     </p>
-                    <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-stone-800">
+                    <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-primary">
                       {q.reference}
                     </p>
                   </div>

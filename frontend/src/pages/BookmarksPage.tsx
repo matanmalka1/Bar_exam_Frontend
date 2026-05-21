@@ -4,8 +4,8 @@ import Button from "../components/Button";
 import Card from "../components/Card";
 import EmptyState from "../components/EmptyState";
 import ErrorState from "../components/ErrorState";
-import PageLoading from "../components/PageLoading";
 import ReviewOption from "../components/ReviewOption";
+import AppLoader from "../components/loader";
 import { getBookmarks, removeBookmark } from "../features/bookmarks/api";
 import type { BookmarkedQuestion } from "../features/bookmarks/types";
 import { createBookmarksSession } from "../features/sessions/api";
@@ -92,7 +92,13 @@ const BookmarksPage = () => {
     }
   };
 
-  if (status === "loading") return <PageLoading />;
+  if (status === "loading") {
+    return (
+      <div className="mx-auto w-full max-w-[720px] p-4">
+        <AppLoader variant="list" rows={4} />
+      </div>
+    );
+  }
 
   if (status === "error") {
     return (
@@ -112,7 +118,7 @@ const BookmarksPage = () => {
           <h1 className="font-display text-3xl font-bold text-[var(--accent-ink)]">
             סימניות
           </h1>
-          <p className="text-sm text-stone-600">
+          <p className="text-sm text-secondary">
             {bookmarks.length} שאלות שמורות
           </p>
         </div>
@@ -120,14 +126,14 @@ const BookmarksPage = () => {
       </header>
 
       {removeError && (
-        <Card className="border-red-200 bg-red-50">
-          <p className="text-sm text-red-700">{removeError}</p>
+        <Card className="border-2 border-strong bg-white">
+          <p className="text-sm text-primary font-semibold">{removeError}</p>
         </Card>
       )}
 
       {startError && (
-        <Card className="border-red-200 bg-red-50">
-          <p className="text-sm text-red-700">{startError}</p>
+        <Card className="border-2 border-strong bg-white">
+          <p className="text-sm text-primary font-semibold">{startError}</p>
         </Card>
       )}
 
@@ -145,18 +151,22 @@ const BookmarksPage = () => {
         </Card>
       ) : (
         <>
-          <Card className="border-[var(--accent-soft)] bg-[#fff8fd]">
+          <Card className="border-default surface-muted">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="font-semibold text-[var(--accent-ink)]">
                   תרגול סימניות
                 </p>
-                <p className="mt-1 text-sm text-stone-600">
+                <p className="mt-1 text-sm text-secondary">
                   צור סשן מכל השאלות ששמרת.
                 </p>
               </div>
               <Button disabled={starting} onClick={handlePracticeBookmarks}>
-                {starting ? "מתחיל…" : "התחל"}
+                {starting ? (
+                  <AppLoader variant="button" label="מתחיל..." />
+                ) : (
+                  "התחל"
+                )}
               </Button>
             </div>
           </Card>
@@ -168,7 +178,7 @@ const BookmarksPage = () => {
                 <Card key={question.stable_id} className="space-y-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 space-y-1">
-                      <div className="flex flex-wrap items-center gap-2 text-xs text-stone-500">
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-secondary">
                         {question.number !== null &&
                           question.number !== undefined && (
                             <span>שאלה {question.number}</span>
@@ -190,7 +200,11 @@ const BookmarksPage = () => {
                       disabled={removing}
                       onClick={() => handleRemove(question.stable_id)}
                     >
-                      {removing ? "מסיר…" : "הסר"}
+                      {removing ? (
+                        <AppLoader variant="button" label="מסיר..." />
+                      ) : (
+                        "הסר"
+                      )}
                     </Button>
                   </div>
 
@@ -206,11 +220,11 @@ const BookmarksPage = () => {
                   </div>
 
                   {question.reference && (
-                    <div className="rounded-xl border border-[var(--accent-soft)] bg-[#fff8fd] p-3">
+                    <div className="rounded-xl border border-default surface-muted p-3">
                       <p className="text-xs font-semibold text-[var(--accent)]">
                         הפניה
                       </p>
-                      <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-stone-800">
+                      <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-primary">
                         {question.reference}
                       </p>
                     </div>

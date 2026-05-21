@@ -13,7 +13,7 @@ const NotFoundPage = () => {
           <h1 className="font-display mt-1 text-3xl font-bold text-[var(--accent-ink)]">
             העמוד לא נמצא
           </h1>
-          <p className="mt-2 text-sm text-stone-600">
+          <p className="mt-2 text-sm text-secondary">
             הקישור שביקשת אינו קיים או שהועבר למקום אחר.
           </p>
         </div>

@@ -33,17 +33,14 @@ const OptionCard = ({
       type={type}
       aria-pressed={selected}
       className={cn(
-        "flex w-full items-start gap-3 rounded-2xl border p-4 text-right transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--paper)]",
-        !correct &&
-          !wrong &&
-          selected &&
-          "border-[var(--accent)] bg-[var(--accent-soft)]",
+        "focus-ring flex w-full items-start gap-3 rounded-2xl border p-4 text-right transition disabled:opacity-80",
+        !correct && !wrong && selected && "surface-muted border-strong",
         !correct &&
           !wrong &&
           !selected &&
-          "border-[#dccfbb] bg-white/85 hover:bg-white",
-        correct && "border-green-600 bg-green-50",
-        wrong && "border-red-600 bg-red-50",
+          "surface border-default hover:bg-[var(--surface-muted)]",
+        correct && "surface-muted border-strong",
+        wrong && "surface border-2 border-strong font-semibold",
         className,
       )}
       {...rest}
@@ -52,15 +49,15 @@ const OptionCard = ({
         className={cn(
           "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm font-semibold",
           selected
-            ? "border-[var(--accent)] text-[var(--accent)]"
-            : "border-[#d6c8b4] text-stone-600",
-          correct && "border-green-600 text-green-700",
-          wrong && "border-red-600 text-red-700",
+            ? "border-strong text-primary"
+            : "border-default text-secondary",
+          correct && "surface border-strong text-primary",
+          wrong && "border-strong text-primary",
         )}
       >
         {label}
       </span>
-      <span className="flex-1 text-base leading-relaxed text-gray-900">
+      <span className="flex-1 text-base leading-relaxed text-primary">
         {text}
       </span>
     </button>

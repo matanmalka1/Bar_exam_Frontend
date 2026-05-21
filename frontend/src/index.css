@@ -2,12 +2,24 @@
 @import "tailwindcss";
 
 :root {
-  --accent: #8e4576;
-  --accent-soft: #efd7e5;
-  --accent-ink: #4f1f40;
-  --paper: #faf5ea;
-  --paper-2: #f2ebdb;
-  --ink: #201922;
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-beige: #f4ead8;
+  --color-beige-strong: #e6d6bc;
+  --surface: var(--color-white);
+  --surface-muted: var(--color-beige);
+  --text-primary: var(--color-black);
+  --text-secondary: rgba(0, 0, 0, 0.68);
+  --border-default: rgba(0, 0, 0, 0.16);
+  --border-strong: rgba(0, 0, 0, 0.72);
+  --shadow-default: 0 10px 30px rgba(0, 0, 0, 0.08);
+  --shadow-elevated: 0 18px 46px rgba(0, 0, 0, 0.12);
+  --accent: var(--color-black);
+  --accent-soft: var(--color-beige);
+  --accent-ink: var(--color-black);
+  --paper: var(--color-beige);
+  --paper-2: var(--color-white);
+  --ink: var(--color-black);
 }
 
 html,
@@ -25,17 +37,182 @@ body {
     "Segoe UI",
     Arial,
     sans-serif;
-  background:
-    radial-gradient(
-      circle at top right,
-      rgba(239, 215, 229, 0.6),
-      transparent 34rem
-    ),
-    linear-gradient(180deg, var(--paper), var(--paper-2));
+  background: linear-gradient(180deg, var(--surface-muted), var(--surface));
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
 }
 
 .font-display {
   font-family: "Frank Ruhl Libre", "Heebo", serif;
+}
+
+@keyframes loader-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes loader-orbit {
+  0% {
+    transform: rotate(0deg) translateX(2px) rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg) translateX(2px) rotate(-360deg);
+  }
+}
+
+@keyframes loader-pulse {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.7);
+    opacity: 0.35;
+  }
+}
+
+@keyframes loader-dot-1 {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-8px);
+  }
+}
+
+@keyframes loader-dot-2 {
+  0%,
+  100% {
+    transform: translateX(0) translateY(0);
+  }
+  50% {
+    transform: translateX(-6px) translateY(6px);
+  }
+}
+
+@keyframes loader-dot-3 {
+  0%,
+  100% {
+    transform: translateX(0) translateY(0);
+  }
+  50% {
+    transform: translateX(6px) translateY(6px);
+  }
+}
+
+.animate-loader-shimmer {
+  animation: loader-shimmer 1.35s infinite;
+}
+
+.animate-loader-orbit {
+  animation: loader-orbit 1.2s linear infinite;
+}
+
+.animate-loader-pulse {
+  animation: loader-pulse 1.4s ease-in-out infinite;
+}
+
+.animate-loader-dot-1 {
+  animation: loader-dot-1 1.4s ease-in-out infinite;
+}
+
+.animate-loader-dot-2 {
+  animation: loader-dot-2 1.4s ease-in-out infinite 0.15s;
+}
+
+.animate-loader-dot-3 {
+  animation: loader-dot-3 1.4s ease-in-out infinite 0.3s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-loader-shimmer,
+  .animate-loader-orbit,
+  .animate-loader-pulse,
+  .animate-loader-dot-1,
+  .animate-loader-dot-2,
+  .animate-loader-dot-3 {
+    animation: none;
+  }
+}
+
+@layer components {
+  .surface {
+    background: var(--surface);
+  }
+
+  .surface-muted {
+    background: var(--surface-muted);
+  }
+
+  .text-primary {
+    color: var(--text-primary);
+  }
+
+  .text-secondary {
+    color: var(--text-secondary);
+  }
+
+  .border-default {
+    border-color: var(--border-default);
+  }
+
+  .border-strong {
+    border-color: var(--border-strong);
+  }
+
+  .button-primary {
+    background: var(--color-black);
+    color: var(--color-white);
+    border-color: var(--color-black);
+  }
+
+  .button-primary:hover {
+    background: rgba(0, 0, 0, 0.82);
+  }
+
+  .button-secondary {
+    background: var(--surface-muted);
+    color: var(--color-black);
+    border-color: var(--border-default);
+  }
+
+  .button-secondary:hover {
+    background: var(--color-beige-strong);
+  }
+
+  .button-ghost {
+    background: transparent;
+    color: var(--color-black);
+    border-color: rgba(0, 0, 0, 0.2);
+  }
+
+  .button-ghost:hover {
+    background: rgba(255, 255, 255, 0.7);
+  }
+
+  .badge-default {
+    background: var(--surface);
+    color: var(--color-black);
+    border-color: var(--border-default);
+  }
+
+  .badge-strong {
+    background: var(--surface-muted);
+    color: var(--color-black);
+    border-color: var(--border-strong);
+  }
+
+  .focus-ring {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+  }
+
+  .focus-ring:focus-visible {
+    box-shadow:
+      0 0 0 2px var(--surface-muted),
+      0 0 0 4px var(--color-black);
+  }
 }
