@@ -96,6 +96,7 @@ const BookmarksPage = () => {
           <section className="grid gap-3">
             {bookmarks.map((question) => {
               const removing = removingStableId === question.stable_id;
+              const reference = question.reference.trim();
               return (
                 <Card key={question.stable_id} className="space-y-4">
                   <div className="flex items-start justify-between gap-3">
@@ -136,11 +137,11 @@ const BookmarksPage = () => {
                     ))}
                   </div>
 
-                  {question.reference && (
+                  {reference && (
                     <div className="rounded-xl border border-default surface-muted p-3">
                       <p className="text-xs font-semibold text-[var(--accent)]">הפניה</p>
                       <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-primary">
-                        {question.reference}
+                        {reference}
                       </p>
                     </div>
                   )}

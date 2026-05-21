@@ -10,6 +10,11 @@ import TextField from "../../components/TextField";
 import { LoginRequestSchema } from "./schemas";
 import { useAuth } from "./useAuth";
 
+type LoginFieldErrors = {
+  email?: string;
+  password?: string;
+};
+
 const LoginPage = () => {
   const { status, login } = useAuth();
   const navigate = useNavigate();
@@ -17,6 +22,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const [sessionExpired] = useState(() => {
     if (typeof sessionStorage === "undefined") return false;
@@ -27,24 +33,53 @@ const LoginPage = () => {
 
   if (status === "authenticated") return <Navigate to="/" replace />;
 
-  const validate = (): string | null => {
-    const result = LoginRequestSchema.safeParse({ email, password });
-    if (result.success) return null;
-    return result.error.issues[0]?.message ?? "נתונים לא תקינים";
+  const validate = (): boolean => {
+    const nextFieldErrors: LoginFieldErrors = {};
+    const trimmedEmail = email.trim();
+
+    if (!trimmedEmail && !password) {
+      nextFieldErrors.email = "יש להזין אימייל";
+      nextFieldErrors.password = "יש להזין סיסמה";
+      setFieldErrors(nextFieldErrors);
+      setError("יש להזין אימייל וסיסמה");
+      return false;
+    }
+
+    const result = LoginRequestSchema.safeParse({
+      email: trimmedEmail,
+      password,
+    });
+
+    if (result.success) {
+      setFieldErrors({});
+      return true;
+    }
+
+    result.error.issues.forEach((issue) => {
+      const field = issue.path[0];
+      if (field === "email" && !nextFieldErrors.email) {
+        nextFieldErrors.email = trimmedEmail ? issue.message : "יש להזין אימייל";
+      }
+      if (field === "password" && !nextFieldErrors.password) {
+        nextFieldErrors.password = password ? issue.message : "יש להזין סיסמה";
+      }
+    });
+
+    setFieldErrors(nextFieldErrors);
+    setError(result.error.issues[0]?.message ?? "נתונים לא תקינים");
+    return false;
   };
 
   const onSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (submitting) return;
-    const localErr = validate();
-    if (localErr) {
-      setError(localErr);
+    if (!validate()) {
       return;
     }
     setError(null);
     setSubmitting(true);
     try {
-      await login(email, password);
+      await login(email.trim(), password);
       navigate("/", { replace: true });
     } catch (err) {
       if (axios.isAxiosError(err) && err.response) {
@@ -57,6 +92,18 @@ const LoginPage = () => {
     }
   };
 
+  const updateEmail = (value: string) => {
+    setEmail(value);
+    setFieldErrors((errors) => ({ ...errors, email: undefined }));
+    setError(null);
+  };
+
+  const updatePassword = (value: string) => {
+    setPassword(value);
+    setFieldErrors((errors) => ({ ...errors, password: undefined }));
+    setError(null);
+  };
+
   return (
     <div dir="rtl" className="min-h-svh bg-[var(--paper)] text-[var(--ink)]">
       <div className="mx-auto flex min-h-svh w-full max-w-[480px] flex-col px-5 pb-8 pt-6">
@@ -67,7 +114,7 @@ const LoginPage = () => {
           variant="inline"
         />
 
-        <form onSubmit={onSubmit} className="flex flex-1 flex-col gap-4">
+        <form noValidate onSubmit={onSubmit} className="flex flex-1 flex-col gap-4">
           {sessionExpired && (
             <Alert variant="info" className="mb-0">
               ההתחברות פגה. אנא התחבר מחדש.
@@ -83,10 +130,11 @@ const LoginPage = () => {
             dir="ltr"
             required
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => updateEmail(e.target.value)}
             disabled={submitting}
             placeholder="name@example.com"
             className="text-right"
+            error={fieldErrors.email}
           />
 
           <TextField
@@ -96,9 +144,10 @@ const LoginPage = () => {
             autoComplete="current-password"
             required
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => updatePassword(e.target.value)}
             disabled={submitting}
             placeholder="••••••••"
+            error={fieldErrors.password}
             endSlot={
               <PasswordToggle
                 visible={showPassword}
@@ -122,7 +171,7 @@ const LoginPage = () => {
           <Button
             type="submit"
             fullWidth
-            disabled={submitting || !email || !password}
+            disabled={submitting}
             className="mt-2"
           >
             {submitting ? (

@@ -177,21 +177,36 @@ export const usePracticeSession = ({
   const toggleBookmark = useCallback(async () => {
     if (!current || bookmarkBusy) return;
 
+    const stableId = current.stable_id;
+    const nextBookmarked = !isBookmarked;
     setBookmarkError(null);
     setBookmarkBusy(true);
-    try {
-      if (isBookmarked) {
-        await removeBookmark(current.stable_id);
-        setBookmarkIds((ids) => {
-          const nextIds = new Set(ids);
-          nextIds.delete(current.stable_id);
-          return nextIds;
-        });
+    setBookmarkIds((ids) => {
+      const nextIds = new Set(ids);
+      if (nextBookmarked) {
+        nextIds.add(stableId);
       } else {
-        await addBookmark(current.stable_id);
-        setBookmarkIds((ids) => new Set(ids).add(current.stable_id));
+        nextIds.delete(stableId);
+      }
+      return nextIds;
+    });
+
+    try {
+      if (nextBookmarked) {
+        await addBookmark(stableId);
+      } else {
+        await removeBookmark(stableId);
       }
     } catch {
+      setBookmarkIds((ids) => {
+        const nextIds = new Set(ids);
+        if (isBookmarked) {
+          nextIds.add(stableId);
+        } else {
+          nextIds.delete(stableId);
+        }
+        return nextIds;
+      });
       setBookmarkError(BOOKMARK_ERR);
     } finally {
       setBookmarkBusy(false);
