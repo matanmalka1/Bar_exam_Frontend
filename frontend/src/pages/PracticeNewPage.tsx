@@ -120,11 +120,7 @@ const PracticeNewPage = () => {
   const goBack = () => navigate(-1);
 
   if (status === "loading") {
-    return (
-      <div className="mx-auto w-full max-w-[720px] p-4">
-        <AppLoader variant="form" rows={4} />
-      </div>
-    );
+    return <AppLoader variant="page" label="טוען נתונים..." />;
   }
 
   if (status === "error") {
@@ -157,7 +153,7 @@ const PracticeNewPage = () => {
     };
 
     return (
-      <div className="mx-auto w-full max-w-[720px] space-y-4 p-4 pb-40">
+      <div className="mx-auto w-full max-w-[720px] space-y-4 p-4 pb-24">
         <header className="flex items-center justify-between">
           <Button variant="ghost" onClick={goBack}>
             ביטול
@@ -260,7 +256,7 @@ const PracticeNewPage = () => {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[720px] space-y-4 p-4 pb-40">
+    <div className="mx-auto w-full max-w-[720px] space-y-4 p-4 pb-24">
       <header className="flex items-center justify-between">
         <Button variant="ghost" onClick={goBack}>
           ביטול

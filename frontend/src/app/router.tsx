@@ -10,10 +10,12 @@ import MorePage from "../pages/MorePage";
 import NotFoundPage from "../pages/NotFoundPage";
 import LoginPage from "../features/auth/LoginPage";
 import ProtectedRoute from "../features/auth/ProtectedRoute";
+import RegisterPage from "../features/auth/RegisterPage"
 import Shell from "./Shell";
 
 export const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
+  { path: "/register", element: <RegisterPage /> },
   {
     element: <ProtectedRoute />,
     children: [

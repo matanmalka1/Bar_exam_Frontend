@@ -35,7 +35,7 @@ const MorePage = () => {
   };
 
   return (
-    <div className="mx-auto w-full max-w-[720px] p-4 pb-28 space-y-4">
+    <div className="mx-auto w-full max-w-[720px] space-y-4 p-4">
       <header className="space-y-1">
         <h1 className="font-display text-3xl font-bold text-[var(--accent-ink)]">
           עוד

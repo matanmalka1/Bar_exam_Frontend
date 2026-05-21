@@ -21,7 +21,7 @@ const BottomNav = () => (
     className="fixed inset-x-0 bottom-0 z-40 border-t border-default bg-white/90 shadow-[0_-10px_30px_rgba(0,0,0,0.08)] backdrop-blur supports-[backdrop-filter]:bg-white/75"
     aria-label="ניווט תחתון"
   >
-    <ul className="grid grid-cols-5 px-1 pb-[max(env(safe-area-inset-bottom),0.25rem)] pt-1">
+    <ul className="grid grid-cols-5 px-1 pb-[calc(env(safe-area-inset-bottom)_+_0.25rem)] pt-1">
       {ITEMS.map(({ to, label, icon: Icon }) => (
         <li key={to}>
           <NavLink

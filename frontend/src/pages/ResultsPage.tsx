@@ -98,7 +98,7 @@ const ResultsPage = () => {
     : "0";
 
   return (
-    <div className="mx-auto w-full max-w-[720px] space-y-4 p-4 pb-32">
+    <div className="mx-auto w-full max-w-[720px] space-y-4 p-4 pb-24">
       <header className="flex items-center justify-between">
         <Button variant="ghost" onClick={() => navigate("/")}>
           חזרה

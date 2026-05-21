@@ -259,7 +259,7 @@ const HomePage = () => {
   const successRate = stats ? toNumber(stats.overall_success_rate) : null;
 
   return (
-    <div className="mx-auto w-full max-w-[720px] space-y-5 p-4 pb-28">
+    <div className="mx-auto w-full max-w-[720px] space-y-5 p-4">
       <header className="surface-muted relative overflow-hidden rounded-[2rem] border border-default p-6 shadow-[var(--shadow-elevated)]">
         <div
           aria-hidden

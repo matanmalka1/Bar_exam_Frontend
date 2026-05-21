@@ -93,11 +93,7 @@ const BookmarksPage = () => {
   };
 
   if (status === "loading") {
-    return (
-      <div className="mx-auto w-full max-w-[720px] p-4">
-        <AppLoader variant="list" rows={4} />
-      </div>
-    );
+    return <AppLoader variant="page" label="טוען נתונים..." />;
   }
 
   if (status === "error") {
@@ -112,7 +108,7 @@ const BookmarksPage = () => {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[720px] space-y-4 p-4 pb-28">
+    <div className="mx-auto w-full max-w-[720px] space-y-4 p-4">
       <header className="flex items-center justify-between gap-3">
         <div>
           <h1 className="font-display text-3xl font-bold text-[var(--accent-ink)]">

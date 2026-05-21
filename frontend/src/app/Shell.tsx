@@ -18,7 +18,7 @@ const Shell = () => {
   const style: ShellVars = {
     "--bottom-nav-h": hideNav
       ? "0px"
-      : "calc(3.75rem + env(safe-area-inset-bottom))",
+      : "calc(4rem + env(safe-area-inset-bottom))",
   };
   return (
     <div
@@ -26,7 +26,11 @@ const Shell = () => {
       dir="rtl"
       style={style}
     >
-      <main className={hideNav ? "min-h-screen" : "min-h-screen pb-24"}>
+      <main
+        className={
+          hideNav ? "min-h-screen" : "min-h-screen pb-[var(--bottom-nav-h)]"
+        }
+      >
         <Outlet />
       </main>
 

@@ -118,7 +118,7 @@ const AppLoader = ({
     return (
       <div
         className={clsx(
-          "grid min-h-[calc(100svh-var(--bottom-nav-h,0px))] place-items-center bg-[var(--surface)]",
+          "grid min-h-[calc(100svh_-_var(--bottom-nav-h,0px))] place-items-center bg-[var(--surface)]",
           className
         )}
         aria-live="polite"
