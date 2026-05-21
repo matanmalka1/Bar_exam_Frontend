@@ -1,5 +1,4 @@
 import axios, {
-  AxiosError,
   type AxiosRequestConfig,
   type InternalAxiosRequestConfig,
 } from "axios";
@@ -99,7 +98,7 @@ api.interceptors.response.use(
     } catch (refreshErr) {
       clearAccessToken();
       on401?.();
-      return Promise.reject(refreshErr instanceof AxiosError ? refreshErr : err);
+      return Promise.reject(refreshErr);
     }
   },
 );
