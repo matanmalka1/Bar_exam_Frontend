@@ -28,7 +28,12 @@ const BookmarksPage = () => {
   } = useBookmarks();
 
   if (status === "loading") {
-    return <AppLoader variant="page" label="טוען נתונים..." />;
+    return (
+      <div className="mx-auto w-full max-w-[720px] space-y-4 p-4">
+        <AppHeader title="סימניות" />
+        <AppLoader variant="list" rows={4} />
+      </div>
+    );
   }
 
   if (status === "error") {

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import Alert from "../../components/Alert";
 import AppHeader from "../../components/AppHeader";
@@ -19,6 +19,10 @@ const LoginPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  const sessionExpired =
+    typeof sessionStorage !== "undefined" &&
+    sessionStorage.getItem("auth_expired") === "1";
+
   if (status === "authenticated") return <Navigate to="/" replace />;
 
   const validate = (): string | null => {
@@ -27,7 +31,7 @@ const LoginPage = () => {
     return result.error.issues[0]?.message ?? "נתונים לא תקינים";
   };
 
-  const onSubmit = async (e: FormEvent) => {
+  const onSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (submitting) return;
     const localErr = validate();
@@ -61,7 +65,17 @@ const LoginPage = () => {
           variant="inline"
         />
 
+        {sessionExpired && (
+          (() => { sessionStorage.removeItem("auth_expired"); return null; })()
+        )}
+
         <form onSubmit={onSubmit} className="flex flex-1 flex-col gap-4">
+          {sessionExpired && (
+            <Alert variant="info" className="mb-0">
+              ההתחברות פגה. אנא התחבר מחדש.
+            </Alert>
+          )}
+
           <TextField
             id="login-email"
             label="אימייל"

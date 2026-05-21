@@ -97,6 +97,9 @@ api.interceptors.response.use(
       return api.request(config as AxiosRequestConfig);
     } catch (refreshErr) {
       clearAccessToken();
+      if (typeof sessionStorage !== "undefined") {
+        sessionStorage.setItem("auth_expired", "1");
+      }
       on401?.();
       return Promise.reject(refreshErr);
     }

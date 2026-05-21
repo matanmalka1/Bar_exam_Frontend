@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { ComponentType } from "react";
 import { useNavigate } from "react-router-dom";
+import EmptyState from "../components/EmptyState";
 import {
   ArrowLeft,
   Bookmark,
@@ -247,6 +248,15 @@ const HomePage = () => {
       </p>
 
       {/* Hero metric */}
+      {(!stats || stats.total_answered === 0) ? (
+        <section className="mt-7">
+          <EmptyState
+            title="טרם התחלת לתרגל"
+            description="בחר חלק וצא לדרך. אחוז ההצלחה שלך יופיע כאן."
+            action={<Button onClick={() => navigate(ROUTES.practiceNew)}>התחל תרגול</Button>}
+          />
+        </section>
+      ) : (
       <section className="mt-7" aria-label="אחוז הצלחה כולל">
         <div className="flex items-end justify-between gap-4">
           <div className="min-w-0">
@@ -288,6 +298,7 @@ const HomePage = () => {
           </span>
         </div>
       </section>
+      )}
 
       {/* Active session strip */}
       {active && (
