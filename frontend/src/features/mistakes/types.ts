@@ -1,18 +1,4 @@
-import type {
-  AnswerOption,
-  QuestionOptions,
-  QuestionPart,
-} from "../sessions/types";
+import type { z } from "zod";
+import type { MistakeItemSchema } from "./schemas";
 
-export interface MistakeItem {
-  stable_id: string;
-  number: number;
-  exam_date: string;
-  part: QuestionPart;
-  body: string;
-  options: QuestionOptions;
-  correct_answer: AnswerOption | null;
-  reference: string;
-  times_answered: number;
-  times_wrong: number;
-}
+export type MistakeItem = z.infer<typeof MistakeItemSchema>;

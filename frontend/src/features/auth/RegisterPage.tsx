@@ -4,6 +4,8 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import Button from "../../components/Button";
 import AppLoader from "../../components/loader";
 import { getApiErrorDetail, isApiStatusError } from "../../lib/api";
+import { RegisterFormSchema } from "./schemas";
+import type { RegisterRequest } from "./types";
 import { useAuth } from "./useAuth";
 
 const inputClass =
@@ -22,25 +24,43 @@ const RegisterPage = () => {
 
   if (status === "authenticated") return <Navigate to="/" replace />;
 
-  const validate = (): string | null => {
-    if (!fullName.trim()) return "שם מלא הוא שדה חובה";
-    if (password.length < 8) return "הסיסמה חייבת להכיל לפחות 8 תווים";
-    if (password !== confirm) return "הסיסמאות אינן תואמות";
-    return null;
+  const validate = ():
+    | { ok: true; data: RegisterRequest }
+    | { ok: false; error: string } => {
+    const result = RegisterFormSchema.safeParse({
+      full_name: fullName,
+      email,
+      password,
+      confirm,
+    });
+    if (!result.success) {
+      return {
+        ok: false,
+        error: result.error.issues[0]?.message ?? "נתונים לא תקינים",
+      };
+    }
+    return {
+      ok: true,
+      data: {
+        full_name: result.data.full_name,
+        email: result.data.email,
+        password: result.data.password,
+      },
+    };
   };
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (submitting) return;
-    const localErr = validate();
-    if (localErr) {
-      setError(localErr);
+    const validation = validate();
+    if (!validation.ok) {
+      setError(validation.error);
       return;
     }
     setError(null);
     setSubmitting(true);
     try {
-      await register({ full_name: fullName.trim(), email, password });
+      await register(validation.data);
       navigate("/", { replace: true });
     } catch (err) {
       if (isApiStatusError(err, 409)) {

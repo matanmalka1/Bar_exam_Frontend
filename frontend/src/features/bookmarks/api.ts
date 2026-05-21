@@ -1,33 +1,36 @@
 import { api } from "../../lib/api";
+import { parseApiResponse } from "../../lib/validation";
+import {
+  BookmarkedQuestionSchema,
+  BookmarkRemovedSchema,
+  BookmarkSchema,
+} from "./schemas";
+import type { z } from "zod";
 import type { BookmarkedQuestion } from "./types";
 
-export interface Bookmark {
-  user_id: number;
-  stable_id: string;
-  created_at: string;
-}
+export type Bookmark = z.infer<typeof BookmarkSchema>;
 
-export interface BookmarkRemoved {
-  removed: boolean;
-}
+export type BookmarkRemoved = z.infer<typeof BookmarkRemovedSchema>;
 
 export const getBookmarks = async (): Promise<BookmarkedQuestion[]> => {
-  const { data } = await api.get<BookmarkedQuestion[]>("/users/me/bookmarks");
-  return data;
+  const { data } = await api.get<unknown>("/users/me/bookmarks");
+  return parseApiResponse(
+    BookmarkedQuestionSchema.array(),
+    data,
+    "getBookmarks",
+  );
 };
 
 export const addBookmark = async (stableId: string): Promise<Bookmark> => {
-  const { data } = await api.post<Bookmark>(
-    `/users/me/bookmarks/${stableId}`,
-  );
-  return data;
+  const { data } = await api.post<unknown>(`/users/me/bookmarks/${stableId}`);
+  return parseApiResponse(BookmarkSchema, data, "addBookmark");
 };
 
 export const removeBookmark = async (
   stableId: string,
 ): Promise<BookmarkRemoved> => {
-  const { data } = await api.delete<BookmarkRemoved>(
+  const { data } = await api.delete<unknown>(
     `/users/me/bookmarks/${stableId}`,
   );
-  return data;
+  return parseApiResponse(BookmarkRemovedSchema, data, "removeBookmark");
 };

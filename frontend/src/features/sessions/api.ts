@@ -1,4 +1,11 @@
 import { api } from "../../lib/api";
+import { parseApiResponse } from "../../lib/validation";
+import {
+  AnswerResultSchema,
+  SessionCompleteSchema,
+  SessionDetailSchema,
+  SessionSummarySchema,
+} from "./schemas";
 import type {
   AnswerResult,
   AnswerSubmitPayload,
@@ -13,10 +20,14 @@ import type {
 export const listUserSessions = async (
   status?: SessionStatus,
 ): Promise<SessionSummary[]> => {
-  const { data } = await api.get<SessionSummary[]>("/users/me/sessions", {
+  const { data } = await api.get<unknown>("/users/me/sessions", {
     params: status ? { status } : undefined,
   });
-  return data;
+  return parseApiResponse(
+    SessionSummarySchema.array(),
+    data,
+    "listUserSessions",
+  );
 };
 
 export const getActiveSessions = () => listUserSessions("active");
@@ -24,11 +35,8 @@ export const getActiveSessions = () => listUserSessions("active");
 const createSession = async (
   input: SessionCreateInput,
 ): Promise<SessionSummary> => {
-  const { data } = await api.post<SessionSummary>(
-    "/practice-sessions",
-    input,
-  );
-  return data;
+  const { data } = await api.post<unknown>("/practice-sessions", input);
+  return parseApiResponse(SessionSummarySchema, data, "createSession");
 };
 
 export const createPracticeSession = (input: {
@@ -51,28 +59,28 @@ export const createBookmarksSession = () =>
 export const getPracticeSession = async (
   sessionId: number | string,
 ): Promise<SessionDetail> => {
-  const { data } = await api.get<SessionDetail>(
+  const { data } = await api.get<unknown>(
     `/practice-sessions/${sessionId}`,
   );
-  return data;
+  return parseApiResponse(SessionDetailSchema, data, "getPracticeSession");
 };
 
 export const submitAnswer = async (
   sessionId: number | string,
   payload: AnswerSubmitPayload,
 ): Promise<AnswerResult> => {
-  const { data } = await api.post<AnswerResult>(
+  const { data } = await api.post<unknown>(
     `/practice-sessions/${sessionId}/answers`,
     payload,
   );
-  return data;
+  return parseApiResponse(AnswerResultSchema, data, "submitAnswer");
 };
 
 export const completeSession = async (
   sessionId: number | string,
 ): Promise<SessionComplete> => {
-  const { data } = await api.post<SessionComplete>(
+  const { data } = await api.post<unknown>(
     `/practice-sessions/${sessionId}/complete`,
   );
-  return data;
+  return parseApiResponse(SessionCompleteSchema, data, "completeSession");
 };

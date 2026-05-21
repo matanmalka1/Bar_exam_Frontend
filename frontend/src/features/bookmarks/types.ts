@@ -1,14 +1,4 @@
-import type { AnswerOption, QuestionPart } from "../sessions/types";
+import type { z } from "zod";
+import type { BookmarkedQuestionSchema } from "./schemas";
 
-export interface BookmarkedQuestion {
-  stable_id: string;
-  exam_date: string;
-  part: QuestionPart;
-  number: number;
-  body: string;
-  options: Record<AnswerOption, string>;
-  status: string;
-  correct_answer: AnswerOption | null;
-  reference: string;
-  created_at: string;
-}
+export type BookmarkedQuestion = z.infer<typeof BookmarkedQuestionSchema>;

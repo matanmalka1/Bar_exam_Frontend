@@ -1,9 +1,4 @@
-import type { QuestionPart } from "../sessions/types";
+import type { z } from "zod";
+import type { ExamSummarySchema } from "./schemas";
 
-export interface ExamSummary {
-  exam_date: string;
-  part: QuestionPart;
-  part_name: string;
-  label: string;
-  question_count: number;
-}
+export type ExamSummary = z.infer<typeof ExamSummarySchema>;

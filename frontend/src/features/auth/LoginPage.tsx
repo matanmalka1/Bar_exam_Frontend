@@ -3,6 +3,7 @@ import { useState, type FormEvent } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import Button from "../../components/Button";
 import AppLoader from "../../components/loader";
+import { LoginRequestSchema } from "./schemas";
 import { useAuth } from "./useAuth";
 
 const inputClass =
@@ -19,9 +20,20 @@ const LoginPage = () => {
 
   if (status === "authenticated") return <Navigate to="/" replace />;
 
+  const validate = (): string | null => {
+    const result = LoginRequestSchema.safeParse({ email, password });
+    if (result.success) return null;
+    return result.error.issues[0]?.message ?? "נתונים לא תקינים";
+  };
+
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (submitting) return;
+    const localErr = validate();
+    if (localErr) {
+      setError(localErr);
+      return;
+    }
     setError(null);
     setSubmitting(true);
     try {
