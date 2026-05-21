@@ -16,7 +16,7 @@ interface RuntimeImportMeta {
 
 const API_BASE_URL =
   (import.meta as RuntimeImportMeta).env?.VITE_API_BASE_URL ??
-  "http://localhost:8000/api/v1";
+  "/api/v1";
 
 export const HTTP_UNPROCESSABLE = 422;
 
@@ -55,12 +55,8 @@ type RetriableConfig = InternalAxiosRequestConfig & { _retry?: boolean };
 let refreshPromise: Promise<string> | null = null;
 
 const requestNewAccessToken = async (): Promise<string> => {
-  const res = await axios.post<{ access_token: string }>(
-    `${API_BASE_URL}/auth/refresh`,
-    {},
-    { withCredentials: true },
-  );
-  return res.data.access_token;
+  const res = await api.post<{ access_token: string }>("/auth/refresh");
+  return (res.data as { access_token: string }).access_token;
 };
 
 const refreshAccessToken = (): Promise<string> => {
