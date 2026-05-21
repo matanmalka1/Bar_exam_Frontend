@@ -19,7 +19,12 @@ interface StepSectionProps {
   children: ReactNode;
 }
 
-const StepSection = ({ index, title, complete, children }: StepSectionProps) => (
+const StepSection = ({
+  index,
+  title,
+  complete,
+  children,
+}: StepSectionProps) => (
   <section className="mt-7">
     <div className="flex items-baseline justify-between gap-2 border-b border-default pb-2">
       <h2 className="font-display flex items-baseline gap-2 text-base font-bold text-[var(--accent-ink)]">
@@ -92,7 +97,8 @@ const PracticeNewPage = () => {
         />
 
         <p className="text-sm leading-6 text-secondary">
-          בחר מועד בחינה. כל השאלות מאותו מועד יוצגו בסדר המקורי, ללא משוב מיידי.
+          בחר מועד בחינה. כל השאלות מאותו מועד יוצגו בסדר המקורי, ללא משוב
+          מיידי.
         </p>
 
         <StepSection index="01" title="בחר מועד" complete={examDate !== null}>
@@ -135,7 +141,9 @@ const PracticeNewPage = () => {
             )}
           </Button>
           {disabledReason && (
-            <p className="text-center text-xs text-secondary">{disabledReason}</p>
+            <p className="text-center text-xs text-secondary">
+              {disabledReason}
+            </p>
           )}
         </FixedFooter>
       </div>
@@ -151,7 +159,8 @@ const PracticeNewPage = () => {
       />
 
       <p className="text-sm leading-6 text-secondary">
-        הרכב סשן תרגול לפי חלק, מועד וכמות שאלות. במצב זה תקבל משוב מיידי על כל תשובה.
+        הרכב סשן תרגול לפי חלק, מועד וכמות שאלות. במצב זה תקבל משוב מיידי על כל
+        תשובה.
       </p>
 
       <StepSection index="01" title="חלק" complete={part !== null}>

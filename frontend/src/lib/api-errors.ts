@@ -3,10 +3,13 @@ import { getApiErrorDetail, getApiErrorMessage } from "./api";
 import { MSG } from "./messages";
 
 export const map422Detail = (detail: unknown): string | null => {
-  const text = typeof detail === "string" ? detail : JSON.stringify(detail ?? "");
+  const text =
+    typeof detail === "string" ? detail : JSON.stringify(detail ?? "");
   const lower = text.toLowerCase();
-  if (lower.includes("exam") && lower.includes("date")) return MSG.NEED_EXAM_DATE;
-  if (lower.includes("exceed") || lower.includes("too many")) return MSG.COUNT_EXCEEDS;
+  if (lower.includes("exam") && lower.includes("date"))
+    return MSG.NEED_EXAM_DATE;
+  if (lower.includes("exceed") || lower.includes("too many"))
+    return MSG.COUNT_EXCEEDS;
   if (
     lower.includes("insufficient") ||
     lower.includes("not enough") ||
@@ -18,10 +21,16 @@ export const map422Detail = (detail: unknown): string | null => {
 
 export const extractApiError = (error: unknown, fallback?: string): string => {
   if (!axios.isAxiosError(error)) {
-    if (error instanceof Error && error.message.toLowerCase().includes("timeout")) {
+    if (
+      error instanceof Error &&
+      error.message.toLowerCase().includes("timeout")
+    ) {
       return MSG.TIMEOUT;
     }
-    if (error instanceof Error && error.message.toLowerCase().includes("network")) {
+    if (
+      error instanceof Error &&
+      error.message.toLowerCase().includes("network")
+    ) {
       return MSG.NETWORK;
     }
     return fallback ?? MSG.GENERIC;

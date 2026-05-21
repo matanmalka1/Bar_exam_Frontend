@@ -8,7 +8,8 @@ const NETWORK_ERROR = "אין חיבור לשרת. נסה שוב";
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
 
-const containsHebrew = (value: string): boolean => /[\u0590-\u05FF]/.test(value);
+const containsHebrew = (value: string): boolean =>
+  /[\u0590-\u05FF]/.test(value);
 
 const isSafeBackendMessage = (value: unknown): value is string =>
   typeof value === "string" && value.trim().length > 0 && containsHebrew(value);

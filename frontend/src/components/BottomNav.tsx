@@ -33,9 +33,7 @@ const BottomNav = () => (
               cn(
                 "focus-ring group relative flex h-14 flex-col items-center justify-center gap-1 rounded-2xl text-[11px] transition-colors duration-200",
                 "active:scale-95",
-                isActive
-                  ? "text-primary"
-                  : "text-secondary hover:text-primary",
+                isActive ? "text-primary" : "text-secondary hover:text-primary",
               )
             }
           >

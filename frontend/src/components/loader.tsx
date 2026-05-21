@@ -27,7 +27,7 @@ const AppLoader = ({
       <span
         className={clsx(
           "inline-flex items-center gap-2 text-sm font-medium",
-          className
+          className,
         )}
         aria-live="polite"
       >
@@ -61,7 +61,7 @@ const AppLoader = ({
       <div
         className={clsx(
           "group relative overflow-hidden rounded-3xl border border-black/15 bg-[var(--paper)] p-5 shadow-[var(--shadow-default)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)]",
-          className
+          className,
         )}
         aria-live="polite"
       >
@@ -119,7 +119,7 @@ const AppLoader = ({
       <div
         className={clsx(
           "grid min-h-[calc(100svh_-_var(--bottom-nav-h,0px))] place-items-center bg-[var(--surface)]",
-          className
+          className,
         )}
         aria-live="polite"
       >
@@ -165,7 +165,7 @@ const SkeletonLine = ({ className }: LoaderPartProps) => {
     <div
       className={clsx(
         "relative h-4 overflow-hidden rounded-full bg-black/10",
-        className
+        className,
       )}
     >
       <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/80 to-transparent animate-loader-shimmer" />
@@ -178,7 +178,7 @@ const SkeletonPill = ({ className }: LoaderPartProps) => {
     <div
       className={clsx(
         "h-8 w-16 rounded-full border border-black/10 bg-black/10",
-        className
+        className,
       )}
     />
   );

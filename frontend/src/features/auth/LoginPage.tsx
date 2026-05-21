@@ -59,7 +59,9 @@ const LoginPage = () => {
     result.error.issues.forEach((issue) => {
       const field = issue.path[0];
       if (field === "email" && !nextFieldErrors.email) {
-        nextFieldErrors.email = trimmedEmail ? issue.message : "יש להזין אימייל";
+        nextFieldErrors.email = trimmedEmail
+          ? issue.message
+          : "יש להזין אימייל";
       }
       if (field === "password" && !nextFieldErrors.password) {
         nextFieldErrors.password = password ? issue.message : "יש להזין סיסמה";
@@ -115,7 +117,11 @@ const LoginPage = () => {
           variant="inline"
         />
 
-        <form noValidate onSubmit={onSubmit} className="flex flex-1 flex-col gap-4">
+        <form
+          noValidate
+          onSubmit={onSubmit}
+          className="flex flex-1 flex-col gap-4"
+        >
           {sessionExpired && (
             <Alert variant="info" className="mb-0">
               ההתחברות פגה. אנא התחבר מחדש.

@@ -62,15 +62,15 @@ const AppHeader = ({
         100,
         Math.max(
           0,
-          ((progress.answered ?? progress.current) / Math.max(progress.total, 1)) * 100,
+          ((progress.answered ?? progress.current) /
+            Math.max(progress.total, 1)) *
+            100,
         ),
       )
     : 0;
 
   return (
-    <header
-      className={cn(variant === "inline" ? INLINE : STICKY, className)}
-    >
+    <header className={cn(variant === "inline" ? INLINE : STICKY, className)}>
       <div className="flex items-center justify-between gap-2">
         {back !== false && back ? (
           <button
@@ -97,7 +97,9 @@ const AppHeader = ({
       {(title || meta) && (
         <div className="mt-2 flex items-end justify-between gap-3">
           {title && (
-            <p className="font-display text-lg font-bold text-primary">{title}</p>
+            <p className="font-display text-lg font-bold text-primary">
+              {title}
+            </p>
           )}
           {meta && <div>{meta}</div>}
         </div>

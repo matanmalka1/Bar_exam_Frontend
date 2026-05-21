@@ -59,9 +59,7 @@ export const createBookmarksSession = () =>
 export const getPracticeSession = async (
   sessionId: number | string,
 ): Promise<SessionDetail> => {
-  const { data } = await api.get<unknown>(
-    `/practice-sessions/${sessionId}`,
-  );
+  const { data } = await api.get<unknown>(`/practice-sessions/${sessionId}`);
   return parseApiResponse(SessionDetailSchema, data, "getPracticeSession");
 };
 

@@ -213,7 +213,14 @@ const SessionPage = () => {
       <FixedFooter>
         {!answerSubmitted && (
           <>
-            <Button fullWidth disabled={submitDisabled} onClick={() => { tap(); submit(); }}>
+            <Button
+              fullWidth
+              disabled={submitDisabled}
+              onClick={() => {
+                tap();
+                submit();
+              }}
+            >
               {submitting ? (
                 <AppLoader variant="button" label="שומר..." />
               ) : (
@@ -221,13 +228,21 @@ const SessionPage = () => {
               )}
             </Button>
             {submitReason && (
-              <p className="text-center text-xs text-secondary">{submitReason}</p>
+              <p className="text-center text-xs text-secondary">
+                {submitReason}
+              </p>
             )}
           </>
         )}
 
         {answerSubmitted && !isLast && (
-          <Button fullWidth onClick={() => { tap(); next(); }}>
+          <Button
+            fullWidth
+            onClick={() => {
+              tap();
+              next();
+            }}
+          >
             שאלה הבאה
           </Button>
         )}
@@ -237,7 +252,10 @@ const SessionPage = () => {
             <Button
               fullWidth
               disabled={!allAnswered || completing}
-              onClick={() => { tap(); complete(); }}
+              onClick={() => {
+                tap();
+                complete();
+              }}
             >
               {completing ? (
                 <AppLoader variant="button" label="מסיים..." />
@@ -246,7 +264,9 @@ const SessionPage = () => {
               )}
             </Button>
             {completeReason && (
-              <p className="text-center text-xs text-secondary">{completeReason}</p>
+              <p className="text-center text-xs text-secondary">
+                {completeReason}
+              </p>
             )}
           </>
         )}

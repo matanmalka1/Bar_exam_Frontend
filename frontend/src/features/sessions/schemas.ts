@@ -8,11 +8,7 @@ export const SessionModeSchema = z.enum([
   "bookmarks",
 ]);
 
-export const SessionStatusSchema = z.enum([
-  "active",
-  "completed",
-  "abandoned",
-]);
+export const SessionStatusSchema = z.enum(["active", "completed", "abandoned"]);
 
 export const QuestionPartSchema = z.enum(["B", "C"]);
 export const AnswerOptionSchema = z.enum(["א", "ב", "ג", "ד"]);
@@ -112,6 +108,9 @@ export const SessionCompleteSchema = z.object({
   correct_count: z.number().int(),
   score_percent: ScorePercentSchema,
   completed_at: DateTimeStringSchema,
-  part_breakdown: z.record(z.string(), PartBreakdownSchema).nullable().optional(),
+  part_breakdown: z
+    .record(z.string(), PartBreakdownSchema)
+    .nullable()
+    .optional(),
   mistakes: z.array(ExamMistakeBriefSchema).nullable().optional(),
 });

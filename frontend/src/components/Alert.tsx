@@ -36,7 +36,9 @@ const Alert = ({
           {title && <p className="font-bold">{title}</p>}
           {children && <div>{children}</div>}
         </div>
-        {action && <div className="mt-2 shrink-0 sm:mt-0 sm:ms-4">{action}</div>}
+        {action && (
+          <div className="mt-2 shrink-0 sm:mt-0 sm:ms-4">{action}</div>
+        )}
       </div>
     </div>
   );

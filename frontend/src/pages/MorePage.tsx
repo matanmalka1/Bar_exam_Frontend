@@ -52,7 +52,10 @@ const MorePage = () => {
         description="תועבר למסך ההתחברות."
         confirmLabel="התנתק"
         cancelLabel="ביטול"
-        onConfirm={() => { setConfirmLogout(false); void onLogout(); }}
+        onConfirm={() => {
+          setConfirmLogout(false);
+          void onLogout();
+        }}
         onCancel={() => setConfirmLogout(false)}
       />
     </div>

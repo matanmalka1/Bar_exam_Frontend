@@ -15,8 +15,7 @@ interface RuntimeImportMeta {
 }
 
 const API_BASE_URL =
-  (import.meta as RuntimeImportMeta).env?.VITE_API_BASE_URL ??
-  "/api/v1";
+  (import.meta as RuntimeImportMeta).env?.VITE_API_BASE_URL ?? "/api/v1";
 
 export const HTTP_UNPROCESSABLE = 422;
 
@@ -71,7 +70,11 @@ const refreshAccessToken = (): Promise<string> => {
 api.interceptors.response.use(
   (res) => res,
   async (err: unknown) => {
-    if (!axios.isAxiosError(err) || !err.config || err.response?.status !== 401) {
+    if (
+      !axios.isAxiosError(err) ||
+      !err.config ||
+      err.response?.status !== 401
+    ) {
       return Promise.reject(err);
     }
     const config = err.config as RetriableConfig;

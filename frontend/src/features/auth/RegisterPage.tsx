@@ -152,7 +152,9 @@ const RegisterPage = () => {
           <Button
             type="submit"
             fullWidth
-            disabled={submitting || !fullName || !email || !password || !confirm}
+            disabled={
+              submitting || !fullName || !email || !password || !confirm
+            }
             className="mt-2"
           >
             {submitting ? (

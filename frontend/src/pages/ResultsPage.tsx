@@ -100,10 +100,7 @@ const ResultsPage = () => {
 
   return (
     <div className="mx-auto w-full max-w-[720px] space-y-4 p-4 pb-24">
-      <AppHeader
-        back={{ onClick: () => navigate("/") }}
-        title="תוצאות"
-      />
+      <AppHeader back={{ onClick: () => navigate("/") }} title="תוצאות" />
 
       <Card className="surface-muted">
         <div className="space-y-2 text-center">
@@ -123,11 +120,15 @@ const ResultsPage = () => {
             </div>
             <div>
               <p className="text-secondary">נכונות</p>
-              <p className="tabular-nums font-semibold text-primary">{correct}</p>
+              <p className="tabular-nums font-semibold text-primary">
+                {correct}
+              </p>
             </div>
             <div>
               <p className="text-secondary">טעויות</p>
-              <p className="tabular-nums font-semibold text-primary">{mistakes.length}</p>
+              <p className="tabular-nums font-semibold text-primary">
+                {mistakes.length}
+              </p>
             </div>
           </div>
           {session.completed_at && (
@@ -174,7 +175,9 @@ const ResultsPage = () => {
                 </div>
                 {q.reference && (
                   <div className="rounded-xl border border-default surface-muted p-3">
-                    <p className="text-xs font-semibold text-[var(--accent)]">הפניה</p>
+                    <p className="text-xs font-semibold text-[var(--accent)]">
+                      הפניה
+                    </p>
                     <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-primary">
                       {q.reference}
                     </p>

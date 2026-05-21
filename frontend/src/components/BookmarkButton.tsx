@@ -7,7 +7,11 @@ interface BookmarkButtonProps {
   onToggle: () => void;
 }
 
-const BookmarkButton = ({ isBookmarked, busy, onToggle }: BookmarkButtonProps) => (
+const BookmarkButton = ({
+  isBookmarked,
+  busy,
+  onToggle,
+}: BookmarkButtonProps) => (
   <button
     type="button"
     onClick={onToggle}

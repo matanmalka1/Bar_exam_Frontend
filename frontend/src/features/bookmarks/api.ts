@@ -41,8 +41,6 @@ export const addBookmark = async (stableId: string): Promise<Bookmark> => {
 export const removeBookmark = async (
   stableId: string,
 ): Promise<BookmarkRemoved> => {
-  const { data } = await api.delete<unknown>(
-    `/users/me/bookmarks/${stableId}`,
-  );
+  const { data } = await api.delete<unknown>(`/users/me/bookmarks/${stableId}`);
   return parseApiResponse(BookmarkRemovedSchema, data, "removeBookmark");
 };

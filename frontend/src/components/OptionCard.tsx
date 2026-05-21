@@ -37,7 +37,8 @@ const OptionCard = ({
   const faded = !!disabled && !selected && !correct && !wrong;
   const isReview = mode === "review";
 
-  const showBadge = isReview && (correct || wrong) && (showCorrectBadge || showSelectedBadge);
+  const showBadge =
+    isReview && (correct || wrong) && (showCorrectBadge || showSelectedBadge);
 
   return (
     <button
@@ -54,9 +55,14 @@ const OptionCard = ({
           !isReview &&
           "surface border-default hover:border-strong hover:bg-[var(--surface-muted)] active:scale-[0.99]",
         // review non-interactive unselected
-        isReview && !correct && !wrong && !neutralSelected && "surface border-default",
+        isReview &&
+          !correct &&
+          !wrong &&
+          !neutralSelected &&
+          "surface border-default",
         // selected, no result yet
-        neutralSelected && "surface-muted border-strong shadow-[var(--shadow-default)]",
+        neutralSelected &&
+          "surface-muted border-strong shadow-[var(--shadow-default)]",
         // correct revealed (practice/review)
         correct &&
           "border-[var(--accent-ink)] bg-[var(--accent-ink)] text-white shadow-[var(--shadow-elevated)]",
@@ -114,7 +120,9 @@ const OptionCard = ({
         <span
           className={cn(
             "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full",
-            correct ? "bg-white/15 text-white" : "border border-strong text-primary",
+            correct
+              ? "bg-white/15 text-white"
+              : "border border-strong text-primary",
           )}
           aria-hidden="true"
         >

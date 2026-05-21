@@ -6,7 +6,11 @@ interface PasswordToggleProps {
   disabled?: boolean;
 }
 
-const PasswordToggle = ({ visible, onToggle, disabled }: PasswordToggleProps) => (
+const PasswordToggle = ({
+  visible,
+  onToggle,
+  disabled,
+}: PasswordToggleProps) => (
   <button
     type="button"
     onClick={onToggle}

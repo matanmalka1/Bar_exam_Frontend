@@ -18,7 +18,10 @@ export const passwordSchema = z
   .max(128)
   .refine((v) => /[A-Z]/.test(v), "הסיסמה חייבת להכיל לפחות אות גדולה אחת")
   .refine((v) => /[a-z]/.test(v), "הסיסמה חייבת להכיל לפחות אות קטנה אחת")
-  .refine((v) => /[^a-zA-Z0-9]/.test(v), "הסיסמה חייבת להכיל לפחות תו מיוחד אחד");
+  .refine(
+    (v) => /[^a-zA-Z0-9]/.test(v),
+    "הסיסמה חייבת להכיל לפחות תו מיוחד אחד",
+  );
 
 export const RegisterRequestSchema = z.object({
   full_name: z.string().trim().min(1, "שם מלא הוא שדה חובה").max(20),

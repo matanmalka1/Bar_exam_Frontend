@@ -155,7 +155,14 @@ const ExamSessionPage = () => {
       <FixedFooter>
         {!showComplete && (
           <>
-            <Button fullWidth disabled={primaryDisabled} onClick={() => { tap(); submitOrNext(); }}>
+            <Button
+              fullWidth
+              disabled={primaryDisabled}
+              onClick={() => {
+                tap();
+                submitOrNext();
+              }}
+            >
               {submitting ? (
                 <AppLoader variant="button" label="שומר..." />
               ) : (
@@ -163,7 +170,9 @@ const ExamSessionPage = () => {
               )}
             </Button>
             {primaryReason && (
-              <p className="text-center text-xs text-secondary">{primaryReason}</p>
+              <p className="text-center text-xs text-secondary">
+                {primaryReason}
+              </p>
             )}
           </>
         )}
@@ -172,7 +181,10 @@ const ExamSessionPage = () => {
             <Button
               fullWidth
               disabled={!allAnswered || completing}
-              onClick={() => { tap(); complete(); }}
+              onClick={() => {
+                tap();
+                complete();
+              }}
             >
               {completing ? (
                 <AppLoader variant="button" label="מסיים..." />
@@ -181,7 +193,9 @@ const ExamSessionPage = () => {
               )}
             </Button>
             {completeReason && (
-              <p className="text-center text-xs text-secondary">{completeReason}</p>
+              <p className="text-center text-xs text-secondary">
+                {completeReason}
+              </p>
             )}
           </>
         )}

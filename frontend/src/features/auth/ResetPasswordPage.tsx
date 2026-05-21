@@ -34,7 +34,10 @@ const ResetPasswordPage = () => {
             title="קישור לא תקין"
             message="קישור איפוס הסיסמה חסר או לא תקין."
             action={
-              <Button type="button" onClick={() => navigate("/forgot-password")}>
+              <Button
+                type="button"
+                onClick={() => navigate("/forgot-password")}
+              >
                 בקש קישור חדש
               </Button>
             }

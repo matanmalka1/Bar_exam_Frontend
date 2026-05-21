@@ -48,7 +48,11 @@ const BookmarksPage = () => {
     <div className="mx-auto w-full max-w-[720px] space-y-4 p-4">
       <AppHeader
         title="סימניות"
-        meta={<p className="tabular-nums text-sm text-secondary">{bookmarks.length} שאלות שמורות</p>}
+        meta={
+          <p className="tabular-nums text-sm text-secondary">
+            {bookmarks.length} שאלות שמורות
+          </p>
+        }
         actions={
           <Button
             className="min-h-10 rounded-xl px-3 py-2 text-sm"
@@ -65,7 +69,9 @@ const BookmarksPage = () => {
             title="אין סימניות עדיין"
             description="שאלות שתסמן יופיעו כאן לחזרה מהירה."
             action={
-              <Button onClick={() => navigate("/practice/new")}>התחל תרגול</Button>
+              <Button onClick={() => navigate("/practice/new")}>
+                התחל תרגול
+              </Button>
             }
           />
         </Card>
@@ -74,8 +80,12 @@ const BookmarksPage = () => {
           <Card className="border-default surface-muted">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="font-semibold text-[var(--accent-ink)]">תרגול סימניות</p>
-                <p className="mt-1 text-sm text-secondary">צור סשן מכל השאלות ששמרת.</p>
+                <p className="font-semibold text-[var(--accent-ink)]">
+                  תרגול סימניות
+                </p>
+                <p className="mt-1 text-sm text-secondary">
+                  צור סשן מכל השאלות ששמרת.
+                </p>
               </div>
               <Button disabled={starting} onClick={startBookmarksPractice}>
                 {starting ? (
@@ -133,7 +143,9 @@ const BookmarksPage = () => {
 
                   {reference && (
                     <div className="rounded-xl border border-default surface-muted p-3">
-                      <p className="text-xs font-semibold text-[var(--accent)]">הפניה</p>
+                      <p className="text-xs font-semibold text-[var(--accent)]">
+                        הפניה
+                      </p>
                       <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-primary">
                         {reference}
                       </p>

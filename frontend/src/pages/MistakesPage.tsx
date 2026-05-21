@@ -47,12 +47,21 @@ const MistakesPage = () => {
   if (items.length === 0) {
     return (
       <div className="mx-auto w-full max-w-[720px] space-y-4 p-4">
-        <AppHeader title="טעויות" meta={<p className="text-sm text-secondary">חזרה על שאלות שטעית בהן</p>} />
+        <AppHeader
+          title="טעויות"
+          meta={
+            <p className="text-sm text-secondary">חזרה על שאלות שטעית בהן</p>
+          }
+        />
         <Card>
           <EmptyState
             title="אין טעויות עדיין"
             description="טעויות מתרגולים יופיעו כאן לחזרה."
-            action={<Button onClick={() => navigate("/practice/new")}>התחל תרגול</Button>}
+            action={
+              <Button onClick={() => navigate("/practice/new")}>
+                התחל תרגול
+              </Button>
+            }
           />
         </Card>
       </div>
@@ -63,7 +72,11 @@ const MistakesPage = () => {
     <div className="mx-auto w-full max-w-[720px] space-y-4 p-4 pb-24">
       <AppHeader
         title="טעויות"
-        meta={<p className="tabular-nums text-sm text-secondary">{items.length} שאלות פתוחות</p>}
+        meta={
+          <p className="tabular-nums text-sm text-secondary">
+            {items.length} שאלות פתוחות
+          </p>
+        }
         actions={
           <Button
             variant="ghost"
@@ -104,7 +117,9 @@ const MistakesPage = () => {
               </div>
               {q.reference && (
                 <div className="rounded-xl border border-default surface-muted p-3">
-                  <p className="text-xs font-semibold text-[var(--accent)]">הפניה</p>
+                  <p className="text-xs font-semibold text-[var(--accent)]">
+                    הפניה
+                  </p>
                   <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-primary">
                     {q.reference}
                   </p>
