@@ -5,21 +5,25 @@ import { cn } from "../lib/cn";
 export type OptionMode = "practice" | "exam" | "review";
 
 interface OptionCardProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  mode: OptionMode;
+  mode?: OptionMode;
   label: string;
   text: string;
   selected?: boolean;
   isCorrect?: boolean;
   isWrong?: boolean;
+  showCorrectBadge?: boolean;
+  showSelectedBadge?: boolean;
 }
 
 const OptionCard = ({
-  mode,
+  mode = "practice",
   label,
   text,
   selected,
   isCorrect,
   isWrong,
+  showCorrectBadge,
+  showSelectedBadge,
   disabled,
   className,
   type = "button",
@@ -31,22 +35,28 @@ const OptionCard = ({
   const wrong = !!(showCorrectness && isWrong);
   const neutralSelected = !!selected && !correct && !wrong;
   const faded = !!disabled && !selected && !correct && !wrong;
+  const isReview = mode === "review";
+
+  const showBadge = isReview && (correct || wrong) && (showCorrectBadge || showSelectedBadge);
 
   return (
     <button
       type={type}
-      disabled={disabled}
+      disabled={disabled || isReview}
       aria-pressed={selected}
       className={cn(
-        "focus-ring group flex w-full items-start gap-3 rounded-2xl border p-4 text-right transition disabled:cursor-default",
+        "focus-ring group relative flex w-full items-start gap-3 rounded-2xl border p-4 text-right transition disabled:cursor-default",
+        showBadge && "pt-7",
         // unselected, no result
         !correct &&
           !wrong &&
           !neutralSelected &&
+          !isReview &&
           "surface border-default hover:border-strong hover:bg-[var(--surface-muted)] active:scale-[0.99]",
+        // review non-interactive unselected
+        isReview && !correct && !wrong && !neutralSelected && "surface border-default",
         // selected, no result yet
-        neutralSelected &&
-          "surface-muted border-strong shadow-[var(--shadow-default)]",
+        neutralSelected && "surface-muted border-strong shadow-[var(--shadow-default)]",
         // correct revealed (practice/review)
         correct &&
           "border-[var(--accent-ink)] bg-[var(--accent-ink)] text-white shadow-[var(--shadow-elevated)]",
@@ -57,13 +67,31 @@ const OptionCard = ({
       )}
       {...rest}
     >
+      {showBadge && (
+        <span
+          className={cn(
+            "absolute start-4 top-2 text-[10px] font-bold uppercase tracking-widest",
+            correct ? "text-white/70" : "text-secondary",
+          )}
+        >
+          {correct && showCorrectBadge ? "תשובה נכונה" : null}
+          {wrong && showSelectedBadge ? "התשובה שלך" : null}
+        </span>
+      )}
+
       <span
         className={cn(
           "font-display inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-base font-bold transition",
           !correct &&
             !wrong &&
             !neutralSelected &&
+            !isReview &&
             "border border-default text-secondary group-hover:border-strong group-hover:text-primary",
+          isReview &&
+            !correct &&
+            !wrong &&
+            !neutralSelected &&
+            "border border-default text-secondary",
           neutralSelected && "bg-[var(--accent-ink)] text-white",
           correct && "bg-white text-[var(--accent-ink)]",
           wrong && "border border-strong bg-white text-primary",

@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import AppHeader from "../components/AppHeader";
 import Button from "../components/Button";
 import Card from "../components/Card";
 import ErrorState from "../components/ErrorState";
 import FixedFooter from "../components/FixedFooter";
-import ReviewOption from "../components/ReviewOption";
+import OptionCard from "../components/OptionCard";
 import AppLoader from "../components/loader";
 import { getPracticeSession } from "../features/sessions/api";
 import type {
@@ -99,15 +100,10 @@ const ResultsPage = () => {
 
   return (
     <div className="mx-auto w-full max-w-[720px] space-y-4 p-4 pb-24">
-      <header className="flex items-center justify-between">
-        <Button variant="ghost" onClick={() => navigate("/")}>
-          חזרה
-        </Button>
-        <h1 className="font-display text-2xl font-bold text-[var(--accent-ink)]">
-          תוצאות
-        </h1>
-        <span className="w-16" />
-      </header>
+      <AppHeader
+        back={{ onClick: () => navigate("/") }}
+        title="תוצאות"
+      />
 
       <Card className="surface-muted">
         <div className="space-y-2 text-center">
@@ -164,22 +160,21 @@ const ResultsPage = () => {
                 </p>
                 <div className="grid gap-2">
                   {OPTIONS.map((opt) => (
-                    <ReviewOption
+                    <OptionCard
                       key={opt}
+                      mode="review"
                       label={opt}
                       text={q.options[opt]}
                       isCorrect={correctAns === opt}
-                      isSelectedWrong={selected === opt && correctAns !== opt}
-                      showCorrectHint
-                      showSelectedHint
+                      isWrong={selected === opt && correctAns !== opt}
+                      showCorrectBadge
+                      showSelectedBadge
                     />
                   ))}
                 </div>
                 {q.reference && (
                   <div className="rounded-xl border border-default surface-muted p-3">
-                    <p className="text-xs font-semibold text-[var(--accent)]">
-                      הפניה
-                    </p>
+                    <p className="text-xs font-semibold text-[var(--accent)]">הפניה</p>
                     <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-primary">
                       {q.reference}
                     </p>

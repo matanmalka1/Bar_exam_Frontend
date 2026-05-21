@@ -1,19 +1,18 @@
 import { useNavigate } from "react-router-dom";
+import Alert from "../components/Alert";
+import AppHeader from "../components/AppHeader";
 import Button from "../components/Button";
 import Card from "../components/Card";
+import EmptyState from "../components/EmptyState";
 import ErrorState from "../components/ErrorState";
 import FixedFooter from "../components/FixedFooter";
-import ReviewOption from "../components/ReviewOption";
+import OptionCard from "../components/OptionCard";
+import QuestionMeta from "../components/QuestionMeta";
 import AppLoader from "../components/loader";
 import { useMistakes } from "../features/mistakes/hooks/useMistakes";
 import type { AnswerOption } from "../features/sessions/types";
 
 const OPTIONS: AnswerOption[] = ["א", "ב", "ג", "ד"];
-
-const PART_LABEL: Record<string, string> = {
-  B: "דין דיוני",
-  C: "דין מהותי",
-};
 
 const formatExamDate = (raw: string): string => {
   const m = raw.match(/^(\d{4})-(\d{2})/);
@@ -44,20 +43,13 @@ const MistakesPage = () => {
   if (items.length === 0) {
     return (
       <div className="mx-auto w-full max-w-[720px] space-y-4 p-4">
-        <header>
-          <h1 className="font-display text-3xl font-bold text-[var(--accent-ink)]">
-            טעויות
-          </h1>
-          <p className="text-sm text-secondary">חזרה על שאלות שטעית בהן</p>
-        </header>
-        <Card className="space-y-3 text-center">
-          <h2 className="text-lg font-semibold text-[var(--accent-ink)]">
-            אין טעויות עדיין
-          </h2>
-          <p className="text-sm text-secondary">
-            טעויות מתרגולים יופיעו כאן כדי שתוכל לחזור עליהן.
-          </p>
-          <Button onClick={() => navigate("/practice/new")}>התחל תרגול</Button>
+        <AppHeader title="טעויות" meta={<p className="text-sm text-secondary">חזרה על שאלות שטעית בהן</p>} />
+        <Card>
+          <EmptyState
+            title="אין טעויות עדיין"
+            description="טעויות מתרגולים יופיעו כאן לחזרה."
+            action={<Button onClick={() => navigate("/practice/new")}>התחל תרגול</Button>}
+          />
         </Card>
       </div>
     );
@@ -65,58 +57,52 @@ const MistakesPage = () => {
 
   return (
     <div className="mx-auto w-full max-w-[720px] space-y-4 p-4 pb-24">
-      <header className="flex items-center justify-between gap-3">
-        <div>
-          <h1 className="font-display text-3xl font-bold text-[var(--accent-ink)]">
-            טעויות
-          </h1>
-          <p className="text-sm text-secondary">{items.length} שאלות פתוחות</p>
-        </div>
-        <Button variant="ghost" onClick={() => navigate("/practice/new")}>
-          תרגול חדש
-        </Button>
-      </header>
+      <AppHeader
+        title="טעויות"
+        meta={<p className="text-sm text-secondary">{items.length} שאלות פתוחות</p>}
+        actions={
+          <Button
+            variant="ghost"
+            className="min-h-10 rounded-xl px-3 py-2 text-sm"
+            onClick={() => navigate("/practice/new")}
+          >
+            תרגול חדש
+          </Button>
+        }
+      />
 
-      {startError && (
-        <Card className="border-2 border-strong bg-white">
-          <p className="text-sm text-primary font-semibold">{startError}</p>
-        </Card>
-      )}
+      {startError && <Alert variant="error">{startError}</Alert>}
 
       <section className="space-y-3">
         {items.map((q) => {
           const correct = q.correct_answer;
           return (
             <Card key={q.stable_id} className="space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-secondary">
-                <span>שאלה {q.number}</span>
-                <div className="flex gap-2">
-                  {q.exam_date && <span>{formatExamDate(q.exam_date)}</span>}
-                  {q.part && <span>{PART_LABEL[q.part] ?? q.part}</span>}
-                  <span className="text-primary font-semibold">
-                    {q.times_wrong}/{q.times_answered} טעויות
-                  </span>
-                </div>
-              </div>
+              <QuestionMeta
+                number={q.number}
+                examDate={q.exam_date ? formatExamDate(q.exam_date) : null}
+                part={q.part}
+                wrongCount={q.times_wrong}
+                totalAnswered={q.times_answered}
+              />
               <p className="whitespace-pre-wrap text-sm leading-7 text-[var(--ink)]">
                 {q.body}
               </p>
               <div className="grid gap-2">
                 {OPTIONS.map((opt) => (
-                  <ReviewOption
+                  <OptionCard
                     key={opt}
+                    mode="review"
                     label={opt}
                     text={q.options[opt]}
                     isCorrect={correct === opt}
-                    showCorrectHint
+                    showCorrectBadge
                   />
                 ))}
               </div>
               {q.reference && (
                 <div className="rounded-xl border border-default surface-muted p-3">
-                  <p className="text-xs font-semibold text-[var(--accent)]">
-                    הפניה
-                  </p>
+                  <p className="text-xs font-semibold text-[var(--accent)]">הפניה</p>
                   <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-primary">
                     {q.reference}
                   </p>

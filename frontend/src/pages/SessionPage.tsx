@@ -1,19 +1,19 @@
 import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Check, ChevronLeft, ChevronRight, X } from "lucide-react";
+import Alert from "../components/Alert";
+import AppHeader from "../components/AppHeader";
+import BookmarkButton from "../components/BookmarkButton";
 import Button from "../components/Button";
 import ErrorState from "../components/ErrorState";
 import FixedFooter from "../components/FixedFooter";
 import OptionCard from "../components/OptionCard";
-import SessionTopBar from "../components/SessionTopBar";
 import AppLoader from "../components/loader";
 import { usePracticeSession } from "../features/sessions/hooks/usePracticeSession";
 import type { AnswerOption } from "../features/sessions/types";
 import { cn } from "../lib/cn";
 
 const OPTIONS: AnswerOption[] = ["א", "ב", "ג", "ד"];
-
-const NETWORK_ERR = "החיבור נכשל. נסה שוב";
 
 const SessionPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -76,7 +76,7 @@ const SessionPage = () => {
     return (
       <div className="mx-auto w-full max-w-[720px] p-4">
         <ErrorState
-          message={NETWORK_ERR}
+          message="החיבור נכשל. נסה שוב"
           action={<Button onClick={retry}>נסה שוב</Button>}
         />
       </div>
@@ -87,40 +87,28 @@ const SessionPage = () => {
 
   return (
     <div className="mx-auto w-full max-w-[720px] p-4 pb-32">
-      <SessionTopBar
-        modeLabel={modeLabel}
-        currentIndex={currentIndex}
-        total={total}
-        answeredCount={answeredCount}
-        isBookmarked={isBookmarked}
-        bookmarkBusy={bookmarkBusy}
-        onBack={() => navigate("/")}
-        onToggleBookmark={toggleBookmark}
+      <AppHeader
+        back={{ onClick: () => navigate("/") }}
+        eyebrow={modeLabel}
+        progress={{ current: currentIndex + 1, total, answered: answeredCount }}
+        actions={
+          <BookmarkButton
+            isBookmarked={isBookmarked}
+            busy={bookmarkBusy}
+            onToggle={toggleBookmark}
+          />
+        }
       />
 
-      {(actionError || bookmarkError) && (
-        <div className="mb-4 space-y-2">
-          {actionError && (
-            <div
-              role="alert"
-              className="rounded-2xl border-2 border-strong bg-white px-4 py-3"
-            >
-              <p className="text-sm font-semibold text-primary">
-                {actionError}
-              </p>
-            </div>
-          )}
-          {bookmarkError && (
-            <div
-              role="alert"
-              className="rounded-2xl border-2 border-strong bg-white px-4 py-3"
-            >
-              <p className="text-sm font-semibold text-primary">
-                {bookmarkError}
-              </p>
-            </div>
-          )}
-        </div>
+      {actionError && (
+        <Alert variant="error" className="mb-4">
+          {actionError}
+        </Alert>
+      )}
+      {bookmarkError && (
+        <Alert variant="error" className="mb-4">
+          {bookmarkError}
+        </Alert>
       )}
 
       <article className="rounded-3xl border border-default bg-[var(--surface-muted)] p-5 shadow-[var(--shadow-default)]">
@@ -246,9 +234,7 @@ const SessionPage = () => {
               )}
             </Button>
             {submitReason && (
-              <p className="text-center text-xs text-secondary">
-                {submitReason}
-              </p>
+              <p className="text-center text-xs text-secondary">{submitReason}</p>
             )}
           </>
         )}
@@ -273,9 +259,7 @@ const SessionPage = () => {
               )}
             </Button>
             {completeReason && (
-              <p className="text-center text-xs text-secondary">
-                {completeReason}
-              </p>
+              <p className="text-center text-xs text-secondary">{completeReason}</p>
             )}
           </>
         )}

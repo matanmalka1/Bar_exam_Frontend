@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Check, ChevronRight } from "lucide-react";
+import { Check } from "lucide-react";
 import ActionCard from "../components/ActionCard";
+import AppHeader from "../components/AppHeader";
+import Alert from "../components/Alert";
 import Button from "../components/Button";
 import Chip from "../components/Chip";
 import ErrorState from "../components/ErrorState";
@@ -11,33 +13,6 @@ import { useExamsList } from "../features/exams/hooks/useExamsList";
 import { usePracticeNewForm } from "../features/sessions/hooks/usePracticeNewForm";
 import { cn } from "../lib/cn";
 
-interface PageHeaderProps {
-  title: string;
-  onBack: () => void;
-}
-
-const PageHeader = ({ title, onBack }: PageHeaderProps) => (
-  <header className="sticky top-0 z-20 -mx-4 -mt-4 mb-5 border-b border-default bg-[var(--paper)]/85 px-4 pt-4 pb-3 backdrop-blur supports-[backdrop-filter]:bg-[var(--paper)]/70">
-    <div className="flex items-center justify-between gap-2">
-      <button
-        type="button"
-        onClick={onBack}
-        className="focus-ring -mr-2 inline-flex items-center gap-1 rounded-xl px-2 py-1.5 text-sm font-medium text-secondary transition hover:text-primary active:scale-95"
-      >
-        <ChevronRight className="h-4 w-4" aria-hidden="true" />
-        ביטול
-      </button>
-      <p className="font-display text-[11px] uppercase tracking-[0.22em] text-secondary">
-        תרגול חדש
-      </p>
-      <span className="w-16" />
-    </div>
-    <h1 className="font-display mt-2 text-[1.9rem] font-black leading-tight text-[var(--accent-ink)]">
-      {title}
-    </h1>
-  </header>
-);
-
 interface StepSectionProps {
   index: string;
   title: string;
@@ -45,12 +20,7 @@ interface StepSectionProps {
   children: ReactNode;
 }
 
-const StepSection = ({
-  index,
-  title,
-  complete,
-  children,
-}: StepSectionProps) => (
+const StepSection = ({ index, title, complete, children }: StepSectionProps) => (
   <section className="mt-7">
     <div className="flex items-baseline justify-between gap-2 border-b border-default pb-2">
       <h2 className="font-display flex items-baseline gap-2 text-base font-bold text-[var(--accent-ink)]">
@@ -117,20 +87,20 @@ const PracticeNewPage = () => {
   if (flow === "exam") {
     return (
       <div className="mx-auto w-full max-w-[720px] p-4 pb-32">
-        <PageHeader title="בחינת מועד מלאה" onBack={goBack} />
+        <AppHeader
+          back={{ label: "ביטול", onClick: goBack }}
+          eyebrow="תרגול חדש"
+          title="בחינת מועד מלאה"
+        />
 
         <p className="text-sm leading-6 text-secondary">
-          בחר מועד בחינה. כל השאלות מאותו מועד יוצגו בסדר המקורי, ללא משוב
-          מיידי.
+          בחר מועד בחינה. כל השאלות מאותו מועד יוצגו בסדר המקורי, ללא משוב מיידי.
         </p>
 
         {submitError && (
-          <div
-            role="alert"
-            className="mt-4 rounded-2xl border-2 border-strong bg-white px-4 py-3"
-          >
-            <p className="text-sm font-semibold text-primary">{submitError}</p>
-          </div>
+          <Alert variant="error" className="mt-4">
+            {submitError}
+          </Alert>
         )}
 
         <StepSection index="01" title="בחר מועד" complete={examDate !== null}>
@@ -173,9 +143,7 @@ const PracticeNewPage = () => {
             )}
           </Button>
           {disabledReason && (
-            <p className="text-center text-xs text-secondary">
-              {disabledReason}
-            </p>
+            <p className="text-center text-xs text-secondary">{disabledReason}</p>
           )}
         </FixedFooter>
       </div>
@@ -184,20 +152,20 @@ const PracticeNewPage = () => {
 
   return (
     <div className="mx-auto w-full max-w-[720px] p-4 pb-32">
-      <PageHeader title="תרגול חופשי" onBack={goBack} />
+      <AppHeader
+        back={{ label: "ביטול", onClick: goBack }}
+        eyebrow="תרגול חדש"
+        title="תרגול חופשי"
+      />
 
       <p className="text-sm leading-6 text-secondary">
-        הרכב סשן תרגול לפי חלק, מועד וכמות שאלות. במצב זה תקבל משוב מיידי על כל
-        תשובה.
+        הרכב סשן תרגול לפי חלק, מועד וכמות שאלות. במצב זה תקבל משוב מיידי על כל תשובה.
       </p>
 
       {submitError && (
-        <div
-          role="alert"
-          className="mt-4 rounded-2xl border-2 border-strong bg-white px-4 py-3"
-        >
-          <p className="text-sm font-semibold text-primary">{submitError}</p>
-        </div>
+        <Alert variant="error" className="mt-4">
+          {submitError}
+        </Alert>
       )}
 
       <StepSection index="01" title="חלק" complete={part !== null}>

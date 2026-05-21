@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import Alert from "../../components/Alert";
 import Button from "../../components/Button";
 import AppLoader from "../../components/loader";
 import { getApiErrorDetail } from "../../lib/api";
@@ -120,12 +121,7 @@ const ResetPasswordPage = () => {
 
             {success ? (
               <div className="mt-6 space-y-4">
-                <div
-                  role="alert"
-                  className="rounded-2xl border border-default bg-white px-4 py-4 text-sm font-semibold leading-6 text-primary"
-                >
-                  הסיסמה אופסה בהצלחה
-                </div>
+                <Alert variant="success">הסיסמה אופסה בהצלחה</Alert>
                 <Button
                   type="button"
                   fullWidth
@@ -201,14 +197,7 @@ const ResetPasswordPage = () => {
                   </div>
                 </div>
 
-                {error && (
-                  <div
-                    role="alert"
-                    className="rounded-2xl border-2 border-strong bg-white px-3 py-2 text-sm font-semibold text-primary"
-                  >
-                    {error}
-                  </div>
-                )}
+                {error && <Alert variant="error">{error}</Alert>}
 
                 <Button
                   type="submit"

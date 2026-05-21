@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState, type FormEvent } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
+import Alert from "../../components/Alert";
 import Button from "../../components/Button";
 import AppLoader from "../../components/loader";
 import { LoginRequestSchema } from "./schemas";
@@ -146,14 +147,7 @@ const LoginPage = () => {
                 </Link>
               </div>
 
-              {error && (
-                <div
-                  role="alert"
-                  className="rounded-2xl border-2 border-strong bg-white px-3 py-2 text-sm font-semibold text-primary"
-                >
-                  {error}
-                </div>
-              )}
+              {error && <Alert variant="error">{error}</Alert>}
 
               <Button
                 type="submit"

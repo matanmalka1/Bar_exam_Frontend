@@ -5,7 +5,6 @@ import BottomNav from "../components/BottomNav";
 const HIDE_NAV_PATTERNS: RegExp[] = [
   /^\/session\/[^/]+$/,
   /^\/session\/[^/]+\/exam$/,
-  /^\/session\/[^/]+\/results$/,
 ];
 
 interface ShellVars extends CSSProperties {

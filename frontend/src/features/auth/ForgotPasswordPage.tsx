@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
+import Alert from "../../components/Alert";
 import Button from "../../components/Button";
 import AppLoader from "../../components/loader";
 import { forgotPassword } from "./api";
@@ -67,12 +68,9 @@ const ForgotPasswordPage = () => {
             </p>
 
             {success ? (
-              <div
-                role="alert"
-                className="mt-6 rounded-2xl border border-default bg-white px-4 py-4 text-sm font-semibold leading-6 text-primary"
-              >
+              <Alert variant="success" className="mt-6">
                 {success}
-              </div>
+              </Alert>
             ) : (
               <form onSubmit={onSubmit} className="mt-6 space-y-4">
                 <div className="space-y-1.5">
@@ -97,14 +95,7 @@ const ForgotPasswordPage = () => {
                   />
                 </div>
 
-                {error && (
-                  <div
-                    role="alert"
-                    className="rounded-2xl border-2 border-strong bg-white px-3 py-2 text-sm font-semibold text-primary"
-                  >
-                    {error}
-                  </div>
-                )}
+                {error && <Alert variant="error">{error}</Alert>}
 
                 <Button
                   type="submit"

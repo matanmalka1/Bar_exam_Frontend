@@ -381,8 +381,8 @@ const HomePage = () => {
             <RouteRow
               index="02"
               icon={ClipboardList}
-              title="סימולציית מבחן מלא"
-              hint="התחל מבחן בתנאי בחינה"
+              title="סימולציה"
+              hint="שאלות אקראיות מכל המאגר"
               onClick={handleStartSimulation}
               disabled={startingSim}
               loading={startingSim}
