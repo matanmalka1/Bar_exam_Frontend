@@ -11,6 +11,7 @@ import OptionCard from "../components/OptionCard";
 import AppLoader from "../components/loader";
 import { useExamSession } from "../features/sessions/hooks/useExamSession";
 import type { AnswerOption } from "../features/sessions/types";
+import { tap } from "../lib/haptics";
 
 const OPTIONS: AnswerOption[] = ["א", "ב", "ג", "ד"];
 
@@ -168,7 +169,7 @@ const ExamSessionPage = () => {
       <FixedFooter>
         {!showComplete && (
           <>
-            <Button fullWidth disabled={primaryDisabled} onClick={submitOrNext}>
+            <Button fullWidth disabled={primaryDisabled} onClick={() => { tap(); submitOrNext(); }}>
               {submitting ? (
                 <AppLoader variant="button" label="שומר..." />
               ) : (
@@ -185,7 +186,7 @@ const ExamSessionPage = () => {
             <Button
               fullWidth
               disabled={!allAnswered || completing}
-              onClick={complete}
+              onClick={() => { tap(); complete(); }}
             >
               {completing ? (
                 <AppLoader variant="button" label="מסיים..." />

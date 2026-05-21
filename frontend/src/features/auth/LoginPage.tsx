@@ -18,10 +18,12 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-
-  const sessionExpired =
-    typeof sessionStorage !== "undefined" &&
-    sessionStorage.getItem("auth_expired") === "1";
+  const [sessionExpired] = useState(() => {
+    if (typeof sessionStorage === "undefined") return false;
+    const flag = sessionStorage.getItem("auth_expired") === "1";
+    if (flag) sessionStorage.removeItem("auth_expired");
+    return flag;
+  });
 
   if (status === "authenticated") return <Navigate to="/" replace />;
 
@@ -64,10 +66,6 @@ const LoginPage = () => {
           title="ברוך הבא"
           variant="inline"
         />
-
-        {sessionExpired && (
-          (() => { sessionStorage.removeItem("auth_expired"); return null; })()
-        )}
 
         <form onSubmit={onSubmit} className="flex flex-1 flex-col gap-4">
           {sessionExpired && (

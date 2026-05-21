@@ -108,26 +108,26 @@ const ResultsPage = () => {
       <Card className="surface-muted">
         <div className="space-y-2 text-center">
           <p className="text-sm font-medium text-[var(--accent)]">הציון שלך</p>
-          <p className="font-display text-6xl font-black text-[var(--accent-ink)]">
+          <p className="font-display tabular-nums text-6xl font-black text-[var(--accent-ink)]">
             {scorePercent}%
           </p>
-          <p className="text-sm text-secondary">
+          <p className="tabular-nums text-sm text-secondary">
             {correct} נכונות מתוך {total}
           </p>
           <div className="grid grid-cols-3 gap-2 pt-3 text-sm">
             <div>
               <p className="text-secondary">נענו</p>
-              <p className="font-semibold text-[var(--accent-ink)]">
+              <p className="tabular-nums font-semibold text-[var(--accent-ink)]">
                 {answered}/{total}
               </p>
             </div>
             <div>
               <p className="text-secondary">נכונות</p>
-              <p className="font-semibold text-primary">{correct}</p>
+              <p className="tabular-nums font-semibold text-primary">{correct}</p>
             </div>
             <div>
               <p className="text-secondary">טעויות</p>
-              <p className="font-semibold text-primary">{mistakes.length}</p>
+              <p className="tabular-nums font-semibold text-primary">{mistakes.length}</p>
             </div>
           </div>
           {session.completed_at && (

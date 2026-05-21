@@ -12,6 +12,7 @@ import AppLoader from "../components/loader";
 import { usePracticeSession } from "../features/sessions/hooks/usePracticeSession";
 import type { AnswerOption } from "../features/sessions/types";
 import { cn } from "../lib/cn";
+import { tap } from "../lib/haptics";
 
 const OPTIONS: AnswerOption[] = ["א", "ב", "ג", "ד"];
 
@@ -226,7 +227,7 @@ const SessionPage = () => {
       <FixedFooter>
         {!answerSubmitted && (
           <>
-            <Button fullWidth disabled={submitDisabled} onClick={submit}>
+            <Button fullWidth disabled={submitDisabled} onClick={() => { tap(); submit(); }}>
               {submitting ? (
                 <AppLoader variant="button" label="שומר..." />
               ) : (
@@ -240,7 +241,7 @@ const SessionPage = () => {
         )}
 
         {answerSubmitted && !isLast && (
-          <Button fullWidth onClick={next}>
+          <Button fullWidth onClick={() => { tap(); next(); }}>
             שאלה הבאה
           </Button>
         )}
@@ -250,7 +251,7 @@ const SessionPage = () => {
             <Button
               fullWidth
               disabled={!allAnswered || completing}
-              onClick={complete}
+              onClick={() => { tap(); complete(); }}
             >
               {completing ? (
                 <AppLoader variant="button" label="מסיים..." />

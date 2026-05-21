@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "../lib/cn";
+import { tap } from "../lib/haptics";
 
 const ITEMS = [
   { to: "/", label: "בית", icon: Home },
@@ -27,6 +28,7 @@ const BottomNav = () => (
           <NavLink
             to={to}
             end={to === "/"}
+            onClick={() => tap()}
             className={({ isActive }) =>
               cn(
                 "focus-ring group relative flex h-14 flex-col items-center justify-center gap-1 rounded-2xl text-[11px] transition-colors duration-200",

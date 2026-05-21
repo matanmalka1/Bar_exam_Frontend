@@ -51,7 +51,7 @@ const BookmarksPage = () => {
     <div className="mx-auto w-full max-w-[720px] space-y-4 p-4">
       <AppHeader
         title="סימניות"
-        meta={<p className="text-sm text-secondary">{bookmarks.length} שאלות שמורות</p>}
+        meta={<p className="tabular-nums text-sm text-secondary">{bookmarks.length} שאלות שמורות</p>}
         actions={
           <Button
             className="min-h-10 rounded-xl px-3 py-2 text-sm"

@@ -64,7 +64,7 @@ const MistakesPage = () => {
     <div className="mx-auto w-full max-w-[720px] space-y-4 p-4 pb-24">
       <AppHeader
         title="טעויות"
-        meta={<p className="text-sm text-secondary">{items.length} שאלות פתוחות</p>}
+        meta={<p className="tabular-nums text-sm text-secondary">{items.length} שאלות פתוחות</p>}
         actions={
           <Button
             variant="ghost"
