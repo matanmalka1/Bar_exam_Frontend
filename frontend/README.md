@@ -58,6 +58,8 @@ Public:
 
 - `/login`
 - `/register`
+- `/forgot-password`
+- `/reset-password`
 
 Protected:
 
@@ -75,4 +77,20 @@ Protected:
 
 - Auth uses bearer access tokens plus a backend-set HttpOnly refresh cookie.
 - User-scoped frontend calls use `/users/me/*`; the client does not send `user_id`.
-- Password reset is not implemented.
+- Error responses are expected to use the backend envelope:
+
+```ts
+type ApiErrorResponse = {
+  error: {
+    code: string;
+    message: string;
+    details?: unknown;
+  };
+};
+```
+
+- UI error text should come from `error.message`.
+- UI branching should use `error.code`.
+- Validation details, when present, are in `error.details` as normalized field items such as `{ field: "items.0.name", message: "Field required", type: "missing" }`.
+- Domain error details, when present, are also read from `error.details` for local message mapping.
+- Shared helpers in `src/lib/api.ts` and `src/lib/api-errors.ts` parse this envelope.

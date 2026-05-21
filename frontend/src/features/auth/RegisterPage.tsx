@@ -7,7 +7,7 @@ import AppLoader from "../../components/loader";
 import Button from "../../components/Button";
 import PasswordToggle from "../../components/PasswordToggle";
 import TextField from "../../components/TextField";
-import { getApiErrorDetail, isApiStatusError } from "../../lib/api";
+import { getApiErrorMessage, isApiStatusError } from "../../lib/api";
 import { RegisterFormSchema } from "./schemas";
 import type { RegisterRequest } from "./types";
 import { useAuth } from "./useAuth";
@@ -69,8 +69,7 @@ const RegisterPage = () => {
       } else if (isApiStatusError(err, 422)) {
         setError("נתונים לא תקינים. בדוק שוב את הפרטים");
       } else if (axios.isAxiosError(err) && err.response) {
-        const detail = getApiErrorDetail(err);
-        setError(typeof detail === "string" ? detail : "ההרשמה נכשלה");
+        setError(getApiErrorMessage(err) ?? "ההרשמה נכשלה");
       } else {
         setError("ההרשמה נכשלה. נסה שוב");
       }

@@ -40,6 +40,8 @@ VITE_API_BASE_URL
 - Refresh: `POST /auth/refresh`
 - Logout: `POST /auth/logout`
 - Current user: `GET /auth/me`
+- Forgot password: `POST /auth/forgot-password`
+- Reset password: `POST /auth/reset-password`
 - Access token is stored in `localStorage` under `access_token`.
 - Refresh token is stored by the backend as an HttpOnly cookie.
 - `src/lib/api.ts` attaches the bearer token and retries one 401 with `/auth/refresh`.
@@ -47,7 +49,24 @@ VITE_API_BASE_URL
 - Protected routes use `ProtectedRoute`; unauthenticated users go to `/login`.
 - The frontend never sends `user_id` for progress APIs. It uses `/users/me/*`.
 
-Password reset is not implemented in the current codebase.
+## API Error Contract
+
+Backend errors use:
+
+```ts
+type ApiErrorResponse = {
+  error: {
+    code: string;
+    message: string;
+    details?: unknown;
+  };
+};
+```
+
+- Display text should come from `error.message`.
+- Branching should use `error.code`.
+- Validation/domain context can be read from `error.details`.
+- Shared parsing lives in `src/lib/api.ts`; user-facing mapping lives in `src/lib/api-errors.ts`.
 
 ## Routes
 
@@ -55,6 +74,8 @@ Public:
 
 - `/login`
 - `/register`
+- `/forgot-password`
+- `/reset-password`
 
 Protected shell routes:
 

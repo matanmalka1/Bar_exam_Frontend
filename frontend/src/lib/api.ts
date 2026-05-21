@@ -105,7 +105,37 @@ api.interceptors.response.use(
 export const isApiStatusError = (err: unknown, status: number): boolean =>
   axios.isAxiosError(err) && err.response?.status === status;
 
+export type ApiErrorResponse = {
+  error: {
+    code: string;
+    message: string;
+    details?: unknown;
+  };
+};
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
+export const getApiErrorEnvelope = (
+  err: unknown,
+): ApiErrorResponse["error"] | null => {
+  if (!axios.isAxiosError(err)) return null;
+  const data = err.response?.data;
+  if (!isRecord(data) || !isRecord(data.error)) return null;
+  const { code, message, details } = data.error;
+  if (typeof code !== "string" || typeof message !== "string") return null;
+  return { code, message, details };
+};
+
+export const getApiErrorMessage = (err: unknown): string | null =>
+  getApiErrorEnvelope(err)?.message ?? null;
+
+export const getApiErrorDetails = (err: unknown): unknown =>
+  getApiErrorEnvelope(err)?.details ?? null;
+
 export const getApiErrorDetail = (err: unknown): unknown => {
   if (!axios.isAxiosError(err)) return null;
+  const envelope = getApiErrorEnvelope(err);
+  if (envelope) return envelope.details ?? envelope.message;
   return (err.response?.data as { detail?: unknown } | undefined)?.detail;
 };

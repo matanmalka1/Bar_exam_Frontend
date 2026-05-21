@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getApiErrorDetail, getApiErrorMessage } from "./api";
 import { MSG } from "./messages";
 
 export const map422Detail = (detail: unknown): string | null => {
@@ -36,20 +37,23 @@ export const extractApiError = (error: unknown, fallback?: string): string => {
   if (status === 401) return MSG.UNAUTHORIZED;
 
   if (status === 422) {
-    const detail = (error.response.data as { detail?: unknown } | undefined)?.detail;
-    const mapped = map422Detail(detail);
+    const detail = getApiErrorDetail(error);
+    const message = getApiErrorMessage(error);
+    const mapped = map422Detail(detail ?? message);
     if (mapped) return mapped;
+    if (message) return message;
     if (typeof detail === "string" && detail.trim()) return detail;
     if (Array.isArray(detail) && detail.length > 0) {
-      const first = detail[0] as { msg?: string } | undefined;
-      if (first?.msg) {
-        const mappedFirst = map422Detail(first.msg);
+      const first = detail[0] as { message?: string; msg?: string } | undefined;
+      const firstMessage = first?.message ?? first?.msg;
+      if (firstMessage) {
+        const mappedFirst = map422Detail(firstMessage);
         if (mappedFirst) return mappedFirst;
-        return first.msg;
+        return firstMessage;
       }
     }
     return fallback ?? MSG.GENERIC;
   }
 
-  return fallback ?? MSG.GENERIC;
+  return getApiErrorMessage(error) ?? fallback ?? MSG.GENERIC;
 };

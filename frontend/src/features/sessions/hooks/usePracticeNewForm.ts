@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   getApiErrorDetail,
+  getApiErrorMessage,
   HTTP_UNPROCESSABLE,
   isApiStatusError,
 } from "../../../lib/api";
@@ -35,8 +36,11 @@ const map422 = (raw: unknown): string => {
 };
 
 const extractApiError = (err: unknown): string => {
-  if (isApiStatusError(err, HTTP_UNPROCESSABLE))
-    return map422(getApiErrorDetail(err));
+  if (isApiStatusError(err, HTTP_UNPROCESSABLE)) {
+    const detail = getApiErrorDetail(err);
+    const mapped = map422(detail);
+    return mapped === DEFAULT_422 ? (getApiErrorMessage(err) ?? mapped) : mapped;
+  }
   return NETWORK_ERR;
 };
 

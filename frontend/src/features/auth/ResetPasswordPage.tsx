@@ -8,7 +8,7 @@ import Button from "../../components/Button";
 import ErrorState from "../../components/ErrorState";
 import PasswordToggle from "../../components/PasswordToggle";
 import TextField from "../../components/TextField";
-import { getApiErrorDetail } from "../../lib/api";
+import { getApiErrorMessage } from "../../lib/api";
 import { resetPassword } from "./api";
 import { ResetPasswordFormSchema } from "./schemas";
 
@@ -67,11 +67,9 @@ const ResetPasswordPage = () => {
       setSuccess(true);
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        const detail = getApiErrorDetail(err);
         setError(
-          typeof detail === "string"
-            ? detail
-            : "לא ניתן לאפס סיסמה. נסה לבקש קישור חדש",
+          getApiErrorMessage(err) ??
+            "לא ניתן לאפס סיסמה. נסה לבקש קישור חדש",
         );
       } else {
         setError("לא ניתן לאפס סיסמה. נסה לבקש קישור חדש");
