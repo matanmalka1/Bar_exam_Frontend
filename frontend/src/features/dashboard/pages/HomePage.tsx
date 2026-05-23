@@ -74,7 +74,7 @@ const HomePage = () => {
       ? "בחר חלק וצא לדרך."
       : mistakesCount > 0
         ? `יש לך ${mistakesCount} טעויות פתוחות לחזרה.`
-        : "המשיכו כך — אתם על הדרך הנכונה.";
+        : "כל הכבוד — אין טעויות פתוחות.";
 
   const mistakesHint = statsUnavailable
     ? "לחזרה ולשיפור"
@@ -98,7 +98,7 @@ const HomePage = () => {
             </span>
 
             <h1 className="font-display mt-4 leading-tight text-[var(--accent-ink)]">
-              <span className="block text-[2.75rem] font-black leading-none sm:text-[3rem]">
+              <span className="block text-[2.75rem] font-black leading-none sm:text-[2rem]">
                 {greetingForHour(now.getHours())}
               </span>
               {user?.full_name && (

@@ -1,5 +1,5 @@
 import {
-  Bookmark,
+  ChartBar,
   CircleAlert,
   Home,
   MoreHorizontal,
@@ -13,7 +13,7 @@ const ITEMS = [
   { to: "/", label: "בית", icon: Home },
   { to: "/practice/new", label: "תרגול", icon: PencilLine },
   { to: "/mistakes", label: "טעויות", icon: CircleAlert },
-  { to: "/bookmarks", label: "סימניות", icon: Bookmark },
+  { to: "/stats", label: "סטטיסטיקות", icon: ChartBar },
   { to: "/more", label: "פרופיל", icon: MoreHorizontal },
 ] as const;
 
