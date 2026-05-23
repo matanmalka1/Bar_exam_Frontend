@@ -67,6 +67,14 @@ const HomePage = () => {
 
   const now = new Date();
   const mistakesCount = stats?.active_mistakes_count ?? 0;
+  const totalAnswered = stats?.total_answered ?? 0;
+
+  const tagline =
+    !stats || totalAnswered === 0
+      ? "בחר חלק וצא לדרך."
+      : mistakesCount > 0
+        ? `יש לך ${mistakesCount} טעויות פתוחות לחזרה.`
+        : "המשיכו כך — אתם על הדרך הנכונה.";
 
   const mistakesHint = statsUnavailable
     ? "לחזרה ולשיפור"
@@ -101,7 +109,7 @@ const HomePage = () => {
             </h1>
 
             <p className="mt-3 max-w-md text-sm leading-6 text-secondary">
-              מוכנים להמשיך לעבוד לקראת הבחינה?
+              {tagline}
             </p>
           </div>
         </div>
@@ -110,6 +118,7 @@ const HomePage = () => {
           <HomeStatsHero
             stats={stats}
             onStartPractice={() => navigate(ROUTES.practiceNew)}
+            onOpenMistakes={() => navigate(ROUTES.mistakes)}
           />
         </div>
 

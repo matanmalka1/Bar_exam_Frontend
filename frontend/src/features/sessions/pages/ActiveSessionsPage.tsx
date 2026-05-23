@@ -35,7 +35,12 @@ const ActiveSessionsPage = () => {
   };
 
   useEffect(() => {
-    load();
+    listUserSessions("active")
+      .then((data) => {
+        setSessions(data);
+        setStatus("ready");
+      })
+      .catch(() => setStatus("error"));
   }, []);
 
   const handleAbandon = async (s: SessionSummary) => {
