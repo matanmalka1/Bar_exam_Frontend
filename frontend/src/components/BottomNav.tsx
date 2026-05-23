@@ -14,7 +14,7 @@ const ITEMS = [
   { to: "/practice/new", label: "תרגול", icon: PencilLine },
   { to: "/mistakes", label: "טעויות", icon: CircleAlert },
   { to: "/bookmarks", label: "סימניות", icon: Bookmark },
-  { to: "/more", label: "עוד", icon: MoreHorizontal },
+  { to: "/more", label: "פרופיל", icon: MoreHorizontal },
 ] as const;
 
 const BottomNav = () => (

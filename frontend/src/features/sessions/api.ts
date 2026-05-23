@@ -13,15 +13,20 @@ import type {
   SessionComplete,
   SessionCreateInput,
   SessionDetail,
+  SessionMode,
   SessionStatus,
   SessionSummary,
 } from "./types";
 
 export const listUserSessions = async (
   status?: SessionStatus,
+  mode?: SessionMode,
 ): Promise<SessionSummary[]> => {
+  const params: Record<string, string> = {};
+  if (status) params.status = status;
+  if (mode) params.mode = mode;
   const { data } = await api.get<unknown>("/users/me/sessions", {
-    params: status ? { status } : undefined,
+    params: Object.keys(params).length ? params : undefined,
   });
   return parseApiResponse(
     SessionSummarySchema.array(),

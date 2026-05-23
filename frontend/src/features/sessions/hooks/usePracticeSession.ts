@@ -246,6 +246,7 @@ export const usePracticeSession = ({
 
   return {
     status,
+    sessionCompleted: session?.status === "completed",
     current,
     currentIndex,
     submitting,

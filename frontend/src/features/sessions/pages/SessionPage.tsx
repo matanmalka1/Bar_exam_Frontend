@@ -11,7 +11,9 @@ import AppLoader from "../../../components/loader";
 import QuestionNavigation from "../components/QuestionNavigation";
 import SessionAnswerOptions from "../components/SessionAnswerOptions";
 import SessionQuestionCard from "../components/SessionQuestionCard";
+import TimerDisplay from "../components/TimerDisplay";
 import { usePracticeSession } from "../hooks/usePracticeSession";
+import { useElapsedTimer } from "../hooks/useTimer";
 import { tap } from "../../../lib/haptics";
 
 const AnswerFeedback = ({
@@ -79,6 +81,7 @@ const SessionPage = () => {
 
   const {
     status,
+    sessionCompleted,
     current,
     currentIndex,
     submitting,
@@ -110,6 +113,8 @@ const SessionPage = () => {
     onComplete: handleCompleteRedirect,
   });
 
+  const { totalDisplay, questionDisplay, resetQuestion, clearStorage } = useElapsedTimer(id ?? "", currentIndex ?? 0, sessionCompleted);
+
   if (status === "loading") {
     return <AppLoader variant="page" label="טוען נתונים..." />;
   }
@@ -127,6 +132,7 @@ const SessionPage = () => {
 
   const handleSubmit = () => {
     tap();
+    resetQuestion();
     submit();
   };
 
@@ -137,6 +143,7 @@ const SessionPage = () => {
 
   const handleComplete = () => {
     tap();
+    clearStorage();
     complete();
   };
 
@@ -147,11 +154,18 @@ const SessionPage = () => {
         eyebrow={modeLabel}
         progress={{ current: currentIndex + 1, total, answered: answeredCount }}
         actions={
-          <BookmarkButton
-            isBookmarked={isBookmarked}
-            busy={bookmarkBusy}
-            onToggle={toggleBookmark}
-          />
+          <div className="flex items-center gap-2">
+            <TimerDisplay
+              kind="elapsed"
+              totalDisplay={totalDisplay}
+              questionDisplay={questionDisplay}
+            />
+            <BookmarkButton
+              isBookmarked={isBookmarked}
+              busy={bookmarkBusy}
+              onToggle={toggleBookmark}
+            />
+          </div>
         }
       />
 

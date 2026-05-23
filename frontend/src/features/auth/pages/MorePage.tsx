@@ -90,7 +90,7 @@ const MorePage = () => {
   return (
     <PageShell className="pb-8">
       <div className="space-y-5">
-        <AppHeader title="עוד" />
+        <AppHeader title="פרופיל" />
 
         <section className="space-y-3">
           <SectionTitle>חשבון</SectionTitle>

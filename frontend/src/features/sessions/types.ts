@@ -12,6 +12,7 @@ import type {
   SessionCompleteSchema,
   SessionDetailSchema,
   SessionModeSchema,
+  SessionPartBreakdownSchema,
   SessionQuestionSchema,
   SessionStatusSchema,
   SessionSummarySchema,
@@ -52,5 +53,6 @@ export type AnswerPracticeOut = z.infer<typeof AnswerPracticeOutSchema>;
 export type AnswerExamOut = z.infer<typeof AnswerExamOutSchema>;
 export type AnswerResult = z.infer<typeof AnswerResultSchema>;
 export type PartBreakdown = z.infer<typeof PartBreakdownSchema>;
+export type SessionPartBreakdown = z.infer<typeof SessionPartBreakdownSchema>;
 export type ExamMistakeBrief = z.infer<typeof ExamMistakeBriefSchema>;
 export type SessionComplete = z.infer<typeof SessionCompleteSchema>;

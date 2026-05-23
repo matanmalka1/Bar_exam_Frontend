@@ -11,8 +11,10 @@ import { notifyError } from "../../../lib/toast";
 import ActiveSessionCard from "../components/ActiveSessionCard";
 import HomeStatsHero from "../components/HomeStatsHero";
 import PartBreakdown from "../components/PartBreakdown";
+import SimulationHistoryCard from "../components/SimulationHistoryCard";
 import StudyRoutesList from "../components/StudyRoutesList";
 import { formatHebrewDate, greetingForHour } from "../dashboardFormat";
+import { useSimulationHistory } from "../hooks/useSimulationHistory";
 
 const NETWORK_ERR = "החיבור נכשל. נסה שוב";
 const SIM_422 = "אין מספיק שאלות זמינות למבחן";
@@ -42,6 +44,7 @@ const HomePage = () => {
     statsUnavailable,
     bookmarksUnavailable,
   } = useHomeOverview();
+  const { simulations } = useSimulationHistory();
   const [startingSim, setStartingSim] = useState(false);
 
   const handleStartSimulation = async () => {
@@ -156,6 +159,8 @@ const HomePage = () => {
       />
 
       <PartBreakdown stats={stats} statsUnavailable={statsUnavailable} />
+
+      <SimulationHistoryCard simulations={simulations} />
     </div>
   );
 };

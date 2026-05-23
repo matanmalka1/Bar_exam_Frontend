@@ -23,6 +23,13 @@ export const QuestionOptionsSchema = z.object({
 const DateTimeStringSchema = z.string().min(1);
 const ScorePercentSchema = z.string();
 
+export const SessionPartBreakdownSchema = z.object({
+  total: z.number().int(),
+  answered: z.number().int(),
+  correct: z.number().int(),
+  score_percent: ScorePercentSchema,
+});
+
 export const SessionSummarySchema = z.object({
   id: z.number().int(),
   user_id: z.number().int(),
@@ -37,6 +44,7 @@ export const SessionSummarySchema = z.object({
   started_at: DateTimeStringSchema,
   completed_at: DateTimeStringSchema.nullable(),
   created_at: DateTimeStringSchema,
+  part_breakdown: z.record(z.string(), SessionPartBreakdownSchema).nullable().optional(),
 });
 
 export const SessionAnswerInlineSchema = z.object({

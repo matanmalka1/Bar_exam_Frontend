@@ -27,6 +27,7 @@ interface UseExamSessionOptions {
 
 interface UseExamSessionResult {
   status: Status;
+  sessionCompleted: boolean;
   current: SessionQuestion | null;
   currentIndex: number;
   submitting: boolean;
@@ -274,6 +275,7 @@ export const useExamSession = ({
 
   return {
     status,
+    sessionCompleted: session?.status === "completed",
     current,
     currentIndex,
     submitting,

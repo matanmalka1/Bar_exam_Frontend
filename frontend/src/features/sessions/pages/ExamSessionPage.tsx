@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import AppHeader from "../../../components/AppHeader";
 import BookmarkButton from "../../../components/BookmarkButton";
@@ -10,7 +10,10 @@ import AppLoader from "../../../components/loader";
 import QuestionNavigation from "../components/QuestionNavigation";
 import SessionAnswerOptions from "../components/SessionAnswerOptions";
 import SessionQuestionCard from "../components/SessionQuestionCard";
+import TimerDisplay from "../components/TimerDisplay";
+import TimeUpModal from "../components/TimeUpModal";
 import { useExamSession } from "../hooks/useExamSession";
+import { useCountdownTimer } from "../hooks/useTimer";
 import { tap } from "../../../lib/haptics";
 
 const EXAM_MODE_LABEL = "מצב בחינה · ללא משוב";
@@ -35,6 +38,7 @@ const ExamSessionPage = () => {
 
   const {
     status,
+    sessionCompleted,
     current,
     currentIndex,
     submitting,
@@ -65,6 +69,15 @@ const ExamSessionPage = () => {
     onComplete: handleCompleteRedirect,
   });
 
+  const { display, urgent, expired, clearStorage } = useCountdownTimer(id ?? "", sessionCompleted);
+
+  useEffect(() => {
+    if (expired && status === "ready") {
+      clearStorage();
+      complete();
+    }
+  }, [expired, status, complete, clearStorage]);
+
   if (status === "loading") {
     return <AppLoader variant="page" label="טוען נתונים..." />;
   }
@@ -87,21 +100,27 @@ const ExamSessionPage = () => {
 
   const handleCompleteAction = () => {
     tap();
+    clearStorage();
     complete();
   };
 
   return (
     <PageShell className="pb-32">
+      {expired && <TimeUpModal onConfirm={complete} />}
+
       <AppHeader
         back={{ onClick: () => navigate("/") }}
         eyebrow={EXAM_MODE_LABEL}
         progress={{ current: currentIndex + 1, total, answered: answeredCount }}
         actions={
-          <BookmarkButton
-            isBookmarked={isBookmarked}
-            busy={bookmarkBusy}
-            onToggle={toggleBookmark}
-          />
+          <div className="flex items-center gap-2">
+            <TimerDisplay kind="countdown" display={display} urgent={urgent} />
+            <BookmarkButton
+              isBookmarked={isBookmarked}
+              busy={bookmarkBusy}
+              onToggle={toggleBookmark}
+            />
+          </div>
         }
       />
 
