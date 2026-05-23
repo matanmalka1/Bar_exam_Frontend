@@ -1,10 +1,5 @@
 import axios from "axios";
-import {
-  useState,
-  type InputHTMLAttributes,
-  type ReactNode,
-  type SyntheticEvent,
-} from "react";
+import { useState, type SyntheticEvent } from "react";
 import { Lock, Mail } from "lucide-react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import Alert from "../../components/Alert";
@@ -12,6 +7,8 @@ import AppLoader from "../../components/loader";
 import Button from "../../components/Button";
 import PasswordToggle from "../../components/PasswordToggle";
 import { notifyApiError, notifyError } from "../../lib/toast";
+import AuthPageShell from "./components/AuthPageShell";
+import AuthTextField from "./components/AuthTextField";
 import { LoginRequestSchema } from "./schemas";
 import { useAuth } from "./useAuth";
 
@@ -19,57 +16,6 @@ type LoginFieldErrors = {
   email?: string;
   password?: string;
 };
-
-type LoginFieldProps = {
-  id: string;
-  label: string;
-  icon: ReactNode;
-  error?: string;
-  endSlot?: ReactNode;
-} & InputHTMLAttributes<HTMLInputElement>;
-
-const LoginField = ({
-  id,
-  label,
-  icon,
-  error,
-  endSlot,
-  className = "",
-  ...inputProps
-}: LoginFieldProps) => (
-  <div className="flex flex-col gap-1">
-    <label
-      htmlFor={id}
-      className="pe-2 text-sm font-semibold leading-none text-secondary"
-    >
-      {label}
-    </label>
-    <div className="group relative">
-      <input
-        id={id}
-        aria-invalid={!!error || undefined}
-        aria-describedby={error ? `${id}-error` : undefined}
-        className={`h-12 w-full rounded-2xl border bg-white px-12 py-3 text-base text-[var(--ink)] outline-none transition duration-200 placeholder:text-black/35 focus:border-[var(--ink)] focus:ring-0 disabled:opacity-45 ${
-          error ? "border-[var(--border-strong)]" : "border-[var(--border-default)]"
-        } ${className}`}
-        {...inputProps}
-      />
-      <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-black/35 transition-colors group-focus-within:text-[var(--ink)]">
-        {icon}
-      </span>
-      {endSlot && (
-        <span className="absolute inset-y-0 left-3 flex items-center">
-          {endSlot}
-        </span>
-      )}
-    </div>
-    {error && (
-      <p id={`${id}-error`} className="text-xs font-semibold text-primary">
-        {error}
-      </p>
-    )}
-  </div>
-);
 
 const LoginPage = () => {
   const { status, login } = useAuth();
@@ -151,26 +97,22 @@ const LoginPage = () => {
   };
 
   return (
-    <div
-      dir="rtl"
-      className="relative min-h-svh overflow-hidden bg-[var(--paper)] text-[var(--ink)]"
+    <AuthPageShell
+      eyebrow="ברוכים הבאים"
+      title="התחברות"
+      description="התחבר כדי להמשיך לתרגול, סימולציות ומעקב אחרי ההתקדמות שלך."
+      footer={
+        <footer className="mt-auto flex flex-col items-center gap-4 pt-10 pb-6">
+          <div className="flex items-center gap-2 opacity-40">
+            <div className="h-px w-8 bg-[var(--ink)]" />
+            <span className="text-[11px] font-medium tracking-widest text-[var(--ink)]">
+              המשימה - הכנה לבחינות הלשכה
+            </span>
+            <div className="h-px w-8 bg-[var(--ink)]" />
+          </div>
+        </footer>
+      }
     >
-      <div className="pointer-events-none fixed inset-0 opacity-[0.04] [background-image:radial-gradient(circle_at_1px_1px,#000_1px,transparent_0)] [background-size:18px_18px]" />
-      <div className="pointer-events-none fixed bottom-[-5%] left-[-10%] z-0 h-[20%] w-[60%] rounded-full bg-white/30 blur-3xl" />
-
-      <main className="relative z-10 mx-auto flex min-h-svh w-full max-w-[430px] flex-col px-5 py-6">
-        <header className="mb-10 flex flex-col text-right">
-          <span className="mb-1 text-[11px] font-medium uppercase leading-none tracking-[0.18em] text-secondary">
-            ברוכים הבאים
-          </span>
-          <h1 className="font-display text-xl font-black leading-[1.3] text-[var(--ink)]">
-            התחברות
-          </h1>
-          <p className="mt-3 text-sm leading-6 text-secondary">
-            התחבר כדי להמשיך לתרגול, סימולציות ומעקב אחרי ההתקדמות שלך.
-          </p>
-        </header>
-
         <form
           noValidate
           onSubmit={onSubmit}
@@ -180,7 +122,7 @@ const LoginPage = () => {
             <Alert variant="info">ההתחברות פגה. אנא התחבר מחדש.</Alert>
           )}
 
-          <LoginField
+          <AuthTextField
             id="login-email"
             label="אימייל"
             icon={<Mail className="h-5 w-5" aria-hidden="true" />}
@@ -197,7 +139,7 @@ const LoginPage = () => {
             error={fieldErrors.email}
           />
 
-          <LoginField
+          <AuthTextField
             id="login-password"
             label="סיסמה"
             icon={<Lock className="h-5 w-5" aria-hidden="true" />}
@@ -255,18 +197,7 @@ const LoginPage = () => {
             </Link>
           </div>
         </form>
-
-        <footer className="mt-auto flex flex-col items-center gap-4 pt-10 pb-6">
-          <div className="flex items-center gap-2 opacity-40">
-            <div className="h-px w-8 bg-[var(--ink)]" />
-            <span className="text-[11px] font-medium tracking-widest text-[var(--ink)]">
-              המשימה - הכנה לבחינות הלשכה
-            </span>
-            <div className="h-px w-8 bg-[var(--ink)]" />
-          </div>
-        </footer>
-      </main>
-    </div>
+    </AuthPageShell>
   );
 };
 

@@ -1,9 +1,4 @@
-import {
-  useState,
-  type FormEvent,
-  type InputHTMLAttributes,
-  type ReactNode,
-} from "react";
+import { useState, type FormEvent } from "react";
 import { ArrowLeft, Lock, Mail, ShieldCheck, User } from "lucide-react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import Alert from "../../components/Alert";
@@ -12,49 +7,11 @@ import Button from "../../components/Button";
 import PasswordToggle from "../../components/PasswordToggle";
 import { isApiStatusError } from "../../lib/api";
 import { notifyApiError, notifyError } from "../../lib/toast";
+import AuthPageShell from "./components/AuthPageShell";
+import AuthTextField from "./components/AuthTextField";
 import { RegisterFormSchema } from "./schemas";
 import type { RegisterRequest } from "./types";
 import { useAuth } from "./useAuth";
-
-type RegisterFieldProps = {
-  id: string;
-  label: string;
-  icon: ReactNode;
-  endSlot?: ReactNode;
-} & InputHTMLAttributes<HTMLInputElement>;
-
-const RegisterField = ({
-  id,
-  label,
-  icon,
-  endSlot,
-  className = "",
-  ...inputProps
-}: RegisterFieldProps) => (
-  <div className="flex flex-col gap-1">
-    <label
-      htmlFor={id}
-      className="pe-2 text-sm font-semibold leading-none text-secondary"
-    >
-      {label}
-    </label>
-    <div className="group relative">
-      <input
-        id={id}
-        className={`h-12 w-full rounded-2xl border border-[var(--border-default)] bg-white px-12 py-3 text-base text-[var(--ink)] outline-none transition duration-200 placeholder:text-black/35 focus:border-[var(--ink)] focus:ring-0 disabled:opacity-45 ${className}`}
-        {...inputProps}
-      />
-      <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-black/35 transition-colors group-focus-within:text-[var(--ink)]">
-        {icon}
-      </span>
-      {endSlot && (
-        <span className="absolute inset-y-0 left-3 flex items-center">
-          {endSlot}
-        </span>
-      )}
-    </div>
-  </div>
-);
 
 const RegisterPage = () => {
   const { status, register } = useAuth();
@@ -127,25 +84,23 @@ const RegisterPage = () => {
   };
 
   return (
-    <div
-      dir="rtl"
-      className="relative min-h-svh overflow-hidden bg-[var(--paper)] text-[var(--ink)]"
+    <AuthPageShell
+      eyebrow="הרשמה"
+      title="צור חשבון"
+      footer={
+        <p className="mt-auto pt-10 pb-6 text-center text-sm text-secondary">
+          כבר יש לך חשבון?{" "}
+          <Link
+            to="/login"
+            className="me-1 font-bold text-[var(--accent-ink)] underline-offset-4 transition hover:underline"
+          >
+            התחברות
+          </Link>
+        </p>
+      }
     >
-      <div className="pointer-events-none fixed inset-0 opacity-[0.04] [background-image:radial-gradient(circle_at_1px_1px,#000_1px,transparent_0)] [background-size:18px_18px]" />
-      <div className="pointer-events-none fixed bottom-[-5%] left-[-10%] z-0 h-[20%] w-[60%] rounded-full bg-white/30 blur-3xl" />
-
-      <main className="relative z-10 mx-auto flex min-h-svh w-full max-w-[430px] flex-col px-5 py-6">
-        <header className="mb-10 flex flex-col text-right">
-          <span className="mb-1 text-[11px] font-medium uppercase leading-none tracking-[0.18em] text-secondary">
-            הרשמה
-          </span>
-          <h1 className="font-display text-xl font-black leading-[1.3] text-[var(--ink)]">
-            צור חשבון
-          </h1>
-        </header>
-
         <form onSubmit={onSubmit} className="flex flex-1 flex-col gap-4">
-          <RegisterField
+          <AuthTextField
             id="reg-name"
             label="שם מלא"
             icon={<User className="h-5 w-5" aria-hidden="true" />}
@@ -158,7 +113,7 @@ const RegisterPage = () => {
             placeholder="ישראל ישראלי"
           />
 
-          <RegisterField
+          <AuthTextField
             id="reg-email"
             label="אימייל"
             icon={<Mail className="h-5 w-5" aria-hidden="true" />}
@@ -174,7 +129,7 @@ const RegisterPage = () => {
             className="text-right placeholder:text-right"
           />
 
-          <RegisterField
+          <AuthTextField
             id="reg-password"
             label="סיסמה"
             icon={<Lock className="h-5 w-5" aria-hidden="true" />}
@@ -195,7 +150,7 @@ const RegisterPage = () => {
             }
           />
 
-          <RegisterField
+          <AuthTextField
             id="reg-confirm"
             label="אימות סיסמה"
             icon={<ShieldCheck className="h-5 w-5" aria-hidden="true" />}
@@ -267,18 +222,7 @@ const RegisterPage = () => {
             )}
           </Button>
         </form>
-
-        <p className="mt-auto pt-10 pb-6 text-center text-sm text-secondary">
-          כבר יש לך חשבון?{" "}
-          <Link
-            to="/login"
-            className="me-1 font-bold text-[var(--accent-ink)] underline-offset-4 transition hover:underline"
-          >
-            התחברות
-          </Link>
-        </p>
-      </main>
-    </div>
+    </AuthPageShell>
   );
 };
 

@@ -1,18 +1,16 @@
 import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import AppHeader from "../../../components/AppHeader";
 import BookmarkButton from "../../../components/BookmarkButton";
 import Button from "../../../components/Button";
 import ErrorState from "../../../components/ErrorState";
 import FixedFooter from "../../../components/FixedFooter";
-import OptionCard from "../../../components/OptionCard";
 import AppLoader from "../../../components/loader";
+import QuestionNavigation from "../components/QuestionNavigation";
+import SessionAnswerOptions from "../components/SessionAnswerOptions";
+import SessionQuestionCard from "../components/SessionQuestionCard";
 import { useExamSession } from "../hooks/useExamSession";
-import type { AnswerOption } from "../types";
 import { tap } from "../../../lib/haptics";
-
-const OPTIONS: AnswerOption[] = ["א", "ב", "ג", "ד"];
 
 const EXAM_MODE_LABEL = "מצב בחינה · ללא משוב";
 
@@ -96,61 +94,24 @@ const ExamSessionPage = () => {
         }
       />
 
-      <article className="rounded-3xl border border-default bg-[var(--surface-muted)] p-5 shadow-[var(--shadow-default)]">
-        <div className="flex items-baseline justify-between gap-2 border-b border-black/10 pb-3">
-          <div className="flex items-baseline gap-2">
-            <span className="font-display text-[10px] uppercase tracking-[0.22em] text-secondary">
-              שאלה
-            </span>
-            <span className="font-display text-xs font-bold tabular-nums text-[var(--accent-ink)]">
-              #{current.number}
-            </span>
-          </div>
-          {isBookmarked && (
-            <span className="font-display text-[10px] uppercase tracking-[0.22em] text-secondary">
-              שמורה
-            </span>
-          )}
-        </div>
-        <p className="mt-4 whitespace-pre-wrap text-[17px] leading-[1.85] text-primary">
-          {current.body}
-        </p>
-      </article>
+      <SessionQuestionCard question={current} isBookmarked={isBookmarked} />
 
-      <div className="mt-4 grid gap-2.5">
-        {OPTIONS.map((opt) => (
-          <OptionCard
-            key={opt}
-            mode="exam"
-            label={opt}
-            text={current.options[opt]}
-            selected={displaySelected === opt}
-            disabled={submitting || answerSubmitted}
-            onClick={() => selectAnswer(opt)}
-          />
-        ))}
-      </div>
+      <SessionAnswerOptions
+        question={current}
+        mode="exam"
+        disabled={submitting || answerSubmitted}
+        displaySelected={displaySelected}
+        answerSubmitted={answerSubmitted}
+        onSelect={selectAnswer}
+      />
 
-      <div className="mt-6 flex items-center justify-between border-t border-default pt-3">
-        <button
-          type="button"
-          onClick={prev}
-          disabled={currentIndex === 0}
-          className="focus-ring inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium text-secondary transition hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
-        >
-          <ChevronRight className="h-4 w-4" aria-hidden="true" />
-          הקודמת
-        </button>
-        <button
-          type="button"
-          onClick={next}
-          disabled={isLast || !answerSubmitted}
-          className="focus-ring inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium text-secondary transition hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
-        >
-          הבאה
-          <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-        </button>
-      </div>
+      <QuestionNavigation
+        currentIndex={currentIndex}
+        isLast={isLast}
+        canGoNext={answerSubmitted}
+        onPrev={prev}
+        onNext={next}
+      />
 
       <FixedFooter>
         {!showComplete && (

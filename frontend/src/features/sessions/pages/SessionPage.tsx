@@ -1,19 +1,18 @@
 import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Check, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import AppHeader from "../../../components/AppHeader";
 import BookmarkButton from "../../../components/BookmarkButton";
 import Button from "../../../components/Button";
 import ErrorState from "../../../components/ErrorState";
 import FixedFooter from "../../../components/FixedFooter";
-import OptionCard from "../../../components/OptionCard";
 import AppLoader from "../../../components/loader";
+import QuestionNavigation from "../components/QuestionNavigation";
+import SessionAnswerOptions from "../components/SessionAnswerOptions";
+import SessionQuestionCard from "../components/SessionQuestionCard";
 import { usePracticeSession } from "../hooks/usePracticeSession";
-import type { AnswerOption } from "../types";
 import { cn } from "../../../lib/cn";
 import { tap } from "../../../lib/haptics";
-
-const OPTIONS: AnswerOption[] = ["א", "ב", "ג", "ד"];
 
 const SessionPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -81,8 +80,6 @@ const SessionPage = () => {
     );
   }
 
-  const answered = current.answer;
-
   return (
     <div className="mx-auto w-full max-w-[720px] p-4 pb-32">
       <AppHeader
@@ -98,26 +95,7 @@ const SessionPage = () => {
         }
       />
 
-      <article className="rounded-3xl border border-default bg-[var(--surface-muted)] p-5 shadow-[var(--shadow-default)]">
-        <div className="flex items-baseline justify-between gap-2 border-b border-black/10 pb-3">
-          <div className="flex items-baseline gap-2">
-            <span className="font-display text-[10px] uppercase tracking-[0.22em] text-secondary">
-              שאלה
-            </span>
-            <span className="font-display text-xs font-bold tabular-nums text-[var(--accent-ink)]">
-              #{current.number}
-            </span>
-          </div>
-          {isBookmarked && (
-            <span className="font-display text-[10px] uppercase tracking-[0.22em] text-secondary">
-              שמורה
-            </span>
-          )}
-        </div>
-        <p className="mt-4 whitespace-pre-wrap text-[17px] leading-[1.85] text-primary">
-          {current.body}
-        </p>
-      </article>
+      <SessionQuestionCard question={current} isBookmarked={isBookmarked} />
 
       {answerSubmitted && practiceAnswer && (
         <p
@@ -148,35 +126,17 @@ const SessionPage = () => {
         </p>
       )}
 
-      <div className="mt-4 grid gap-2.5">
-        {OPTIONS.map((opt) => {
-          const text = current.options[opt];
-          const isSelected = answered
-            ? answered.selected_answer === opt
-            : displaySelected === opt;
-          const showCorrectness = answerSubmitted;
-          const isCorrect =
-            showCorrectness && correctAnswer !== null && opt === correctAnswer;
-          const isWrong =
-            showCorrectness &&
-            practiceAnswer !== null &&
-            practiceAnswer.is_correct === false &&
-            opt === practiceAnswer.selected_answer;
-          return (
-            <OptionCard
-              key={opt}
-              mode="practice"
-              label={opt}
-              text={text}
-              selected={isSelected}
-              isCorrect={isCorrect}
-              isWrong={isWrong}
-              disabled={answerSubmitted || submitting}
-              onClick={() => selectAnswer(opt)}
-            />
-          );
-        })}
-      </div>
+      <SessionAnswerOptions
+        question={current}
+        mode="practice"
+        disabled={answerSubmitted || submitting}
+        displaySelected={displaySelected}
+        answerSubmitted={answerSubmitted}
+        currentAnswer={current.answer}
+        practiceAnswer={practiceAnswer}
+        correctAnswer={correctAnswer}
+        onSelect={selectAnswer}
+      />
 
       {answerSubmitted && current.reference && (
         <section className="mt-6 border-t border-default pt-4">
@@ -189,26 +149,13 @@ const SessionPage = () => {
         </section>
       )}
 
-      <div className="mt-6 flex items-center justify-between border-t border-default pt-3">
-        <button
-          type="button"
-          onClick={prev}
-          disabled={currentIndex === 0}
-          className="focus-ring inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium text-secondary transition hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
-        >
-          <ChevronRight className="h-4 w-4" aria-hidden="true" />
-          הקודמת
-        </button>
-        <button
-          type="button"
-          onClick={next}
-          disabled={isLast || !answerSubmitted}
-          className="focus-ring inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium text-secondary transition hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
-        >
-          הבאה
-          <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-        </button>
-      </div>
+      <QuestionNavigation
+        currentIndex={currentIndex}
+        isLast={isLast}
+        canGoNext={answerSubmitted}
+        onPrev={prev}
+        onNext={next}
+      />
 
       <FixedFooter>
         {!answerSubmitted && (
