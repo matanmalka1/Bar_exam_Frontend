@@ -118,7 +118,7 @@ const AppLoader = ({
     return (
       <div
         className={clsx(
-          "fixed inset-0 z-40 grid place-items-center bg-[var(--surface)]",
+          "fixed inset-0 z-40 grid place-items-center",
           className,
         )}
         style={{ bottom: "var(--bottom-nav-h, 0px)" }}
