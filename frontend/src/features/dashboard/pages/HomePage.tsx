@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { ComponentType } from "react";
 import { useNavigate } from "react-router-dom";
-import EmptyState from "../components/EmptyState";
+import EmptyState from "../../../components/EmptyState";
 import {
   ArrowLeft,
   Bookmark,
@@ -10,13 +10,13 @@ import {
   PencilLine,
   Play,
 } from "lucide-react";
-import Button from "../components/Button";
-import AppLoader from "../components/loader";
-import { createSimulationSession } from "../features/sessions/api";
-import type { SessionSummary } from "../features/sessions/types";
-import { HTTP_UNPROCESSABLE, isApiStatusError } from "../lib/api";
-import { useHomeOverview } from "../features/dashboard/hooks/useHomeOverview";
-import { notifyError } from "../lib/toast";
+import Button from "../../../components/Button";
+import AppLoader from "../../../components/loader";
+import { createSimulationSession } from "../../sessions/api";
+import type { SessionSummary } from "../../sessions/types";
+import { HTTP_UNPROCESSABLE, isApiStatusError } from "../../../lib/api";
+import { useHomeOverview } from "../hooks/useHomeOverview";
+import { notifyError } from "../../../lib/toast";
 
 const NETWORK_ERR = "החיבור נכשל. נסה שוב";
 const SIM_422 = "אין מספיק שאלות זמינות למבחן";

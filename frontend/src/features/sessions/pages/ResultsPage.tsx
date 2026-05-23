@@ -1,18 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import AppHeader from "../components/AppHeader";
-import Button from "../components/Button";
-import Card from "../components/Card";
-import ErrorState from "../components/ErrorState";
-import FixedFooter from "../components/FixedFooter";
-import OptionCard from "../components/OptionCard";
-import AppLoader from "../components/loader";
-import { getPracticeSession } from "../features/sessions/api";
+import AppHeader from "../../../components/AppHeader";
+import Button from "../../../components/Button";
+import Card from "../../../components/Card";
+import ErrorState from "../../../components/ErrorState";
+import FixedFooter from "../../../components/FixedFooter";
+import OptionCard from "../../../components/OptionCard";
+import AppLoader from "../../../components/loader";
+import { getPracticeSession } from "../api";
 import type {
   AnswerOption,
   SessionDetail,
   SessionQuestion,
-} from "../features/sessions/types";
+} from "../types";
 
 type Status = "loading" | "ready" | "error";
 

@@ -1,15 +1,15 @@
 import { useNavigate } from "react-router-dom";
-import AppHeader from "../components/AppHeader";
-import Button from "../components/Button";
-import Card from "../components/Card";
-import EmptyState from "../components/EmptyState";
-import ErrorState from "../components/ErrorState";
-import FixedFooter from "../components/FixedFooter";
-import OptionCard from "../components/OptionCard";
-import QuestionMeta from "../components/QuestionMeta";
-import AppLoader from "../components/loader";
-import { useMistakes } from "../features/mistakes/hooks/useMistakes";
-import type { AnswerOption } from "../features/sessions/types";
+import AppHeader from "../../../components/AppHeader";
+import Button from "../../../components/Button";
+import Card from "../../../components/Card";
+import EmptyState from "../../../components/EmptyState";
+import ErrorState from "../../../components/ErrorState";
+import FixedFooter from "../../../components/FixedFooter";
+import OptionCard from "../../../components/OptionCard";
+import QuestionMeta from "../../../components/QuestionMeta";
+import AppLoader from "../../../components/loader";
+import { useMistakes } from "../hooks/useMistakes";
+import type { AnswerOption } from "../../sessions/types";
 
 const OPTIONS: AnswerOption[] = ["א", "ב", "ג", "ד"];
 

@@ -1,28 +1,27 @@
 import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import AppHeader from "../components/AppHeader";
-import BookmarkButton from "../components/BookmarkButton";
-import Button from "../components/Button";
-import ErrorState from "../components/ErrorState";
-import FixedFooter from "../components/FixedFooter";
-import OptionCard from "../components/OptionCard";
-import AppLoader from "../components/loader";
-import { useExamSession } from "../features/sessions/hooks/useExamSession";
-import type { AnswerOption } from "../features/sessions/types";
-import { tap } from "../lib/haptics";
+import { Check, ChevronLeft, ChevronRight, X } from "lucide-react";
+import AppHeader from "../../../components/AppHeader";
+import BookmarkButton from "../../../components/BookmarkButton";
+import Button from "../../../components/Button";
+import ErrorState from "../../../components/ErrorState";
+import FixedFooter from "../../../components/FixedFooter";
+import OptionCard from "../../../components/OptionCard";
+import AppLoader from "../../../components/loader";
+import { usePracticeSession } from "../hooks/usePracticeSession";
+import type { AnswerOption } from "../types";
+import { cn } from "../../../lib/cn";
+import { tap } from "../../../lib/haptics";
 
 const OPTIONS: AnswerOption[] = ["א", "ב", "ג", "ד"];
 
-const EXAM_MODE_LABEL = "מצב בחינה · ללא משוב";
-
-const ExamSessionPage = () => {
+const SessionPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const handleRedirectToPractice = useCallback(
+  const handleRedirectToExam = useCallback(
     (sessionId: string) => {
-      navigate(`/session/${sessionId}`, { replace: true });
+      navigate(`/session/${sessionId}/exam`, { replace: true });
     },
     [navigate],
   );
@@ -46,23 +45,24 @@ const ExamSessionPage = () => {
     allAnswered,
     isLast,
     answerSubmitted,
+    practiceAnswer,
+    correctAnswer,
     isBookmarked,
     displaySelected,
-    showComplete,
-    primaryDisabled,
-    primaryLabel,
-    primaryReason,
+    submitDisabled,
+    submitReason,
     completeReason,
+    modeLabel,
     retry,
     selectAnswer,
-    submitOrNext,
+    submit,
     prev,
     next,
     complete,
     toggleBookmark,
-  } = useExamSession({
+  } = usePracticeSession({
     sessionId: id,
-    onRedirectToPractice: handleRedirectToPractice,
+    onRedirectToExam: handleRedirectToExam,
     onComplete: handleCompleteRedirect,
   });
 
@@ -81,11 +81,13 @@ const ExamSessionPage = () => {
     );
   }
 
+  const answered = current.answer;
+
   return (
     <div className="mx-auto w-full max-w-[720px] p-4 pb-32">
       <AppHeader
         back={{ onClick: () => navigate("/") }}
-        eyebrow={EXAM_MODE_LABEL}
+        eyebrow={modeLabel}
         progress={{ current: currentIndex + 1, total, answered: answeredCount }}
         actions={
           <BookmarkButton
@@ -117,19 +119,75 @@ const ExamSessionPage = () => {
         </p>
       </article>
 
+      {answerSubmitted && practiceAnswer && (
+        <p
+          role="status"
+          aria-live="polite"
+          className={cn(
+            "mt-4 inline-flex items-center gap-2 text-sm font-semibold",
+            practiceAnswer.is_correct ? "text-primary" : "text-primary",
+          )}
+        >
+          {practiceAnswer.is_correct ? (
+            <>
+              <Check className="h-4 w-4" strokeWidth={2.6} />
+              <span>תשובה נכונה.</span>
+            </>
+          ) : (
+            <>
+              <X className="h-4 w-4" strokeWidth={2.6} />
+              <span>
+                התשובה הנכונה היא{" "}
+                <span className="font-display font-black">
+                  {correctAnswer ?? ""}
+                </span>
+                .
+              </span>
+            </>
+          )}
+        </p>
+      )}
+
       <div className="mt-4 grid gap-2.5">
-        {OPTIONS.map((opt) => (
-          <OptionCard
-            key={opt}
-            mode="exam"
-            label={opt}
-            text={current.options[opt]}
-            selected={displaySelected === opt}
-            disabled={submitting || answerSubmitted}
-            onClick={() => selectAnswer(opt)}
-          />
-        ))}
+        {OPTIONS.map((opt) => {
+          const text = current.options[opt];
+          const isSelected = answered
+            ? answered.selected_answer === opt
+            : displaySelected === opt;
+          const showCorrectness = answerSubmitted;
+          const isCorrect =
+            showCorrectness && correctAnswer !== null && opt === correctAnswer;
+          const isWrong =
+            showCorrectness &&
+            practiceAnswer !== null &&
+            practiceAnswer.is_correct === false &&
+            opt === practiceAnswer.selected_answer;
+          return (
+            <OptionCard
+              key={opt}
+              mode="practice"
+              label={opt}
+              text={text}
+              selected={isSelected}
+              isCorrect={isCorrect}
+              isWrong={isWrong}
+              disabled={answerSubmitted || submitting}
+              onClick={() => selectAnswer(opt)}
+            />
+          );
+        })}
       </div>
+
+      {answerSubmitted && current.reference && (
+        <section className="mt-6 border-t border-default pt-4">
+          <p className="font-display text-[10px] uppercase tracking-[0.22em] text-secondary">
+            הפניה
+          </p>
+          <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-primary">
+            {current.reference}
+          </p>
+        </section>
+      )}
 
       <div className="mt-6 flex items-center justify-between border-t border-default pt-3">
         <button
@@ -153,30 +211,43 @@ const ExamSessionPage = () => {
       </div>
 
       <FixedFooter>
-        {!showComplete && (
+        {!answerSubmitted && (
           <>
             <Button
               fullWidth
-              disabled={primaryDisabled}
+              disabled={submitDisabled}
               onClick={() => {
                 tap();
-                submitOrNext();
+                submit();
               }}
             >
               {submitting ? (
                 <AppLoader variant="button" label="שומר..." />
               ) : (
-                primaryLabel
+                "בדוק תשובה"
               )}
             </Button>
-            {primaryReason && (
+            {submitReason && (
               <p className="text-center text-xs text-secondary">
-                {primaryReason}
+                {submitReason}
               </p>
             )}
           </>
         )}
-        {showComplete && (
+
+        {answerSubmitted && !isLast && (
+          <Button
+            fullWidth
+            onClick={() => {
+              tap();
+              next();
+            }}
+          >
+            שאלה הבאה
+          </Button>
+        )}
+
+        {answerSubmitted && isLast && (
           <>
             <Button
               fullWidth
@@ -189,7 +260,7 @@ const ExamSessionPage = () => {
               {completing ? (
                 <AppLoader variant="button" label="מסיים..." />
               ) : (
-                "סיום בחינה"
+                "סיום תרגול"
               )}
             </Button>
             {completeReason && (
@@ -204,4 +275,4 @@ const ExamSessionPage = () => {
   );
 };
 
-export default ExamSessionPage;
+export default SessionPage;

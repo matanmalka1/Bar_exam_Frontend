@@ -1,16 +1,16 @@
 import type { ReactNode } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Check } from "lucide-react";
-import ActionCard from "../components/ActionCard";
-import AppHeader from "../components/AppHeader";
-import Button from "../components/Button";
-import Chip from "../components/Chip";
-import ErrorState from "../components/ErrorState";
-import FixedFooter from "../components/FixedFooter";
-import AppLoader from "../components/loader";
-import { useExamsList } from "../features/exams/hooks/useExamsList";
-import { usePracticeNewForm } from "../features/sessions/hooks/usePracticeNewForm";
-import { cn } from "../lib/cn";
+import ActionCard from "../../../components/ActionCard";
+import AppHeader from "../../../components/AppHeader";
+import Button from "../../../components/Button";
+import Chip from "../../../components/Chip";
+import ErrorState from "../../../components/ErrorState";
+import FixedFooter from "../../../components/FixedFooter";
+import AppLoader from "../../../components/loader";
+import { useExamsList } from "../../exams/hooks/useExamsList";
+import { usePracticeNewForm } from "../hooks/usePracticeNewForm";
+import { cn } from "../../../lib/cn";
 
 interface StepSectionProps {
   index: string;

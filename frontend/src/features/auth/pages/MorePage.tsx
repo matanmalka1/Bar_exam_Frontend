@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AppHeader from "../components/AppHeader";
-import Button from "../components/Button";
-import Card from "../components/Card";
-import ConfirmSheet from "../components/ConfirmSheet";
-import { useAuth } from "../features/auth/useAuth";
+import AppHeader from "../../../components/AppHeader";
+import Button from "../../../components/Button";
+import Card from "../../../components/Card";
+import ConfirmSheet from "../../../components/ConfirmSheet";
+import { useAuth } from "../useAuth";
 
 const MorePage = () => {
   const navigate = useNavigate();
