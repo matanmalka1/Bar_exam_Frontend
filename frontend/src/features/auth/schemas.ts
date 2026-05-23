@@ -38,6 +38,7 @@ export const RegisterFormSchema = RegisterRequestSchema.extend({
 
 export const LoginResponseSchema = z.object({
   access_token: z.string(),
+  refresh_token: z.string(),
   token_type: z.literal("bearer"),
   user: AuthUserSchema,
 });

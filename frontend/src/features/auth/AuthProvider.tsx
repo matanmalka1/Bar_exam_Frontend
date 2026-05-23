@@ -8,7 +8,7 @@ import {
 import { setOnUnauthorized } from "../../lib/api";
 import * as authApi from "./api";
 import { AuthContext, type AuthContextValue } from "./AuthContext";
-import { clearAccessToken, setAccessToken } from "./authStorage";
+import { clearTokens, setAccessToken, setRefreshToken } from "./authStorage";
 import type { AuthStatus, AuthUser, RegisterRequest } from "./types";
 
 interface AuthProviderProps {
@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const me = await authApi.getMe();
       applyUser(me);
     } catch {
-      clearAccessToken();
+      clearTokens();
       applyUser(null);
     }
   }, [applyUser]);
@@ -38,6 +38,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     async (email: string, password: string) => {
       const res = await authApi.login({ email, password });
       setAccessToken(res.access_token);
+      setRefreshToken(res.refresh_token);
       applyUser(res.user);
     },
     [applyUser],
@@ -47,6 +48,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     async (input: RegisterRequest) => {
       const res = await authApi.register(input);
       setAccessToken(res.access_token);
+      setRefreshToken(res.refresh_token);
       applyUser(res.user);
     },
     [applyUser],
@@ -58,13 +60,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } catch {
       /* ignore */
     }
-    clearAccessToken();
+    clearTokens();
     applyUser(null);
   }, [applyUser]);
 
   useEffect(() => {
     setOnUnauthorized(() => {
-      clearAccessToken();
+      clearTokens();
       applyUser(null);
     });
     return () => setOnUnauthorized(null);
@@ -81,7 +83,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         if (cancelled) return;
         applyUser(me);
       } catch {
-        clearAccessToken();
+        clearTokens();
         if (!cancelled) applyUser(null);
       }
     };

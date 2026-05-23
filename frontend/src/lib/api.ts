@@ -3,8 +3,9 @@ import axios, {
   type InternalAxiosRequestConfig,
 } from "axios";
 import {
-  clearAccessToken,
+  clearTokens,
   getAccessToken,
+  getRefreshToken,
   setAccessToken,
 } from "../features/auth/authStorage";
 
@@ -60,7 +61,9 @@ type RetriableConfig = InternalAxiosRequestConfig & { _retry?: boolean };
 let refreshPromise: Promise<string> | null = null;
 
 const requestNewAccessToken = async (): Promise<string> => {
-  const res = await api.post<{ access_token: string }>("/auth/refresh");
+  const res = await api.post<{ access_token: string }>("/auth/refresh", {
+    refresh_token: getRefreshToken(),
+  });
   return (res.data as { access_token: string }).access_token;
 };
 
@@ -87,7 +90,7 @@ api.interceptors.response.use(
     const url = config.url ?? "";
     if (isAuthFreePath(url) || config._retry) {
       if (url !== "/auth/login" && url !== "/auth/register") {
-        clearAccessToken();
+        clearTokens();
         on401?.();
       }
       return Promise.reject(err);
@@ -101,7 +104,7 @@ api.interceptors.response.use(
         `Bearer ${token}`;
       return api.request(config as AxiosRequestConfig);
     } catch (refreshErr) {
-      clearAccessToken();
+      clearTokens();
       if (typeof sessionStorage !== "undefined") {
         sessionStorage.setItem("auth_expired", "1");
       }
