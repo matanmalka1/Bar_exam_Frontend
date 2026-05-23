@@ -49,6 +49,10 @@ export const forgotPassword = async (
   return parseApiResponse(ForgotPasswordResponseSchema, data, "forgotPassword");
 };
 
+export const resetUserData = async (): Promise<void> => {
+  await api.delete("/users/me/data");
+};
+
 export const resetPassword = async (
   token: string,
   newPassword: string,

@@ -1,10 +1,12 @@
 import { useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Mail, UserRound, Info, ChevronLeft } from "lucide-react";
+import { LogOut, Mail, UserRound, Info, ChevronLeft, Trash2 } from "lucide-react";
 import AppHeader from "../../../components/AppHeader";
 import Card from "../../../components/Card";
 import ConfirmSheet from "../../../components/ConfirmSheet";
 import PageShell from "../../../components/PageShell";
+import { notifyError } from "../../../lib/toast";
+import { resetUserData } from "../api";
 import { useAuth } from "../useAuth";
 
 const SectionTitle = ({ children }: { children: ReactNode }) => (
@@ -81,6 +83,21 @@ const MorePage = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [confirmLogout, setConfirmLogout] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
+  const [resetting, setResetting] = useState(false);
+
+  const onResetData = async () => {
+    setResetting(true);
+    try {
+      await resetUserData();
+      navigate("/", { replace: true });
+    } catch {
+      notifyError("אירעה שגיאה. נסה שוב.");
+    } finally {
+      setResetting(false);
+      setConfirmReset(false);
+    }
+  };
 
   const onLogout = async () => {
     await logout();
@@ -132,6 +149,14 @@ const MorePage = () => {
           <SectionTitle>פעולות</SectionTitle>
 
           <ActionRow
+            icon={<Trash2 className="h-5 w-5" />}
+            title="אפס נתוני משתמש"
+            description="מחיקת כל התשובות, המפגשים, הטעויות והסימניות"
+            onClick={() => setConfirmReset(true)}
+            danger
+          />
+
+          <ActionRow
             icon={<LogOut className="h-5 w-5" />}
             title="התנתקות"
             description="יציאה מהחשבון וחזרה למסך ההתחברות"
@@ -140,6 +165,16 @@ const MorePage = () => {
           />
         </section>
       </div>
+
+      <ConfirmSheet
+        open={confirmReset}
+        title="למחוק את כל הנתונים?"
+        description="פעולה זו תמחק לצמיתות את כל התשובות, המפגשים, הטעויות והסימניות. לא ניתן לשחזר."
+        confirmLabel={resetting ? "מוחק..." : "מחק הכל"}
+        cancelLabel="ביטול"
+        onConfirm={() => void onResetData()}
+        onCancel={() => setConfirmReset(false)}
+      />
 
       <ConfirmSheet
         open={confirmLogout}
