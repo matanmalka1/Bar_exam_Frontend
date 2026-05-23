@@ -87,11 +87,11 @@ const HomePage = () => {
             </span>
 
             <h1 className="font-display mt-4 leading-tight text-[var(--accent-ink)]">
-              <span className="block text-[2.75rem] font-black leading-none sm:text-[3.5rem]">
+              <span className="block text-[2.75rem] font-black leading-none sm:text-[3rem]">
                 {greetingForHour(now.getHours())}
               </span>
               {user?.full_name && (
-                <span className="block text-[1.6rem] font-bold sm:text-[2rem]">
+                <span className="block text-[1.6rem] font-bold sm:text-[1.5rem]">
                   {user.full_name}
                 </span>
               )}
