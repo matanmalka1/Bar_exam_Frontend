@@ -6,7 +6,7 @@ import { createExamSession, createPracticeSession } from "../api";
 import type { QuestionPart } from "../types";
 
 export type PartChoice = QuestionPart | "both";
-export type CountChoice = 10 | 20 | 40 | "all";
+export type CountChoice = 10 | 20 | 40 | 50 | 60 | 70 | 80;
 export type PracticeNewFlow = "practice" | "exam";
 
 const NETWORK_ERR = "לא ניתן להתחיל תרגול כרגע";
@@ -72,7 +72,7 @@ export const usePracticeNewForm = (flow: PracticeNewFlow) => {
         part: partToApi(part),
       };
       if (!allDates && examDate) payload.exam_date = examDate;
-      if (count !== "all") payload.question_count = count;
+      payload.question_count = count;
 
       const session = await createPracticeSession(payload);
       navigate(`/session/${session.id}`);
