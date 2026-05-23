@@ -23,15 +23,15 @@ const AuthPageShell = ({
     <div className="pointer-events-none fixed bottom-[-5%] left-[-10%] z-0 h-[20%] w-[60%] rounded-full bg-white/30 blur-3xl" />
 
     <main className="relative z-10 mx-auto flex min-h-svh w-full max-w-[430px] flex-col px-5 py-6">
-      <header className="mb-10 flex flex-col text-right">
-        <span className="mb-1 text-[11px] font-medium uppercase leading-none tracking-[0.18em] text-secondary">
+      <header className="mb-10 flex flex-col items-center text-center">
+        <span className="mb-2 text-[11px] font-semibold uppercase leading-none tracking-[0.2em] text-secondary">
           {eyebrow}
         </span>
-        <h1 className="font-display text-xl font-black leading-[1.3] text-[var(--ink)]">
+        <h1 className="font-display text-3xl font-black leading-tight text-[var(--ink)]">
           {title}
         </h1>
         {description && (
-          <p className="mt-3 text-sm leading-6 text-secondary">
+          <p className="mt-4 max-w-[330px] text-sm leading-6 text-secondary">
             {description}
           </p>
         )}

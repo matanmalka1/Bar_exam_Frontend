@@ -135,7 +135,6 @@ const LoginPage = () => {
             onChange={(e) => updateEmail(e.target.value)}
             disabled={submitting}
             placeholder="your@email.com"
-            className="text-right placeholder:text-right"
             error={fieldErrors.email}
           />
 
