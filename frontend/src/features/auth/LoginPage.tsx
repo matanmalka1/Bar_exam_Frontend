@@ -26,6 +26,7 @@ const LoginPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
+  const [suggestRegister, setSuggestRegister] = useState(false);
   const [sessionExpired] = useState(() => {
     if (typeof sessionStorage === "undefined") return false;
     const flag = sessionStorage.getItem("auth_expired") === "1";
@@ -75,6 +76,7 @@ const LoginPage = () => {
       navigate("/", { replace: true });
     } catch (err) {
       if (axios.isAxiosError(err) && err.response) {
+        setSuggestRegister(true);
         notifyError("פרטי ההתחברות שגויים");
       } else {
         notifyApiError(err, "החיבור נכשל. נסה שוב");
@@ -88,12 +90,14 @@ const LoginPage = () => {
     setEmail(value);
     setFieldErrors((e) => ({ ...e, email: undefined }));
     setError(null);
+    setSuggestRegister(false);
   };
 
   const updatePassword = (value: string) => {
     setPassword(value);
     setFieldErrors((e) => ({ ...e, password: undefined }));
     setError(null);
+    setSuggestRegister(false);
   };
 
   return (
@@ -190,9 +194,13 @@ const LoginPage = () => {
 
             <Link
               to="/register"
-              className="flex h-14 w-full items-center justify-center rounded-2xl border border-[var(--ink)]/10 bg-transparent text-sm font-semibold text-[var(--ink)] transition hover:bg-[var(--ink)]/5 active:scale-95"
+              className={`flex h-14 w-full items-center justify-center rounded-2xl border text-sm font-semibold transition active:scale-95 ${
+                suggestRegister
+                  ? "border-black bg-black/5 text-[var(--ink)] ring-2 ring-black/20"
+                  : "border-[var(--ink)]/10 bg-transparent text-[var(--ink)] hover:bg-[var(--ink)]/5"
+              }`}
             >
-              עדיין אין לך חשבון? הרשמה
+              {suggestRegister ? "עדיין לא רשום? לחץ כאן להרשמה" : "עדיין אין לך חשבון? הרשמה"}
             </Link>
           </div>
         </form>
