@@ -21,16 +21,12 @@ Backend repository: `/Users/matanmalka/Desktop/bar_exam_study`.
 
 ## Runtime
 
-Default API base URL:
+The Vite dev server proxies `/api/*` to `http://localhost:8000`. No env var needed for standard local development.
+
+To point at a different backend, set in `.env.local`:
 
 ```
-http://localhost:8000/api/v1
-```
-
-Override with:
-
-```
-VITE_API_BASE_URL
+VITE_API_BASE_URL=http://other-host:8000/api/v1
 ```
 
 ## Auth
@@ -76,6 +72,7 @@ Public:
 - `/register`
 - `/forgot-password`
 - `/reset-password`
+- `/terms`
 
 Protected shell routes:
 
@@ -85,8 +82,10 @@ Protected shell routes:
 - `/session/:id`
 - `/session/:id/exam`
 - `/session/:id/results`
+- `/sessions/active`
 - `/mistakes`
 - `/bookmarks`
+- `/stats`
 - `/more`
 
 ## Product Rules

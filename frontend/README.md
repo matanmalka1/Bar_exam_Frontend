@@ -19,25 +19,21 @@ Hebrew RTL React app for practicing Israeli Bar Association exam questions.
 npm ci
 ```
 
-The app expects the backend API at:
-
-```text
-http://localhost:8000/api/v1
-```
-
-To override it, create `.env.local` in this directory:
-
-```bash
-VITE_API_BASE_URL=http://localhost:8000/api/v1
-```
-
 ## Run
 
 ```bash
 npm run dev
 ```
 
-LAN testing:
+The Vite dev server proxies `/api/*` to `http://localhost:8000`. The backend must be running.
+
+To point at a different backend, create `.env.local` in this directory:
+
+```bash
+VITE_API_BASE_URL=http://other-host:8000/api/v1
+```
+
+LAN testing (binds to all interfaces):
 
 ```bash
 npm run dev:lan
@@ -52,6 +48,14 @@ npm run test
 npm run build
 ```
 
+Additional scripts:
+
+```bash
+npm run format          # prettier write
+npm run format:check    # prettier check
+npm run jscpd           # duplication report
+```
+
 ## Current App Routes
 
 Public:
@@ -60,6 +64,7 @@ Public:
 - `/register`
 - `/forgot-password`
 - `/reset-password`
+- `/terms`
 
 Protected:
 
@@ -69,8 +74,10 @@ Protected:
 - `/session/:id`
 - `/session/:id/exam`
 - `/session/:id/results`
+- `/sessions/active`
 - `/mistakes`
 - `/bookmarks`
+- `/stats`
 - `/more`
 
 ## API Notes
