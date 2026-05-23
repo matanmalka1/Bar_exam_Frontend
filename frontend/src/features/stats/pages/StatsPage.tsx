@@ -105,7 +105,7 @@ const SessionRow = ({ session: s }: SessionRowProps) => {
         </span>
         {scoreNum !== null && (
           <span className="shrink-0 text-xs font-semibold tabular-nums text-secondary">
-            ציון {scoreNum}%
+            {`ציון: ${scoreNum} נק׳`}
           </span>
         )}
       </div>

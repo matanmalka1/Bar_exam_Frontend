@@ -12,46 +12,34 @@ type StatCardProps = {
   label: string;
   value: number | string;
   sub?: string;
-  highlight?: boolean;
   onClick?: () => void;
 };
 
-const StatCard = ({ label, value, sub, highlight, onClick }: StatCardProps) => {
-  const base =
-    "flex flex-col gap-1 rounded-2xl border border-default bg-surface px-4 py-4";
-  const interactive = onClick
-    ? "cursor-pointer transition hover:bg-[var(--surface-muted)] active:scale-[0.98]"
-    : "";
-  return (
-    <div
-      role={onClick ? "button" : undefined}
-      tabIndex={onClick ? 0 : undefined}
-      onClick={onClick}
-      onKeyDown={
-        onClick
-          ? (e) => {
-              if (e.key === "Enter" || e.key === " ") onClick();
-            }
-          : undefined
-      }
-      className={`${base} ${interactive}`}
-    >
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-secondary">
-        {label}
+const StatCard = ({ label, value, sub, onClick }: StatCardProps) => (
+  <div
+    role={onClick ? "button" : undefined}
+    tabIndex={onClick ? 0 : undefined}
+    onClick={onClick}
+    onKeyDown={
+      onClick
+        ? (e) => { if (e.key === "Enter" || e.key === " ") onClick(); }
+        : undefined
+    }
+    className={`flex flex-col gap-1 rounded-2xl border border-default bg-surface px-4 py-4${onClick ? " cursor-pointer transition hover:bg-[var(--surface-muted)] active:scale-[0.98]" : ""}`}
+  >
+    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-secondary">
+      {label}
+    </p>
+    <p className="font-display text-3xl font-black tabular-nums leading-none text-[var(--accent-ink)]">
+      {value}
+    </p>
+    {sub && (
+      <p className="mt-0.5 text-[11px] leading-snug tabular-nums text-secondary">
+        {sub}
       </p>
-      <p
-        className={`font-display text-3xl font-black tabular-nums leading-none ${highlight ? "text-red-600" : "text-[var(--accent-ink)]"}`}
-      >
-        {value}
-      </p>
-      {sub && (
-        <p className="mt-0.5 text-[11px] leading-snug tabular-nums text-secondary">
-          {sub}
-        </p>
-      )}
-    </div>
-  );
-};
+    )}
+  </div>
+);
 
 const formatStudyTime = (seconds: number): string => {
   if (seconds === 0) return "—";
@@ -80,23 +68,7 @@ const HomeStatsHero = ({
     );
   }
 
-  const sessionsCompleted =
-    stats.practices_completed + stats.exams_completed + stats.simulations_completed;
-
   const correctAnswers = Math.max(0, stats.total_answered - stats.incorrect_answers);
-
-  const sessionsSub = [
-    stats.practices_completed > 0
-      ? `${stats.practices_completed} תרגולים`
-      : null,
-    stats.exams_completed > 0 ? `${stats.exams_completed} מבחנים` : null,
-    stats.simulations_completed > 0
-      ? `${stats.simulations_completed} סימולציות`
-      : null,
-  ]
-    .filter(Boolean)
-    .join(" · ") || "—";
-
   const hasMistakes = stats.active_mistakes_count > 0;
 
   return (
@@ -108,20 +80,28 @@ const HomeStatsHero = ({
           sub={`${correctAnswers} נכונות · ${stats.incorrect_answers} שגויות`}
         />
         <StatCard
-          label="מפגשים"
-          value={sessionsCompleted}
-          sub={sessionsSub}
-        />
-        <StatCard
-          label="טעויות פתוחות"
-          value={stats.active_mistakes_count}
-          sub={hasMistakes ? undefined : "אין טעויות פתוחות"}
-          highlight={hasMistakes}
-          onClick={hasMistakes ? onOpenMistakes : undefined}
-        />
-        <StatCard
           label="זמן לימוד"
           value={formatStudyTime(stats.total_study_seconds)}
+        />
+        <StatCard
+          label="תרגולים"
+          value={stats.practices_completed}
+        />
+        <StatCard
+          label="מבחנים"
+          value={stats.exams_completed}
+        />
+        <StatCard
+          label="סימולציות"
+          value={stats.simulations_completed}
+        />
+        <StatCard
+          label="טעויות לחזרה"
+          value={
+            hasMistakes
+              ? `${stats.active_mistakes_count} פתוחות`
+              : "אין"
+          }
         />
       </div>
 

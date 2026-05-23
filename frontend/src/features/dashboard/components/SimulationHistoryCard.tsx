@@ -21,24 +21,29 @@ const formatDuration = (startedAt: string, completedAt: string | null): string =
   return m === 0 ? `${h} שע׳` : `${h}:${String(m).padStart(2, "0")} שע׳`;
 };
 
+const PASSING_SCORE = 60;
+
 const ScoreBadge = ({
-  correct,
-  total,
+  scorePercent,
 }: {
-  correct: number | null;
-  total: number;
+  scorePercent: string | null | undefined;
 }) => {
-  const pct = correct !== null && total > 0 ? (correct / total) * 100 : null;
+  const score = scorePercent !== null && scorePercent !== undefined ? Math.round(Number(scorePercent)) : null;
   const color =
-    pct === null ? "text-secondary" :
-    pct >= 65 ? "text-green-700" :
-    pct >= 50 ? "text-amber-600" :
+    score === null ? "text-secondary" :
+    score >= PASSING_SCORE ? "text-green-700" :
+    score >= 50 ? "text-amber-600" :
     "text-red-600";
-  const label = correct !== null ? `${correct}/${total}` : "—";
   return (
-    <span className={`font-display text-2xl font-black tabular-nums ${color}`}>
-      {label}
-    </span>
+    <div className={`flex flex-col items-end ${color}`}>
+      <span className="text-[10px] font-semibold uppercase tracking-wide text-secondary">ציון</span>
+      <span className="font-display text-2xl font-black tabular-nums leading-none">
+        {score !== null ? score : "—"}
+      </span>
+      {score !== null && (
+        <span className="text-[10px] font-semibold">נק׳</span>
+      )}
+    </div>
   );
 };
 
@@ -58,7 +63,7 @@ const SimulationRow = ({ session, isLast }: SimulationRowProps) => {
             {formatDuration(session.started_at, session.completed_at)}
           </span>
         </div>
-        <ScoreBadge correct={session.correct_count} total={session.total_questions} />
+        <ScoreBadge scorePercent={session.score_percent} />
       </div>
 
       {pb && (

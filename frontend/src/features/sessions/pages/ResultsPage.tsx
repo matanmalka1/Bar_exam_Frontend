@@ -55,47 +55,68 @@ const StatItem = ({
   </div>
 );
 
+const PASSING_SCORE = 60;
+
+const isExamLike = (mode: string) => mode === "exam" || mode === "simulation";
+
 const ScoreCard = ({
   session,
   total,
   answered,
   correct,
   mistakesCount,
-  scorePercent,
+  scoreValue,
 }: {
   session: SessionDetail;
   total: number;
   answered: number;
   correct: number;
   mistakesCount: number;
-  scorePercent: string;
-}) => (
-  <Card className="surface-muted">
-    <div className="text-center">
-      <p className="text-sm font-medium text-[var(--accent)]">הציון שלך</p>
+  scoreValue: string;
+}) => {
+  const examMode = isExamLike(session.mode);
+  const passed = examMode && Number(scoreValue) >= PASSING_SCORE;
 
-      <p className="font-display mt-2 tabular-nums text-7xl font-black leading-none text-[var(--accent-ink)]">
-        {scorePercent}%
-      </p>
+  return (
+    <Card className="surface-muted">
+      <div className="text-center">
+        <p className="text-sm font-medium text-[var(--accent)]">הציון שלך</p>
 
-      <p className="mt-3 tabular-nums text-sm text-secondary">
-        {correct} נכונות מתוך {total}
-      </p>
-
-      <div className="mt-5 grid grid-cols-3 gap-2 text-sm">
-        <StatItem label="נענו" value={`${answered}/${total}`} />
-        <StatItem label="נכונות" value={correct} />
-        <StatItem label="טעויות" value={mistakesCount} />
-      </div>
-
-      {session.completed_at && (
-        <p className="mt-4 text-xs text-secondary">
-          הושלם: {formatDate(session.completed_at)}
+        <p className="font-display mt-2 tabular-nums text-7xl font-black leading-none text-[var(--accent-ink)]">
+          {scoreValue} <span className="text-3xl">נק׳</span>
         </p>
-      )}
-    </div>
-  </Card>
-);
+
+        {examMode && (
+          <p
+            className={`mt-2 inline-block rounded-full px-3 py-1 text-xs font-semibold ${
+              passed
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-800"
+            }`}
+          >
+            {passed ? "עבר ✓" : "לא עבר ✗"} (מעבר: {PASSING_SCORE})
+          </p>
+        )}
+
+        <p className="mt-3 tabular-nums text-sm text-secondary">
+          {correct} נכונות מתוך {total}
+        </p>
+
+        <div className="mt-5 grid grid-cols-3 gap-2 text-sm">
+          <StatItem label="נענו" value={`${answered}/${total}`} />
+          <StatItem label="נכונות" value={correct} />
+          <StatItem label="טעויות" value={mistakesCount} />
+        </div>
+
+        {session.completed_at && (
+          <p className="mt-4 text-xs text-secondary">
+            הושלם: {formatDate(session.completed_at)}
+          </p>
+        )}
+      </div>
+    </Card>
+  );
+};
 
 const MistakeCard = ({ question }: { question: SessionQuestion }) => {
   const [open, setOpen] = useState(false);
@@ -239,7 +260,7 @@ const ResultsPage = () => {
           answered={answered}
           correct={correct}
           mistakesCount={mistakes.length}
-          scorePercent={scorePercent}
+          scoreValue={scorePercent}
         />
 
         <section className="space-y-3">

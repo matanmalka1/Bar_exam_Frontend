@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { ArrowLeft, Lock, Mail, ShieldCheck, User } from "lucide-react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import Alert from "../../components/Alert";
 import AppLoader from "../../components/loader";
 import Button from "../../components/Button";
@@ -13,18 +13,48 @@ import { RegisterFormSchema } from "./schemas";
 import type { RegisterRequest } from "./types";
 import { useAuth } from "./useAuth";
 
+export type RegisterDraft = {
+  fullName: string;
+  email: string;
+  password: string;
+  confirm: string;
+  acceptedTerms: boolean;
+};
+
+export type RegisterRouteState = {
+  registerDraft?: RegisterDraft;
+};
+
+const getRegisterDraft = (state: unknown): RegisterDraft | null => {
+  const draft = (state as RegisterRouteState | null)?.registerDraft;
+  if (!draft) return null;
+  return draft;
+};
+
 const RegisterPage = () => {
   const { status, register } = useAuth();
   const navigate = useNavigate();
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
+  const location = useLocation();
+  const initialDraft = getRegisterDraft(location.state);
+  const [fullName, setFullName] = useState(initialDraft?.fullName ?? "");
+  const [email, setEmail] = useState(initialDraft?.email ?? "");
+  const [password, setPassword] = useState(initialDraft?.password ?? "");
+  const [confirm, setConfirm] = useState(initialDraft?.confirm ?? "");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(
+    initialDraft?.acceptedTerms ?? false,
+  );
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const registerDraft: RegisterDraft = {
+    fullName,
+    email,
+    password,
+    confirm,
+    acceptedTerms,
+  };
 
   if (status === "authenticated") return <Navigate to="/" replace />;
 
@@ -185,6 +215,7 @@ const RegisterPage = () => {
               אני מסכים{" "}
               <Link
                 to="/terms"
+                state={{ registerDraft }}
                 className="font-bold text-[var(--ink)] underline underline-offset-4"
               >
                 לתנאי השימוש

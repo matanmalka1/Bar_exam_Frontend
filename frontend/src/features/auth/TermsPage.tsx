@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import type { RegisterRouteState } from "./RegisterPage";
 
 type TermsSection = {
   title: string;
@@ -44,47 +45,53 @@ const sections: TermsSection[] = [
   },
 ];
 
-const TermsPage = () => (
-  <div dir="rtl" className="min-h-svh bg-[var(--paper)] text-[var(--ink)]">
-    <main className="mx-auto flex min-h-svh w-full max-w-[430px] flex-col px-5 py-6">
-      <header className="mb-8 flex flex-col text-right">
-        <span className="mb-1 text-[11px] font-medium uppercase leading-none tracking-[0.18em] text-secondary">
-          מסמך שימוש
-        </span>
-        <h1 className="font-display text-3xl font-black leading-tight text-[var(--ink)]">
-          תנאי שימוש
-        </h1>
-        <p className="mt-3 text-sm leading-6 text-secondary">
-          עודכן לאחרונה: 23.05.2026
-        </p>
-      </header>
+const TermsPage = () => {
+  const location = useLocation();
+  const registerState = location.state as RegisterRouteState | null;
 
-      <div className="flex flex-col gap-3">
-        {sections.map((section) => (
-          <section
-            key={section.title}
-            className="rounded-2xl border border-[var(--border-default)] bg-white/75 p-4"
+  return (
+    <div dir="rtl" className="min-h-svh bg-[var(--paper)] text-[var(--ink)]">
+      <main className="mx-auto flex min-h-svh w-full max-w-[430px] flex-col px-5 py-6">
+        <header className="mb-8 flex flex-col text-right">
+          <span className="mb-1 text-[11px] font-medium uppercase leading-none tracking-[0.18em] text-secondary">
+            מסמך שימוש
+          </span>
+          <h1 className="font-display text-3xl font-black leading-tight text-[var(--ink)]">
+            תנאי שימוש
+          </h1>
+          <p className="mt-3 text-sm leading-6 text-secondary">
+            עודכן לאחרונה: 23.05.2026
+          </p>
+        </header>
+
+        <div className="flex flex-col gap-3">
+          {sections.map((section) => (
+            <section
+              key={section.title}
+              className="rounded-2xl border border-[var(--border-default)] bg-white/75 p-4"
+            >
+              <h2 className="font-display text-lg font-bold text-[var(--ink)]">
+                {section.title}
+              </h2>
+              <p className="mt-2 text-sm leading-7 text-secondary">
+                {section.body}
+              </p>
+            </section>
+          ))}
+        </div>
+
+        <footer className="mt-auto pt-8 pb-4">
+          <Link
+            to="/register"
+            state={registerState ?? undefined}
+            className="flex h-14 w-full items-center justify-center rounded-2xl bg-black text-base font-bold text-white shadow-sm transition active:scale-95"
           >
-            <h2 className="font-display text-lg font-bold text-[var(--ink)]">
-              {section.title}
-            </h2>
-            <p className="mt-2 text-sm leading-7 text-secondary">
-              {section.body}
-            </p>
-          </section>
-        ))}
-      </div>
-
-      <footer className="mt-auto pt-8 pb-4">
-        <Link
-          to="/register"
-          className="flex h-14 w-full items-center justify-center rounded-2xl bg-black text-base font-bold text-white shadow-sm transition active:scale-95"
-        >
-          חזרה להרשמה
-        </Link>
-      </footer>
-    </main>
-  </div>
-);
+            חזרה להרשמה
+          </Link>
+        </footer>
+      </main>
+    </div>
+  );
+};
 
 export default TermsPage;
