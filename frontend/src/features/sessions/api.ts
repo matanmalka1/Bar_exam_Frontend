@@ -87,3 +87,9 @@ export const completeSession = async (
   );
   return parseApiResponse(SessionCompleteSchema, data, "completeSession");
 };
+
+export const abandonSession = async (
+  sessionId: number | string,
+): Promise<void> => {
+  await api.delete(`/practice-sessions/${sessionId}`);
+};

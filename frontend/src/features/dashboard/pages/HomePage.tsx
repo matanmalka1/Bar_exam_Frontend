@@ -37,7 +37,7 @@ const HomePage = () => {
   const { user } = useAuth();
   const {
     status,
-    active,
+    activeSessions,
     stats,
     bookmarks,
     sessionsUnavailable,
@@ -133,12 +133,21 @@ const HomePage = () => {
         </div>
       </section>
 
-      {active && (
+      {activeSessions.length > 0 && (
         <div className="mt-5">
           <ActiveSessionCard
-            session={active}
-            onResume={() => navigate(resumePath(active))}
+            session={activeSessions[0]}
+            onResume={() => navigate(resumePath(activeSessions[0]))}
           />
+          {activeSessions.length > 1 && (
+            <button
+              type="button"
+              onClick={() => navigate("/sessions/active")}
+              className="mt-2 w-full text-center text-xs text-secondary underline underline-offset-2"
+            >
+              ועוד {activeSessions.length - 1} תרגולים פתוחים
+            </button>
+          )}
         </div>
       )}
 

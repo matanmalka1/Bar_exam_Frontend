@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import HomePage from "../features/dashboard/pages/HomePage";
 import PracticeNewPage from "../features/sessions/pages/PracticeNewPage";
+import ActiveSessionsPage from "../features/sessions/pages/ActiveSessionsPage";
 import SessionPage from "../features/sessions/pages/SessionPage";
 import ExamSessionPage from "../features/sessions/pages/ExamSessionPage";
 import ResultsPage from "../features/sessions/pages/ResultsPage";
@@ -33,6 +34,7 @@ export const router = createBrowserRouter([
           { path: "/session/:id", element: <SessionPage /> },
           { path: "/session/:id/exam", element: <ExamSessionPage /> },
           { path: "/session/:id/results", element: <ResultsPage /> },
+          { path: "/sessions/active", element: <ActiveSessionsPage /> },
           { path: "/mistakes", element: <MistakesPage /> },
           { path: "/bookmarks", element: <BookmarksPage /> },
           { path: "/more", element: <MorePage /> },

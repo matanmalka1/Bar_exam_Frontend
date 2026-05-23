@@ -191,8 +191,8 @@ const PracticeNewPage = () => {
       />
 
       <IntroBox>
-        הרכב סשן תרגול לפי חלק, מועד וכמות שאלות. במצב זה תקבל משוב מיידי על
-        כל תשובה.
+        הרכב סשן תרגול לפי חלק, מועד וכמות שאלות. במצב זה תקבל משוב מיידי על כל
+        תשובה.
       </IntroBox>
 
       <StepSection index="01" title="חלק" complete={part !== null}>
@@ -234,15 +234,11 @@ const PracticeNewPage = () => {
       {part !== null && dateSelected && (
         <StepSection index="03" title="מספר שאלות" complete={count !== null}>
           <div className="flex flex-wrap gap-2.5">
-            {([10, 20, 40] as const).map((n) => (
+            {([10, 20, 40, 50, 60, 70, 80] as const).map((n) => (
               <Chip key={n} selected={count === n} onClick={() => setCount(n)}>
                 {n}
               </Chip>
             ))}
-
-            <Chip selected={count === "all"} onClick={() => setCount("all")}>
-              כל השאלות
-            </Chip>
           </div>
         </StepSection>
       )}
@@ -257,9 +253,7 @@ const PracticeNewPage = () => {
         </Button>
 
         {disabledReason && (
-          <p className="text-center text-xs text-secondary">
-            {disabledReason}
-          </p>
+          <p className="text-center text-xs text-secondary">{disabledReason}</p>
         )}
       </FixedFooter>
     </PageShell>
