@@ -13,6 +13,7 @@ import LoginPage from "../features/auth/LoginPage";
 import ProtectedRoute from "../features/auth/ProtectedRoute";
 import RegisterPage from "../features/auth/RegisterPage";
 import ResetPasswordPage from "../features/auth/ResetPasswordPage";
+import TermsPage from "../features/auth/TermsPage";
 import Shell from "./Shell";
 
 export const router = createBrowserRouter([
@@ -20,6 +21,7 @@ export const router = createBrowserRouter([
   { path: "/register", element: <RegisterPage /> },
   { path: "/forgot-password", element: <ForgotPasswordPage /> },
   { path: "/reset-password", element: <ResetPasswordPage /> },
+  { path: "/terms", element: <TermsPage /> },
   {
     element: <ProtectedRoute />,
     children: [
