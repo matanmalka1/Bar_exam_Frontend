@@ -39,7 +39,7 @@ const PartBreakdown = ({ stats, statsUnavailable }: PartBreakdownProps) => {
 
   return (
     <section
-      className="mt-9 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-default bg-black/10"
+      className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-default bg-black/10"
       aria-label="פירוט לפי חלקי הבחינה"
     >
       <PartCell

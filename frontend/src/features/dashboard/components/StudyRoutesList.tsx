@@ -20,7 +20,7 @@ const StudyRoutesList = ({
   onOpenMistakes,
   onOpenBookmarks,
 }: StudyRoutesListProps) => (
-  <section className="mt-9">
+  <section className="mt-6">
     <div className="flex items-baseline justify-between border-b border-default pb-2">
       <h2 className="font-display text-base font-bold text-[var(--accent-ink)]">
         מסלולי לימוד

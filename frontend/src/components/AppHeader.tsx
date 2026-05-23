@@ -45,7 +45,7 @@ const AppHeader = ({
   children,
   className,
   eyebrowClassName,
-  variant = "sticky",
+  variant = "inline",
   titleLayout = "default",
 }: AppHeaderProps) => {
   const navigate = useNavigate();

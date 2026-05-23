@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../auth/useAuth";
 import Button from "../../../components/Button";
 import AppLoader from "../../../components/loader";
 import { createSimulationSession } from "../../sessions/api";
@@ -31,6 +32,7 @@ const resumePath = (s: SessionSummary): string =>
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const {
     status,
     active,
@@ -76,62 +78,72 @@ const HomePage = () => {
       : `${bookmarks.length} סימניות שמורות`;
 
   return (
-    <div className="mx-auto w-full max-w-[560px] px-5 pb-10 pt-6">
-      {/* Top meta strip */}
-      <div className="flex items-baseline justify-between">
-        <span className="text-[11px] uppercase tracking-[0.22em] text-secondary">
-          {formatHebrewDate(now)}
-        </span>
-        <span className="font-display text-xs text-secondary">
-          לשכת עוה״ד · תרגול
-        </span>
-      </div>
+    <div className="mx-auto w-full max-w-2xl px-4 pb-12 pt-6 sm:px-6">
+      <section className="rounded-[2rem] border border-default bg-surface px-5 py-6 shadow-sm sm:px-8 sm:py-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <span className="text-[11px] uppercase tracking-[0.22em] text-secondary">
+              {formatHebrewDate(now)}
+            </span>
 
-      {/* Greeting */}
-      <h1 className="font-display mt-4 text-[2.5rem] font-black leading-[1.02] text-[var(--accent-ink)]">
-        {greetingForHour(now.getHours())}
-      </h1>
-      <p className="mt-1 text-sm text-secondary">
-        מוכנים להמשיך לעבוד לקראת הבחינה ?
-      </p>
+            <h1 className="font-display mt-4 leading-tight text-[var(--accent-ink)]">
+              <span className="block text-[2.75rem] font-black leading-none sm:text-[3.5rem]">
+                {greetingForHour(now.getHours())}
+              </span>
+              {user?.full_name && (
+                <span className="block text-[1.6rem] font-bold sm:text-[2rem]">
+                  {user.full_name}
+                </span>
+              )}
+            </h1>
 
-      <HomeStatsHero
-        stats={stats}
-        onStartPractice={() => navigate(ROUTES.practiceNew)}
-      />
+            <p className="mt-3 max-w-md text-sm leading-6 text-secondary">
+              מוכנים להמשיך לעבוד לקראת הבחינה?
+            </p>
+          </div>
+        </div>
 
-      {/* Active session strip */}
+        <div className="mt-7">
+          <HomeStatsHero
+            stats={stats}
+            onStartPractice={() => navigate(ROUTES.practiceNew)}
+          />
+        </div>
+
+        <div className="mt-7 flex flex-col gap-2 sm:flex-row">
+          <Button fullWidth onClick={() => navigate(ROUTES.practiceNew)}>
+            התחל תרגול
+          </Button>
+
+          <Button
+            variant="secondary"
+            onClick={handleStartSimulation}
+            disabled={startingSim}
+            className="sm:w-auto sm:min-w-[140px]"
+          >
+            {startingSim ? (
+              <AppLoader variant="button" label="מתחיל" />
+            ) : (
+              "מבחן מלא"
+            )}
+          </Button>
+        </div>
+      </section>
+
       {active && (
-        <ActiveSessionCard
-          session={active}
-          onResume={() => navigate(resumePath(active))}
-        />
+        <div className="mt-5">
+          <ActiveSessionCard
+            session={active}
+            onResume={() => navigate(resumePath(active))}
+          />
+        </div>
       )}
 
       {sessionsUnavailable && (
-        <p className="mt-5 text-xs text-secondary">
+        <p className="mt-4 rounded-2xl border border-default bg-surface-muted px-4 py-3 text-xs text-secondary">
           לא ניתן לטעון תרגול פעיל כרגע.
         </p>
       )}
-
-      {/* Primary CTAs */}
-      <div className="mt-7 flex gap-2">
-        <Button fullWidth onClick={() => navigate(ROUTES.practiceNew)}>
-          התחל תרגול
-        </Button>
-        <Button
-          variant="secondary"
-          onClick={handleStartSimulation}
-          disabled={startingSim}
-          className="shrink-0 px-5"
-        >
-          {startingSim ? (
-            <AppLoader variant="button" label="מתחיל" />
-          ) : (
-            "מבחן מלא"
-          )}
-        </Button>
-      </div>
 
       <StudyRoutesList
         mistakesHint={mistakesHint}

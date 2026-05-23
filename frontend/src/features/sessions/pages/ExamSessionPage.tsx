@@ -5,6 +5,7 @@ import BookmarkButton from "../../../components/BookmarkButton";
 import Button from "../../../components/Button";
 import ErrorState from "../../../components/ErrorState";
 import FixedFooter from "../../../components/FixedFooter";
+import PageShell from "../../../components/PageShell";
 import AppLoader from "../../../components/loader";
 import QuestionNavigation from "../components/QuestionNavigation";
 import SessionAnswerOptions from "../components/SessionAnswerOptions";
@@ -70,17 +71,27 @@ const ExamSessionPage = () => {
 
   if (status === "error" || !current) {
     return (
-      <div className="mx-auto w-full max-w-[720px] p-4">
+      <PageShell className="pb-32">
         <ErrorState
           message="החיבור נכשל. נסה שוב"
           action={<Button onClick={retry}>נסה שוב</Button>}
         />
-      </div>
+      </PageShell>
     );
   }
 
+  const handlePrimaryAction = () => {
+    tap();
+    submitOrNext();
+  };
+
+  const handleCompleteAction = () => {
+    tap();
+    complete();
+  };
+
   return (
-    <div className="mx-auto w-full max-w-[720px] p-4 pb-32">
+    <PageShell className="pb-32">
       <AppHeader
         back={{ onClick: () => navigate("/") }}
         eyebrow={EXAM_MODE_LABEL}
@@ -94,35 +105,34 @@ const ExamSessionPage = () => {
         }
       />
 
-      <SessionQuestionCard question={current} isBookmarked={isBookmarked} />
+      <main className="mt-4 space-y-5">
+        <SessionQuestionCard question={current} isBookmarked={isBookmarked} />
 
-      <SessionAnswerOptions
-        question={current}
-        mode="exam"
-        disabled={submitting || answerSubmitted}
-        displaySelected={displaySelected}
-        answerSubmitted={answerSubmitted}
-        onSelect={selectAnswer}
-      />
+        <SessionAnswerOptions
+          question={current}
+          mode="exam"
+          disabled={submitting || answerSubmitted}
+          displaySelected={displaySelected}
+          answerSubmitted={answerSubmitted}
+          onSelect={selectAnswer}
+        />
 
-      <QuestionNavigation
-        currentIndex={currentIndex}
-        isLast={isLast}
-        canGoNext={answerSubmitted}
-        onPrev={prev}
-        onNext={next}
-      />
+        <QuestionNavigation
+          currentIndex={currentIndex}
+          isLast={isLast}
+          canGoNext={answerSubmitted}
+          onPrev={prev}
+          onNext={next}
+        />
+      </main>
 
       <FixedFooter>
-        {!showComplete && (
+        {!showComplete ? (
           <>
             <Button
               fullWidth
               disabled={primaryDisabled}
-              onClick={() => {
-                tap();
-                submitOrNext();
-              }}
+              onClick={handlePrimaryAction}
             >
               {submitting ? (
                 <AppLoader variant="button" label="שומר..." />
@@ -130,22 +140,19 @@ const ExamSessionPage = () => {
                 primaryLabel
               )}
             </Button>
+
             {primaryReason && (
               <p className="text-center text-xs text-secondary">
                 {primaryReason}
               </p>
             )}
           </>
-        )}
-        {showComplete && (
+        ) : (
           <>
             <Button
               fullWidth
               disabled={!allAnswered || completing}
-              onClick={() => {
-                tap();
-                complete();
-              }}
+              onClick={handleCompleteAction}
             >
               {completing ? (
                 <AppLoader variant="button" label="מסיים..." />
@@ -153,6 +160,7 @@ const ExamSessionPage = () => {
                 "סיום בחינה"
               )}
             </Button>
+
             {completeReason && (
               <p className="text-center text-xs text-secondary">
                 {completeReason}
@@ -161,7 +169,7 @@ const ExamSessionPage = () => {
           </>
         )}
       </FixedFooter>
-    </div>
+    </PageShell>
   );
 };
 

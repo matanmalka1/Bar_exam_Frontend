@@ -6,13 +6,58 @@ import BookmarkButton from "../../../components/BookmarkButton";
 import Button from "../../../components/Button";
 import ErrorState from "../../../components/ErrorState";
 import FixedFooter from "../../../components/FixedFooter";
+import PageShell from "../../../components/PageShell";
 import AppLoader from "../../../components/loader";
 import QuestionNavigation from "../components/QuestionNavigation";
 import SessionAnswerOptions from "../components/SessionAnswerOptions";
 import SessionQuestionCard from "../components/SessionQuestionCard";
 import { usePracticeSession } from "../hooks/usePracticeSession";
-import { cn } from "../../../lib/cn";
 import { tap } from "../../../lib/haptics";
+
+const AnswerFeedback = ({
+  isCorrect,
+  correctAnswer,
+}: {
+  isCorrect: boolean;
+  correctAnswer: string | null;
+}) => (
+  <div
+    role="status"
+    aria-live="polite"
+    className="rounded-2xl border border-default bg-[var(--surface-muted)] px-4 py-3 text-sm font-semibold text-primary"
+  >
+    <div className="flex items-center gap-2">
+      {isCorrect ? (
+        <>
+          <Check className="h-4 w-4 shrink-0" strokeWidth={2.6} />
+          <span>תשובה נכונה.</span>
+        </>
+      ) : (
+        <>
+          <X className="h-4 w-4 shrink-0" strokeWidth={2.6} />
+          <span>
+            התשובה הנכונה היא{" "}
+            <span className="font-display font-black">
+              {correctAnswer ?? ""}
+            </span>
+            .
+          </span>
+        </>
+      )}
+    </div>
+  </div>
+);
+
+const ReferenceBox = ({ reference }: { reference: string }) => (
+  <section className="rounded-2xl border border-default bg-[var(--surface-muted)] p-4">
+    <p className="font-display text-[10px] uppercase tracking-[0.22em] text-secondary">
+      הפניה
+    </p>
+    <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-primary">
+      {reference}
+    </p>
+  </section>
+);
 
 const SessionPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -71,17 +116,32 @@ const SessionPage = () => {
 
   if (status === "error" || !current) {
     return (
-      <div className="mx-auto w-full max-w-[720px] p-4">
+      <PageShell className="pb-32">
         <ErrorState
           message="החיבור נכשל. נסה שוב"
           action={<Button onClick={retry}>נסה שוב</Button>}
         />
-      </div>
+      </PageShell>
     );
   }
 
+  const handleSubmit = () => {
+    tap();
+    submit();
+  };
+
+  const handleNext = () => {
+    tap();
+    next();
+  };
+
+  const handleComplete = () => {
+    tap();
+    complete();
+  };
+
   return (
-    <div className="mx-auto w-full max-w-[720px] p-4 pb-32">
+    <PageShell className="pb-32">
       <AppHeader
         back={{ onClick: () => navigate("/") }}
         eyebrow={modeLabel}
@@ -95,85 +155,52 @@ const SessionPage = () => {
         }
       />
 
-      <SessionQuestionCard question={current} isBookmarked={isBookmarked} />
+      <main className="mt-4 space-y-5">
+        <SessionQuestionCard question={current} isBookmarked={isBookmarked} />
 
-      {answerSubmitted && practiceAnswer && (
-        <p
-          role="status"
-          aria-live="polite"
-          className={cn(
-            "mt-4 inline-flex items-center gap-2 text-sm font-semibold",
-            practiceAnswer.is_correct ? "text-primary" : "text-primary",
-          )}
-        >
-          {practiceAnswer.is_correct ? (
-            <>
-              <Check className="h-4 w-4" strokeWidth={2.6} />
-              <span>תשובה נכונה.</span>
-            </>
-          ) : (
-            <>
-              <X className="h-4 w-4" strokeWidth={2.6} />
-              <span>
-                התשובה הנכונה היא{" "}
-                <span className="font-display font-black">
-                  {correctAnswer ?? ""}
-                </span>
-                .
-              </span>
-            </>
-          )}
-        </p>
-      )}
+        {answerSubmitted && practiceAnswer && (
+          <AnswerFeedback
+            isCorrect={practiceAnswer.is_correct}
+            correctAnswer={correctAnswer}
+          />
+        )}
 
-      <SessionAnswerOptions
-        question={current}
-        mode="practice"
-        disabled={answerSubmitted || submitting}
-        displaySelected={displaySelected}
-        answerSubmitted={answerSubmitted}
-        currentAnswer={current.answer}
-        practiceAnswer={practiceAnswer}
-        correctAnswer={correctAnswer}
-        onSelect={selectAnswer}
-      />
+        <SessionAnswerOptions
+          question={current}
+          mode="practice"
+          disabled={answerSubmitted || submitting}
+          displaySelected={displaySelected}
+          answerSubmitted={answerSubmitted}
+          currentAnswer={current.answer}
+          practiceAnswer={practiceAnswer}
+          correctAnswer={correctAnswer}
+          onSelect={selectAnswer}
+        />
 
-      {answerSubmitted && current.reference && (
-        <section className="mt-6 border-t border-default pt-4">
-          <p className="font-display text-[10px] uppercase tracking-[0.22em] text-secondary">
-            הפניה
-          </p>
-          <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-primary">
-            {current.reference}
-          </p>
-        </section>
-      )}
+        {answerSubmitted && current.reference && (
+          <ReferenceBox reference={current.reference} />
+        )}
 
-      <QuestionNavigation
-        currentIndex={currentIndex}
-        isLast={isLast}
-        canGoNext={answerSubmitted}
-        onPrev={prev}
-        onNext={next}
-      />
+        <QuestionNavigation
+          currentIndex={currentIndex}
+          isLast={isLast}
+          canGoNext={answerSubmitted}
+          onPrev={prev}
+          onNext={next}
+        />
+      </main>
 
       <FixedFooter>
         {!answerSubmitted && (
           <>
-            <Button
-              fullWidth
-              disabled={submitDisabled}
-              onClick={() => {
-                tap();
-                submit();
-              }}
-            >
+            <Button fullWidth disabled={submitDisabled} onClick={handleSubmit}>
               {submitting ? (
                 <AppLoader variant="button" label="שומר..." />
               ) : (
                 "בדוק תשובה"
               )}
             </Button>
+
             {submitReason && (
               <p className="text-center text-xs text-secondary">
                 {submitReason}
@@ -183,13 +210,7 @@ const SessionPage = () => {
         )}
 
         {answerSubmitted && !isLast && (
-          <Button
-            fullWidth
-            onClick={() => {
-              tap();
-              next();
-            }}
-          >
+          <Button fullWidth onClick={handleNext}>
             שאלה הבאה
           </Button>
         )}
@@ -199,10 +220,7 @@ const SessionPage = () => {
             <Button
               fullWidth
               disabled={!allAnswered || completing}
-              onClick={() => {
-                tap();
-                complete();
-              }}
+              onClick={handleComplete}
             >
               {completing ? (
                 <AppLoader variant="button" label="מסיים..." />
@@ -210,6 +228,7 @@ const SessionPage = () => {
                 "סיום תרגול"
               )}
             </Button>
+
             {completeReason && (
               <p className="text-center text-xs text-secondary">
                 {completeReason}
@@ -218,7 +237,7 @@ const SessionPage = () => {
           </>
         )}
       </FixedFooter>
-    </div>
+    </PageShell>
   );
 };
 
