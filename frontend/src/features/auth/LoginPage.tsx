@@ -110,84 +110,88 @@ const LoginPage = () => {
   return (
     <div dir="rtl" className="min-h-svh bg-[var(--paper)] text-[var(--ink)]">
       <div className="mx-auto flex min-h-svh w-full max-w-[480px] flex-col px-5 pb-8 pt-6">
-        <AppHeader
-          back={false}
-          eyebrow="התחברות"
-          title="ברוך הבא"
-          variant="inline"
-        />
+        <main className="flex flex-1 items-center">
+          <div className="w-full">
+            <AppHeader
+              back={false}
+              eyebrow="התחברות"
+              title="ברוך הבא"
+              variant="inline"
+            />
 
-        <form
-          noValidate
-          onSubmit={onSubmit}
-          className="flex flex-1 flex-col gap-4"
-        >
-          {sessionExpired && (
-            <Alert variant="info" className="mb-0">
-              ההתחברות פגה. אנא התחבר מחדש.
-            </Alert>
-          )}
-
-          <TextField
-            id="login-email"
-            label="אימייל"
-            type="email"
-            autoComplete="email"
-            inputMode="email"
-            dir="ltr"
-            required
-            value={email}
-            onChange={(e) => updateEmail(e.target.value)}
-            disabled={submitting}
-            placeholder="name@example.com"
-            className="text-right"
-            error={fieldErrors.email}
-          />
-
-          <TextField
-            id="login-password"
-            label="סיסמה"
-            type={showPassword ? "text" : "password"}
-            autoComplete="current-password"
-            required
-            value={password}
-            onChange={(e) => updatePassword(e.target.value)}
-            disabled={submitting}
-            placeholder="••••••••"
-            error={fieldErrors.password}
-            endSlot={
-              <PasswordToggle
-                visible={showPassword}
-                onToggle={() => setShowPassword((v) => !v)}
-                disabled={submitting}
-              />
-            }
-          />
-
-          <div className="flex justify-end">
-            <Link
-              to="/forgot-password"
-              className="text-xs font-semibold text-secondary hover:text-primary"
+            <form
+              noValidate
+              onSubmit={onSubmit}
+              className="mt-8 flex flex-col gap-4"
             >
-              שכחת סיסמה?
-            </Link>
+              {sessionExpired && (
+                <Alert variant="info" className="mb-0">
+                  ההתחברות פגה. אנא התחבר מחדש.
+                </Alert>
+              )}
+
+              <TextField
+                id="login-email"
+                label="אימייל"
+                type="email"
+                autoComplete="email"
+                inputMode="email"
+                dir="ltr"
+                required
+                value={email}
+                onChange={(e) => updateEmail(e.target.value)}
+                disabled={submitting}
+                placeholder="name@example.com"
+                className="text-right"
+                error={fieldErrors.email}
+              />
+
+              <TextField
+                id="login-password"
+                label="סיסמה"
+                type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(e) => updatePassword(e.target.value)}
+                disabled={submitting}
+                placeholder="••••••••"
+                error={fieldErrors.password}
+                endSlot={
+                  <PasswordToggle
+                    visible={showPassword}
+                    onToggle={() => setShowPassword((v) => !v)}
+                    disabled={submitting}
+                  />
+                }
+              />
+
+              <div className="flex justify-end">
+                <Link
+                  to="/forgot-password"
+                  className="text-xs font-semibold text-secondary hover:text-primary"
+                >
+                  שכחת סיסמה?
+                </Link>
+              </div>
+
+              {error && <Alert variant="error">{error}</Alert>}
+
+              <Button
+                type="submit"
+                fullWidth
+                disabled={submitting}
+                className="mt-2"
+              >
+                {submitting ? (
+                  <AppLoader variant="button" label="מתחבר..." />
+                ) : (
+                  "התחברות"
+                )}
+              </Button>
+            </form>
           </div>
-
-          {error && <Alert variant="error">{error}</Alert>}
-
-          <Button
-            type="submit"
-            fullWidth
-            disabled={submitting}
-            className="mt-2"
-          >
-            {submitting ? (
-              <AppLoader variant="button" label="מתחבר..." />
-            ) : (
-              "התחברות"
-            )}
-          </Button>
-        </form>
+        </main>
 
         <p className="mt-6 text-center text-sm text-secondary">
           אין לך חשבון?{" "}
