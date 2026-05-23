@@ -17,6 +17,7 @@ import type {
   SessionDetail,
   SessionQuestion,
 } from "../types";
+import { isExamLike } from "../types";
 
 type Status = "loading" | "ready" | "error";
 
@@ -57,7 +58,6 @@ const StatItem = ({
 
 const PASSING_SCORE = 60;
 
-const isExamLike = (mode: string) => mode === "exam" || mode === "simulation";
 
 const ScoreCard = ({
   session,

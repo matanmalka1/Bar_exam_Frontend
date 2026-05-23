@@ -8,11 +8,12 @@ import PageShell from "../../../components/PageShell";
 import ActiveSessionCard from "../../dashboard/components/ActiveSessionCard";
 import { listUserSessions, abandonSession } from "../api";
 import type { SessionSummary } from "../types";
+import { isExamLike } from "../types";
 import { notifyError } from "../../../lib/toast";
 import { extractApiError } from "../../../lib/api-errors";
 
 const resumePath = (s: SessionSummary): string =>
-  s.mode === "exam" || s.mode === "simulation"
+  isExamLike(s.mode)
     ? `/session/${s.id}/exam`
     : `/session/${s.id}`;
 

@@ -19,6 +19,9 @@ import type {
 } from "./schemas";
 
 export type SessionMode = z.infer<typeof SessionModeSchema>;
+
+export const isExamLike = (mode: SessionMode | string): boolean =>
+  mode === "exam" || mode === "simulation";
 export type SessionStatus = z.infer<typeof SessionStatusSchema>;
 export type QuestionPart = z.infer<typeof QuestionPartSchema>;
 export type AnswerOption = z.infer<typeof AnswerOptionSchema>;

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { notifyError, notifySuccess } from "../../../lib/toast";
 import { completeSession, getPracticeSession, submitAnswer } from "../api";
+import { isExamLike } from "../types";
 import type {
   AnswerOption,
   AnswerPracticeOut,
@@ -76,7 +77,7 @@ export const usePracticeSession = ({
         const data = await getPracticeSession(sessionId);
         if (cancelled) return;
 
-        if (data.mode === "exam" || data.mode === "simulation") {
+        if (isExamLike(data.mode)) {
           onRedirectToExam(sessionId);
           return;
         }

@@ -5,6 +5,7 @@ import Button from "../../../components/Button";
 import AppLoader from "../../../components/loader";
 import { createSimulationSession } from "../../sessions/api";
 import type { SessionSummary } from "../../sessions/types";
+import { isExamLike } from "../../sessions/types";
 import { HTTP_UNPROCESSABLE, isApiStatusError } from "../../../lib/api";
 import { useHomeOverview } from "../hooks/useHomeOverview";
 import { notifyError } from "../../../lib/toast";
@@ -28,7 +29,7 @@ const ROUTES = {
 } as const;
 
 const resumePath = (s: SessionSummary): string =>
-  s.mode === "exam" || s.mode === "simulation"
+  isExamLike(s.mode)
     ? ROUTES.exam(s.id)
     : ROUTES.session(s.id);
 
