@@ -26,7 +26,9 @@ type AppHeaderProps = {
   progress?: AppHeaderProgress;
   children?: ReactNode;
   className?: string;
+  eyebrowClassName?: string;
   variant?: "sticky" | "inline";
+  titleLayout?: "default" | "stacked";
 };
 
 const STICKY =
@@ -42,7 +44,9 @@ const AppHeader = ({
   progress,
   children,
   className,
+  eyebrowClassName,
   variant = "sticky",
+  titleLayout = "default",
 }: AppHeaderProps) => {
   const navigate = useNavigate();
 
@@ -71,38 +75,94 @@ const AppHeader = ({
 
   return (
     <header className={cn(variant === "inline" ? INLINE : STICKY, className)}>
-      <div className="flex items-center justify-between gap-2">
-        {back !== false && back ? (
-          <button
-            type="button"
-            onClick={handleBack}
-            className="focus-ring -mr-2 inline-flex items-center gap-1 rounded-xl px-2 py-1.5 text-sm font-medium text-secondary transition hover:text-primary active:scale-95"
-          >
-            <ChevronRight className="h-4 w-4" aria-hidden="true" />
-            {back.label ?? "חזרה"}
-          </button>
-        ) : (
-          <div />
-        )}
+      {titleLayout === "stacked" ? (
+        <div>
+          {(back !== false && back) || actions ? (
+            <div className="mb-2 flex items-center justify-between gap-2">
+              {back !== false && back ? (
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className="focus-ring -mr-2 inline-flex items-center gap-1 rounded-xl px-2 py-1.5 text-sm font-medium text-secondary transition hover:text-primary active:scale-95"
+                >
+                  <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                  {back.label ?? "חזרה"}
+                </button>
+              ) : (
+                <div />
+              )}
 
-        {eyebrow && (
-          <p className="font-display text-[11px] tracking-[0.22em] text-secondary">
-            {eyebrow}
-          </p>
-        )}
+              {actions && (
+                <div className="flex items-center gap-1">{actions}</div>
+              )}
+            </div>
+          ) : null}
 
-        {actions && <div className="flex items-center gap-1">{actions}</div>}
-      </div>
-
-      {(title || meta) && (
-        <div className="mt-2 flex items-end justify-between gap-3">
-          {title && (
-            <p className="font-display text-lg font-bold text-primary">
-              {title}
+          {eyebrow && (
+            <p
+              className={cn(
+                "font-display text-[11px] tracking-[0.22em] text-secondary",
+                eyebrowClassName,
+              )}
+            >
+              {eyebrow}
             </p>
           )}
-          {meta && <div>{meta}</div>}
+
+          {(title || meta) && (
+            <div className="mt-2 flex items-end justify-between gap-3">
+              {title && (
+                <p className="font-display text-lg font-bold text-primary">
+                  {title}
+                </p>
+              )}
+              {meta && <div>{meta}</div>}
+            </div>
+          )}
         </div>
+      ) : (
+        <>
+          <div className="flex items-center justify-between gap-2">
+            {back !== false && back ? (
+              <button
+                type="button"
+                onClick={handleBack}
+                className="focus-ring -mr-2 inline-flex items-center gap-1 rounded-xl px-2 py-1.5 text-sm font-medium text-secondary transition hover:text-primary active:scale-95"
+              >
+                <ChevronRight className="h-4 w-4" aria-hidden="true" />
+                {back.label ?? "חזרה"}
+              </button>
+            ) : (
+              <div />
+            )}
+
+            {eyebrow && (
+              <p
+                className={cn(
+                  "font-display text-[11px] tracking-[0.22em] text-secondary",
+                  eyebrowClassName,
+                )}
+              >
+                {eyebrow}
+              </p>
+            )}
+
+            {actions && (
+              <div className="flex items-center gap-1">{actions}</div>
+            )}
+          </div>
+
+          {(title || meta) && (
+            <div className="mt-2 flex items-end justify-between gap-3">
+              {title && (
+                <p className="font-display text-lg font-bold text-primary">
+                  {title}
+                </p>
+              )}
+              {meta && <div>{meta}</div>}
+            </div>
+          )}
+        </>
       )}
 
       {progress && (

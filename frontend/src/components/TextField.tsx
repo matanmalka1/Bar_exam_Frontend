@@ -8,12 +8,27 @@ type TextFieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, "size"> & {
   error?: string;
   startSlot?: ReactNode;
   endSlot?: ReactNode;
+  endSlotPlacement?: "start" | "end";
 };
 
 const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
-  ({ id, label, hint, error, startSlot, endSlot, className, ...rest }, ref) => {
+  (
+    {
+      id,
+      label,
+      hint,
+      error,
+      startSlot,
+      endSlot,
+      endSlotPlacement = "start",
+      className,
+      ...rest
+    },
+    ref,
+  ) => {
     const hintId = hint || error ? `${id}-hint` : undefined;
     const hasError = !!error;
+    const endSlotAtEnd = endSlotPlacement === "end";
 
     return (
       <div className="flex flex-col gap-1.5">
@@ -37,14 +52,19 @@ const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
               "focus-visible:border-strong",
               hasError ? "border-2 border-strong" : "border-default",
               startSlot && "pe-12",
-              endSlot && "ps-12",
+              endSlot && (endSlotAtEnd ? "pe-12" : "ps-12"),
               "disabled:opacity-45",
               className,
             )}
             {...rest}
           />
           {endSlot && (
-            <span className="pointer-events-auto absolute start-4 flex items-center">
+            <span
+              className={cn(
+                "pointer-events-auto absolute flex items-center",
+                endSlotAtEnd ? "end-4" : "start-4",
+              )}
+            >
               {endSlot}
             </span>
           )}

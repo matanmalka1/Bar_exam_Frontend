@@ -107,104 +107,123 @@ const LoginPage = () => {
     setError(null);
   };
 
-  return (
-    <div dir="rtl" className="min-h-svh bg-[var(--paper)] text-[var(--ink)]">
-      <div className="mx-auto flex min-h-svh w-full max-w-[480px] flex-col px-5 pb-8 pt-6">
-        <main className="flex flex-1 items-center">
-          <div className="w-full">
+return (
+  <div
+    dir="rtl"
+    className="relative min-h-svh overflow-hidden bg-[var(--paper)] text-[var(--ink)]"
+  >
+    <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-[var(--accent)]/10 blur-3xl" />
+    <div className="pointer-events-none absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-black/5 blur-3xl" />
+
+    <div className="relative mx-auto flex min-h-svh w-full max-w-[430px] flex-col px-6 pb-8 pt-10">
+      <main className="flex flex-1 items-center">
+        <div className="w-full">
+          <div className="mb-8">
+            <div className="mb-5 h-1.5 w-14 rounded-full bg-[var(--accent-ink)]" />
+
             <AppHeader
               back={false}
               eyebrow="התחברות"
+              eyebrowClassName="text-lg font-bold tracking-normal text-primary"
               title="ברוך הבא"
+              titleLayout="stacked"
               variant="inline"
             />
 
-            <form
-              noValidate
-              onSubmit={onSubmit}
-              className="mt-8 flex flex-col gap-4"
-            >
-              {sessionExpired && (
-                <Alert variant="info" className="mb-0">
-                  ההתחברות פגה. אנא התחבר מחדש.
-                </Alert>
-              )}
-
-              <TextField
-                id="login-email"
-                label="אימייל"
-                type="email"
-                autoComplete="email"
-                inputMode="email"
-                dir="ltr"
-                required
-                value={email}
-                onChange={(e) => updateEmail(e.target.value)}
-                disabled={submitting}
-                placeholder="name@example.com"
-                className="text-right"
-                error={fieldErrors.email}
-              />
-
-              <TextField
-                id="login-password"
-                label="סיסמה"
-                type={showPassword ? "text" : "password"}
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => updatePassword(e.target.value)}
-                disabled={submitting}
-                placeholder="••••••••"
-                error={fieldErrors.password}
-                endSlot={
-                  <PasswordToggle
-                    visible={showPassword}
-                    onToggle={() => setShowPassword((v) => !v)}
-                    disabled={submitting}
-                  />
-                }
-              />
-
-              <div className="flex justify-end">
-                <Link
-                  to="/forgot-password"
-                  className="text-xs font-semibold text-secondary hover:text-primary"
-                >
-                  שכחת סיסמה?
-                </Link>
-              </div>
-
-              {error && <Alert variant="error">{error}</Alert>}
-
-              <Button
-                type="submit"
-                fullWidth
-                disabled={submitting}
-                className="mt-2"
-              >
-                {submitting ? (
-                  <AppLoader variant="button" label="מתחבר..." />
-                ) : (
-                  "התחברות"
-                )}
-              </Button>
-            </form>
+            <p className="mt-3 max-w-[320px] text-sm leading-6 text-secondary">
+              התחבר כדי להמשיך לתרגול, סימולציות ומעקב אחרי ההתקדמות שלך.
+            </p>
           </div>
-        </main>
 
-        <p className="mt-6 text-center text-sm text-secondary">
+          <form
+            noValidate
+            onSubmit={onSubmit}
+            className="flex flex-col gap-4"
+          >
+            {sessionExpired && (
+              <Alert variant="info">
+                ההתחברות פגה. אנא התחבר מחדש.
+              </Alert>
+            )}
+
+            <TextField
+              id="login-email"
+              label="אימייל"
+              type="email"
+              autoComplete="email"
+              inputMode="email"
+              dir="ltr"
+              required
+              value={email}
+              onChange={(e) => updateEmail(e.target.value)}
+              disabled={submitting}
+              placeholder="name@example.com"
+              className="text-left"
+              error={fieldErrors.email}
+            />
+
+            <TextField
+              id="login-password"
+              label="סיסמה"
+              type={showPassword ? "text" : "password"}
+              autoComplete="current-password"
+              required
+              value={password}
+              onChange={(e) => updatePassword(e.target.value)}
+              disabled={submitting}
+              placeholder="••••••••"
+              error={fieldErrors.password}
+              endSlotPlacement="end"
+              endSlot={
+                <PasswordToggle
+                  visible={showPassword}
+                  onToggle={() => setShowPassword((v) => !v)}
+                  disabled={submitting}
+                />
+              }
+            />
+
+            <div className="-mt-1 flex justify-end">
+              <Link
+                to="/forgot-password"
+                className="text-xs font-semibold text-secondary transition hover:text-[var(--ink)]"
+              >
+                שכחת סיסמה?
+              </Link>
+            </div>
+
+            {error && <Alert variant="error">{error}</Alert>}
+
+            <Button
+              type="submit"
+              fullWidth
+              disabled={submitting}
+              className="mt-3 h-12 rounded-2xl text-base font-bold shadow-sm"
+            >
+              {submitting ? (
+                <AppLoader variant="button" label="מתחבר..." />
+              ) : (
+                "התחברות"
+              )}
+            </Button>
+          </form>
+        </div>
+      </main>
+
+      <div className="mt-8 border-t border-[var(--border)] pt-5 text-center">
+        <p className="text-sm text-secondary">
           אין לך חשבון?{" "}
           <Link
             to="/register"
-            className="font-semibold text-[var(--accent-ink)] underline"
+            className="font-bold text-[var(--accent-ink)] underline underline-offset-4"
           >
             הרשמה
           </Link>
         </p>
       </div>
     </div>
-  );
+  </div>
+);
 };
 
 export default LoginPage;

@@ -38,7 +38,9 @@ const ForgotPasswordPage = () => {
         <AppHeader
           back={{ to: "/login" }}
           eyebrow="איפוס סיסמה"
+          eyebrowClassName="text-lg font-bold tracking-normal text-primary"
           title="שכחת סיסמה?"
+          titleLayout="stacked"
           variant="inline"
         />
 
