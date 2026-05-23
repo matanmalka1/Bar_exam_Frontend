@@ -26,6 +26,11 @@ const AUTH_FREE_PATHS = new Set([
   "/auth/logout",
 ]);
 
+const isAuthFreePath = (url: string): boolean => {
+  const [path] = url.split("?");
+  return AUTH_FREE_PATHS.has(path);
+};
+
 export const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
@@ -35,7 +40,8 @@ export const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const token = getAccessToken();
-  if (token) {
+  const url = config.url ?? "";
+  if (token && !isAuthFreePath(url)) {
     config.headers = config.headers ?? {};
     (config.headers as Record<string, string>).Authorization =
       `Bearer ${token}`;
@@ -79,7 +85,7 @@ api.interceptors.response.use(
     }
     const config = err.config as RetriableConfig;
     const url = config.url ?? "";
-    if (AUTH_FREE_PATHS.has(url) || config._retry) {
+    if (isAuthFreePath(url) || config._retry) {
       if (url !== "/auth/login" && url !== "/auth/register") {
         clearAccessToken();
         on401?.();

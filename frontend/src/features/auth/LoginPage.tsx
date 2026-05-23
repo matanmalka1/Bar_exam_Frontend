@@ -35,6 +35,9 @@ const LoginPage = () => {
   });
 
   if (status === "authenticated") return <Navigate to="/" replace />;
+  if (status === "loading") {
+    return <AppLoader variant="page" label="בודק התחברות..." />;
+  }
 
   const validate = (): boolean => {
     const nextFieldErrors: LoginFieldErrors = {};
@@ -75,8 +78,12 @@ const LoginPage = () => {
       await login(email.trim(), password);
       navigate("/", { replace: true });
     } catch (err) {
-      if (axios.isAxiosError(err) && err.response) {
+      const statusCode = axios.isAxiosError(err)
+        ? err.response?.status
+        : undefined;
+      if (statusCode === 401 || statusCode === 403) {
         setSuggestRegister(true);
+        setError("פרטי ההתחברות שגויים");
         notifyError("פרטי ההתחברות שגויים");
       } else {
         notifyApiError(err, "החיבור נכשל. נסה שוב");
