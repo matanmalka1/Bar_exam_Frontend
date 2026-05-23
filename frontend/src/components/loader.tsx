@@ -118,9 +118,10 @@ const AppLoader = ({
     return (
       <div
         className={clsx(
-          "grid min-h-[calc(100svh_-_var(--bottom-nav-h,0px))] place-items-center bg-[var(--surface)]",
+          "fixed inset-0 z-40 grid place-items-center bg-[var(--surface)]",
           className,
         )}
+        style={{ bottom: "var(--bottom-nav-h, 0px)" }}
         aria-live="polite"
       >
         <div className="group relative flex flex-col items-center gap-5">
