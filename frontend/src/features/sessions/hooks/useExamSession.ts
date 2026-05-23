@@ -171,7 +171,7 @@ export const useExamSession = ({
   const selectAnswer = useCallback(
     (option: AnswerOption) => {
       if (submitting || answerSubmitted) return;
-      setSelected(option);
+      setSelected((current) => (current === option ? null : option));
     },
     [answerSubmitted, submitting],
   );

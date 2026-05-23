@@ -146,7 +146,7 @@ export const usePracticeSession = ({
   const selectAnswer = useCallback(
     (option: AnswerOption) => {
       if (submitting || answerSubmitted) return;
-      setSelected(option);
+      setSelected((current) => (current === option ? null : option));
     },
     [answerSubmitted, submitting],
   );
