@@ -13,7 +13,7 @@ import SessionQuestionCard from "../components/SessionQuestionCard";
 import TimerDisplay from "../components/TimerDisplay";
 import TimeUpModal from "../components/TimeUpModal";
 import { useExamSession } from "../hooks/useExamSession";
-import { useCountdownTimer } from "../hooks/useTimer";
+import { useCountdownTimer, useElapsedTimer } from "../hooks/useTimer";
 import { tap } from "../../../lib/haptics";
 
 const EXAM_MODE_LABEL = "מצב בחינה · ללא משוב";
@@ -69,14 +69,23 @@ const ExamSessionPage = () => {
     onComplete: handleCompleteRedirect,
   });
 
-  const { display, urgent, expired, clearStorage } = useCountdownTimer(id ?? "", sessionCompleted);
+  const { display, urgent, expired, clearStorage } = useCountdownTimer(
+    id ?? "",
+    sessionCompleted,
+  );
+  const {
+    questionDisplay,
+    questionUrgent,
+    clearStorage: clearElapsedStorage,
+  } = useElapsedTimer(id ?? "", currentIndex ?? 0, sessionCompleted);
 
   useEffect(() => {
     if (expired && status === "ready") {
       clearStorage();
+      clearElapsedStorage();
       complete();
     }
-  }, [expired, status, complete, clearStorage]);
+  }, [expired, status, complete, clearStorage, clearElapsedStorage]);
 
   if (status === "loading") {
     return <AppLoader variant="page" label="טוען נתונים..." />;
@@ -101,6 +110,7 @@ const ExamSessionPage = () => {
   const handleCompleteAction = () => {
     tap();
     clearStorage();
+    clearElapsedStorage();
     complete();
   };
 
@@ -114,7 +124,13 @@ const ExamSessionPage = () => {
         progress={{ current: currentIndex + 1, total, answered: answeredCount }}
         actions={
           <div className="flex items-center gap-2">
-            <TimerDisplay kind="countdown" display={display} urgent={urgent} />
+            <TimerDisplay
+              kind="countdown"
+              display={display}
+              urgent={urgent}
+              questionDisplay={questionDisplay}
+              questionUrgent={questionUrgent}
+            />
             <BookmarkButton
               isBookmarked={isBookmarked}
               busy={bookmarkBusy}

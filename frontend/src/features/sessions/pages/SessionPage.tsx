@@ -113,7 +113,13 @@ const SessionPage = () => {
     onComplete: handleCompleteRedirect,
   });
 
-  const { totalDisplay, questionDisplay, resetQuestion, clearStorage } = useElapsedTimer(id ?? "", currentIndex ?? 0, sessionCompleted);
+  const {
+    totalDisplay,
+    questionDisplay,
+    questionUrgent,
+    resetQuestion,
+    clearStorage,
+  } = useElapsedTimer(id ?? "", currentIndex ?? 0, sessionCompleted);
 
   if (status === "loading") {
     return <AppLoader variant="page" label="טוען נתונים..." />;
@@ -159,6 +165,7 @@ const SessionPage = () => {
               kind="elapsed"
               totalDisplay={totalDisplay}
               questionDisplay={questionDisplay}
+              questionUrgent={questionUrgent}
             />
             <BookmarkButton
               isBookmarked={isBookmarked}

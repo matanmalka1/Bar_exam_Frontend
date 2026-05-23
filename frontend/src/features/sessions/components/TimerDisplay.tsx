@@ -2,37 +2,76 @@ type CountdownProps = {
   kind: "countdown";
   display: string;
   urgent: boolean;
+  questionDisplay: string;
+  questionUrgent: boolean;
 };
 
 type ElapsedProps = {
   kind: "elapsed";
   totalDisplay: string;
   questionDisplay: string;
+  questionUrgent: boolean;
 };
 
 type TimerDisplayProps = CountdownProps | ElapsedProps;
 
+const timerText = (urgent: boolean) =>
+  urgent ? "text-red-600" : "text-primary";
+
 const TimerDisplay = (props: TimerDisplayProps) => {
   if (props.kind === "countdown") {
     return (
-      <span
-        className={`font-display text-sm font-bold tabular-nums ${
-          props.urgent ? "text-red-600" : "text-secondary"
-        }`}
-      >
-        {props.display}
-      </span>
+      <div className="flex items-end gap-3 text-right">
+        <div className="flex flex-col items-end leading-none">
+          <span className="text-[10px] font-semibold text-secondary">
+            זמן מבחן
+          </span>
+          <span
+            className={`font-display text-xl font-black tabular-nums ${timerText(
+              props.urgent,
+            )}`}
+          >
+            {props.display}
+          </span>
+        </div>
+        <div className="flex flex-col items-end leading-none">
+          <span className="text-[10px] font-semibold text-secondary">
+            זמן שאלה
+          </span>
+          <span
+            className={`font-display text-lg font-black tabular-nums ${timerText(
+              props.questionUrgent,
+            )}`}
+          >
+            {props.questionDisplay}
+          </span>
+        </div>
+      </div>
     );
   }
 
   return (
-    <div className="flex flex-col items-end gap-0">
-      <span className="font-display text-[11px] tabular-nums text-secondary leading-tight">
-        {props.totalDisplay}
-      </span>
-      <span className="font-display text-[10px] tabular-nums text-secondary/60 leading-tight">
-        שאלה {props.questionDisplay}
-      </span>
+    <div className="flex items-end gap-3 text-right">
+      <div className="flex flex-col items-end leading-none">
+        <span className="text-[10px] font-semibold text-secondary">
+          זמן תרגול
+        </span>
+        <span className="font-display text-xl font-black tabular-nums text-primary">
+          {props.totalDisplay}
+        </span>
+      </div>
+      <div className="flex flex-col items-end leading-none">
+        <span className="text-[10px] font-semibold text-secondary">
+          זמן שאלה
+        </span>
+        <span
+          className={`font-display text-lg font-black tabular-nums ${timerText(
+            props.questionUrgent,
+          )}`}
+        >
+          {props.questionDisplay}
+        </span>
+      </div>
     </div>
   );
 };

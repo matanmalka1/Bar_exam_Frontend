@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const EXAM_SECONDS = 180 * 60;
+const QUESTION_URGENT_SECONDS = 150;
 
 const fmt = (s: number): string => {
   const h = Math.floor(s / 3600);
@@ -117,6 +118,7 @@ export const useElapsedTimer = (
   return {
     totalDisplay: fmt(total),
     questionDisplay: fmt(questionSecs),
+    questionUrgent: questionSecs >= QUESTION_URGENT_SECONDS,
     resetQuestion,
     clearStorage: clear,
   };
