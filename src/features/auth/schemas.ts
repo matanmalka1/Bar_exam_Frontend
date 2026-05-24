@@ -24,7 +24,7 @@ const passwordSchema = z
   );
 
 export const RegisterRequestSchema = z.object({
-  full_name: z.string().trim().min(1, "שם מלא הוא שדה חובה").max(20),
+  full_name: z.string().trim().min(1, "שם מלא הוא שדה חובה").max(128),
   email: z.string().email("אימייל לא תקין"),
   password: passwordSchema,
 });
