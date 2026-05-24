@@ -1,12 +1,13 @@
 import axios from "axios";
+import { Mail } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import AppHeader from "../../components/AppHeader";
 import AppLoader from "../../components/loader";
 import Button from "../../components/Button";
-import TextField from "../../components/TextField";
 import { notifyApiError } from "../../lib/toast";
 import { forgotPassword } from "./api";
+import AuthPageShell from "./components/AuthPageShell";
+import AuthTextField from "./components/AuthTextField";
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
@@ -44,55 +45,55 @@ const ForgotPasswordPage = () => {
   };
 
   return (
-    <div dir="rtl" className="min-h-svh bg-[var(--paper)] text-[var(--ink)]">
-      <div className="mx-auto flex min-h-svh w-full max-w-[480px] flex-col px-5 pb-8 pt-6">
-        <AppHeader
-          back={{ to: "/login" }}
-          eyebrow="איפוס סיסמה"
-          eyebrowClassName="text-lg font-bold tracking-normal text-primary"
-          title="שכחת סיסמה?"
-          titleLayout="stacked"
-          variant="inline"
-        />
+    <AuthPageShell
+      eyebrow="איפוס סיסמה"
+      title="שכחת סיסמה?"
+      description="הזן את כתובת האימייל שלך ונשלח הוראות לאיפוס הסיסמה."
+      footer={
+        <footer className="mt-auto pb-6 pt-10 text-center">
+          <p className="text-sm text-secondary">
+            זכרת את הסיסמה?{" "}
+            <Link
+              to="/login"
+              className="font-semibold text-[var(--accent-ink)] underline"
+            >
+              התחברות
+            </Link>
+          </p>
+        </footer>
+      }
+    >
+      {success ? (
+        <div className="rounded-2xl border border-default bg-[var(--surface)] p-4 text-sm leading-6 text-secondary">
+          אפשר לבדוק את תיבת האימייל ולהמשיך לפי ההוראות שנשלחו.
+        </div>
+      ) : (
+        <form noValidate onSubmit={onSubmit} className="flex flex-grow flex-col gap-4">
+          <AuthTextField
+            id="forgot-email"
+            label="אימייל"
+            icon={<Mail className="h-5 w-5" aria-hidden="true" />}
+            type="email"
+            autoComplete="email"
+            inputMode="email"
+            dir="ltr"
+            required
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setError(null);
+            }}
+            disabled={submitting}
+            placeholder="name@example.com"
+            error={error ?? undefined}
+          />
 
-        <p className="mb-4 text-sm leading-6 text-secondary">
-          הזן את כתובת האימייל שלך ונשלח הוראות לאיפוס הסיסמה.
-        </p>
-
-        {success ? (
-          <div className="rounded-2xl border border-default bg-[var(--surface)] p-4 text-sm leading-6 text-secondary">
-            אפשר לבדוק את תיבת האימייל ולהמשיך לפי ההוראות שנשלחו.
-          </div>
-        ) : (
-          <form
-            noValidate
-            onSubmit={onSubmit}
-            className="flex flex-1 flex-col gap-4"
-          >
-            <TextField
-              id="forgot-email"
-              label="אימייל"
-              type="email"
-              autoComplete="email"
-              inputMode="email"
-              dir="ltr"
-              required
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                setError(null);
-              }}
-              disabled={submitting}
-              placeholder="name@example.com"
-              className="text-right"
-              error={error ?? undefined}
-            />
-
+          <div className="mt-6">
             <Button
               type="submit"
               fullWidth
               disabled={submitting}
-              className="mt-2"
+              className="h-14 rounded-2xl bg-black text-base font-bold text-white shadow-sm active:scale-95"
             >
               {submitting ? (
                 <AppLoader variant="button" label="שולח..." />
@@ -100,20 +101,10 @@ const ForgotPasswordPage = () => {
                 "שלח הוראות איפוס"
               )}
             </Button>
-          </form>
-        )}
-
-        <p className="mt-6 text-center text-sm text-secondary">
-          זכרת את הסיסמה?{" "}
-          <Link
-            to="/login"
-            className="font-semibold text-[var(--accent-ink)] underline"
-          >
-            התחברות
-          </Link>
-        </p>
-      </div>
-    </div>
+          </div>
+        </form>
+      )}
+    </AuthPageShell>
   );
 };
 

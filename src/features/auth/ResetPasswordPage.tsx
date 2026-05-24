@@ -1,16 +1,17 @@
 import axios from "axios";
+import { Lock } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import Alert from "../../components/Alert";
-import AppHeader from "../../components/AppHeader";
 import AppLoader from "../../components/loader";
 import Button from "../../components/Button";
 import ErrorState from "../../components/ErrorState";
 import PasswordToggle from "../../components/PasswordToggle";
-import TextField from "../../components/TextField";
 import { getApiErrorMessage } from "../../lib/api";
-import { notifyError, notifySuccess } from "../../lib/toast";
+import { notifySuccess } from "../../lib/toast";
 import { resetPassword } from "./api";
+import AuthPageShell from "./components/AuthPageShell";
+import AuthTextField from "./components/AuthTextField";
 import { ResetPasswordFormSchema } from "./schemas";
 
 const ResetPasswordPage = () => {
@@ -28,22 +29,21 @@ const ResetPasswordPage = () => {
 
   if (!token) {
     return (
-      <div dir="rtl" className="min-h-svh bg-[var(--paper)] text-[var(--ink)]">
-        <div className="mx-auto flex min-h-svh w-full max-w-[480px] flex-col px-5 pb-8 pt-6">
-          <ErrorState
-            title="קישור לא תקין"
-            message="קישור איפוס הסיסמה חסר או לא תקין."
-            action={
-              <Button
-                type="button"
-                onClick={() => navigate("/forgot-password")}
-              >
-                בקש קישור חדש
-              </Button>
-            }
-          />
-        </div>
-      </div>
+      <AuthPageShell eyebrow="איפוס סיסמה" title="קישור לא תקין">
+        <ErrorState
+          title="קישור לא תקין"
+          message="קישור איפוס הסיסמה חסר, פג תוקף או לא תקין."
+          action={
+            <Button
+              type="button"
+              fullWidth
+              onClick={() => navigate("/forgot-password")}
+            >
+              בקש קישור חדש
+            </Button>
+          }
+        />
+      </AuthPageShell>
     );
   }
 
@@ -71,88 +71,109 @@ const ResetPasswordPage = () => {
       setSuccess(true);
       notifySuccess("הסיסמה אופסה בהצלחה");
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        notifyError(
-          getApiErrorMessage(err) ?? "לא ניתן לאפס סיסמה. נסה לבקש קישור חדש",
-        );
-      } else {
-        notifyError("לא ניתן לאפס סיסמה. נסה לבקש קישור חדש");
-      }
+      const message = axios.isAxiosError(err)
+        ? (getApiErrorMessage(err) ?? "לא ניתן לאפס סיסמה. נסה לבקש קישור חדש")
+        : "לא ניתן לאפס סיסמה. נסה לבקש קישור חדש";
+      setError(message);
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div dir="rtl" className="min-h-svh bg-[var(--paper)] text-[var(--ink)]">
-      <div className="mx-auto flex min-h-svh w-full max-w-[480px] flex-col px-5 pb-8 pt-6">
-        <AppHeader
-          back={{ to: "/forgot-password" }}
-          eyebrow="איפוס סיסמה"
-          title="סיסמה חדשה"
-          variant="inline"
-        />
-
-        {success ? (
-          <div className="flex flex-col gap-4">
-            <p className="rounded-2xl border border-default bg-[var(--surface)] p-4 text-sm leading-6 text-secondary">
+    <AuthPageShell
+      eyebrow="איפוס סיסמה"
+      title="סיסמה חדשה"
+      description="בחר סיסמה חזקה. אחרי האיפוס תוכל להתחבר מיד."
+      footer={
+        !success ? (
+          <footer className="mt-auto pb-6 pt-10 text-center">
+            <p className="text-sm text-secondary">
+              הקישור לא עובד?{" "}
+              <Link
+                to="/forgot-password"
+                className="font-semibold text-[var(--accent-ink)] underline"
+              >
+                בקש קישור חדש
+              </Link>
+            </p>
+          </footer>
+        ) : null
+      }
+    >
+      {success ? (
+        <div className="flex flex-col gap-4">
+          <div className="rounded-2xl border border-default bg-[var(--surface)] p-4">
+            <p className="text-base font-bold">הסיסמה אופסה בהצלחה</p>
+            <p className="mt-1 text-sm leading-6 text-secondary">
               אפשר להתחבר עכשיו עם הסיסמה החדשה.
             </p>
-            <Button
-              type="button"
-              fullWidth
-              onClick={() => navigate("/login", { replace: true })}
-            >
-              להתחברות
-            </Button>
           </div>
-        ) : (
-          <form onSubmit={onSubmit} className="flex flex-1 flex-col gap-4">
-            <TextField
-              id="reset-new-password"
-              label="סיסמה חדשה"
-              type={showNewPassword ? "text" : "password"}
-              autoComplete="new-password"
-              required
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              disabled={submitting}
-              placeholder="••••••••"
-              endSlot={
-                <PasswordToggle
-                  visible={showNewPassword}
-                  onToggle={() => setShowNewPassword((v) => !v)}
-                  disabled={submitting}
-                />
-              }
-            />
+          <Button
+            type="button"
+            fullWidth
+            className="h-14 rounded-2xl bg-black text-base font-bold text-white shadow-sm active:scale-95"
+            onClick={() => navigate("/login", { replace: true })}
+          >
+            להתחברות
+          </Button>
+        </div>
+      ) : (
+        <form noValidate onSubmit={onSubmit} className="flex flex-grow flex-col gap-4">
+          <AuthTextField
+            id="reset-new-password"
+            label="סיסמה חדשה"
+            icon={<Lock className="h-5 w-5" aria-hidden="true" />}
+            type={showNewPassword ? "text" : "password"}
+            autoComplete="new-password"
+            required
+            value={newPassword}
+            onChange={(e) => {
+              setNewPassword(e.target.value);
+              setError(null);
+            }}
+            disabled={submitting}
+            placeholder="••••••••"
+            endSlot={
+              <PasswordToggle
+                visible={showNewPassword}
+                onToggle={() => setShowNewPassword((v) => !v)}
+                disabled={submitting}
+              />
+            }
+          />
 
-            <TextField
-              id="reset-confirm"
-              label="אימות סיסמה"
-              type={showConfirm ? "text" : "password"}
-              autoComplete="new-password"
-              required
-              value={confirm}
-              onChange={(e) => setConfirm(e.target.value)}
-              disabled={submitting}
-              placeholder="••••••••"
-              endSlot={
-                <PasswordToggle
-                  visible={showConfirm}
-                  onToggle={() => setShowConfirm((v) => !v)}
-                  disabled={submitting}
-                />
-              }
-            />
+          <AuthTextField
+            id="reset-confirm"
+            label="אימות סיסמה"
+            icon={<Lock className="h-5 w-5" aria-hidden="true" />}
+            type={showConfirm ? "text" : "password"}
+            autoComplete="new-password"
+            required
+            value={confirm}
+            onChange={(e) => {
+              setConfirm(e.target.value);
+              setError(null);
+            }}
+            disabled={submitting}
+            placeholder="••••••••"
+            endSlot={
+              <PasswordToggle
+                visible={showConfirm}
+                onToggle={() => setShowConfirm((v) => !v)}
+                disabled={submitting}
+              />
+            }
+          />
 
-            {error && <Alert variant="error">{error}</Alert>}
+          {error && <Alert variant="error">{error}</Alert>}
 
+          <div className="mt-6">
             <Button
               type="submit"
               fullWidth
               disabled={submitting || !newPassword || !confirm}
-              className="mt-2"
+              className="h-14 rounded-2xl bg-black text-base font-bold text-white shadow-sm active:scale-95"
             >
               {submitting ? (
                 <AppLoader variant="button" label="מאפס..." />
@@ -160,21 +181,10 @@ const ResetPasswordPage = () => {
                 "איפוס סיסמה"
               )}
             </Button>
-          </form>
-        )}
-
-        {!success && (
-          <p className="mt-6 text-center text-sm text-secondary">
-            <Link
-              to="/forgot-password"
-              className="font-semibold text-[var(--accent-ink)] underline"
-            >
-              בקש קישור חדש
-            </Link>
-          </p>
-        )}
-      </div>
-    </div>
+          </div>
+        </form>
+      )}
+    </AuthPageShell>
   );
 };
 
