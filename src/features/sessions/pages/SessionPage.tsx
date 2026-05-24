@@ -274,10 +274,10 @@ const SessionPage = () => {
 
       <ConfirmSheet
         open={exitGuard.promptOpen}
-        title="לשמור את התרגול להמשך?"
-        description="ענית כבר על שאלה אחת לפחות. אפשר לשמור את התרגול ולחזור אליו אחר כך, או לצאת בלי לשמור."
-        confirmLabel="שמור וצא"
-        cancelLabel={exitGuard.discarding ? "יוצא..." : "אל תשמור"}
+        title="לצאת מהתרגול?"
+        description="ההתקדמות נשמרה. אפשר להמשיך אחר כך, או לצאת ולמחוק את ההתקדמות בתרגול הזה."
+        confirmLabel="המשך אחר כך"
+        cancelLabel={exitGuard.discarding ? "מוחק..." : "צא ומחק"}
         tertiaryLabel="הישאר בתרגול"
         onConfirm={exitGuard.saveAndExit}
         onCancel={() => void exitGuard.discardAndExit()}

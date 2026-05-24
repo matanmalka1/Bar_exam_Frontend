@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useBlocker } from "react-router-dom";
-import { API_BASE_URL } from "../../../lib/api";
+import { API_BASE_URL, isApiStatusError } from "../../../lib/api";
 import { notifyError } from "../../../lib/toast";
 import { getAccessToken } from "../../auth/authStorage";
 import { abandonSession } from "../api";
@@ -20,6 +20,9 @@ const isSameSessionPath = (pathname: string, sessionId: string): boolean =>
   pathname === sessionPath(sessionId) ||
   pathname === sessionPath(sessionId, "/exam") ||
   pathname === sessionPath(sessionId, "/results");
+
+const isAlreadyInactiveSessionError = (err: unknown): boolean =>
+  isApiStatusError(err, 404) || isApiStatusError(err, 409);
 
 const abandonOnUnload = (sessionId: string) => {
   const token = getAccessToken();
@@ -60,6 +63,34 @@ export const useSessionExitGuard = ({
   );
 
   const blocker = useBlocker(shouldBlock);
+  const blockerRef = useRef(blocker);
+
+  useEffect(() => {
+    blockerRef.current = blocker;
+  }, [blocker]);
+
+  const proceedIfBlocked = useCallback(() => {
+    const latestBlocker = blockerRef.current;
+    if (latestBlocker.state !== "blocked") return;
+
+    try {
+      latestBlocker.proceed();
+    } catch (err) {
+      if (
+        err instanceof Error &&
+        err.message.includes("Invalid blocker state transition")
+      ) {
+        return;
+      }
+      throw err;
+    }
+  }, []);
+
+  const resetIfBlocked = useCallback(() => {
+    const latestBlocker = blockerRef.current;
+    if (latestBlocker.state !== "blocked") return;
+    latestBlocker.reset();
+  }, []);
 
   const discardAndProceed = useCallback(async () => {
     if (!sessionId || blocker.state !== "blocked" || discardingRef.current) {
@@ -73,23 +104,30 @@ export const useSessionExitGuard = ({
       await abandonSession(sessionId);
       onDiscard?.();
       setPromptOpen(false);
-      blocker.proceed();
-    } catch {
-      if (answeredCount === 0) {
+      proceedIfBlocked();
+    } catch (err) {
+      if (answeredCount === 0 || isAlreadyInactiveSessionError(err)) {
         onDiscard?.();
         setPromptOpen(false);
-        blocker.proceed();
+        proceedIfBlocked();
         return;
       }
 
       notifyError(EXIT_ERR);
       setPromptOpen(false);
-      blocker.reset();
+      resetIfBlocked();
     } finally {
       discardingRef.current = false;
       setDiscarding(false);
     }
-  }, [answeredCount, blocker, onDiscard, sessionId]);
+  }, [
+    answeredCount,
+    blocker.state,
+    onDiscard,
+    proceedIfBlocked,
+    resetIfBlocked,
+    sessionId,
+  ]);
 
   useEffect(() => {
     if (blocker.state !== "blocked" || promptOpen || discarding) return;
@@ -138,14 +176,14 @@ export const useSessionExitGuard = ({
       return;
     }
     setPromptOpen(false);
-    blocker.proceed();
-  }, [blocker]);
+    proceedIfBlocked();
+  }, [blocker.state, proceedIfBlocked]);
 
   const stay = useCallback(() => {
     setPromptOpen(false);
     if (blocker.state !== "blocked") return;
-    blocker.reset();
-  }, [blocker]);
+    resetIfBlocked();
+  }, [blocker.state, resetIfBlocked]);
 
   return {
     promptOpen,
