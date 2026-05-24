@@ -3,6 +3,7 @@ import type { StatsOverview } from "../../stats/types";
 
 type HomeStatsHeroProps = {
   stats: StatsOverview | null;
+  hasActiveSession?: boolean;
 };
 
 type StatCardProps = {
@@ -48,8 +49,10 @@ const formatStudyTime = (seconds: number): string => {
   return `${h}:${String(m).padStart(2, "0")} שע׳`;
 };
 
-const HomeStatsHero = ({ stats }: HomeStatsHeroProps) => {
+const HomeStatsHero = ({ stats, hasActiveSession = false }: HomeStatsHeroProps) => {
   if (!stats || stats.total_answered === 0) {
+    if (hasActiveSession) return null;
+
     return (
       <section className="mt-7">
         <EmptyState title="טרם התחלת לתרגל" />

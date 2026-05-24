@@ -174,7 +174,7 @@ const HomePage = () => {
         </div>
 
         <div className="mt-7">
-          <HomeStatsHero stats={stats} />
+          <HomeStatsHero stats={stats} hasActiveSession={Boolean(primarySession)} />
         </div>
       </section>
 
