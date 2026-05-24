@@ -6,7 +6,7 @@ import Alert from "../../components/Alert";
 import AppLoader from "../../components/loader";
 import Button from "../../components/Button";
 import PasswordToggle from "../../components/PasswordToggle";
-import { notifyApiError, notifyError } from "../../lib/toast";
+import { dismissToasts, notifyApiError, notifyError } from "../../lib/toast";
 import AuthPageShell from "./components/AuthPageShell";
 import AuthTextField from "./components/AuthTextField";
 import { LoginRequestSchema } from "./schemas";
@@ -73,9 +73,11 @@ const LoginPage = () => {
     e.preventDefault();
     if (submitting || !validate()) return;
     setError(null);
+    dismissToasts();
     setSubmitting(true);
     try {
       await login(email.trim(), password);
+      dismissToasts();
       navigate("/", { replace: true });
     } catch (err) {
       const statusCode = axios.isAxiosError(err)

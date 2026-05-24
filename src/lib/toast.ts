@@ -38,6 +38,10 @@ export const notifyError = (message: string): void => {
   toast.error(message);
 };
 
+export const dismissToasts = (): void => {
+  toast.dismiss();
+};
+
 export const notifyApiError = (
   error: unknown,
   fallback = DEFAULT_ERROR,
