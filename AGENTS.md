@@ -38,8 +38,9 @@ VITE_API_BASE_URL=http://other-host:8000/api/v1
 - Current user: `GET /auth/me`
 - Forgot password: `POST /auth/forgot-password`
 - Reset password: `POST /auth/reset-password`
-- Access token is stored in `localStorage` under `access_token`.
-- Refresh token is stored by the backend as an HttpOnly cookie.
+- Access token is stored in memory only (never persisted to localStorage or sessionStorage).
+- Refresh token is stored by the backend as an HttpOnly cookie scoped to `/api/v1/auth`.
+- All API calls go through the same origin (`/api/v1/*`) which Render proxies to the backend. This makes the refresh cookie same-site and reliable on iOS Safari/WebKit.
 - `src/lib/api.ts` attaches the bearer token and retries one 401 with `/auth/refresh`.
 - `AuthProvider` bootstraps via refresh, then `/auth/me`.
 - Protected routes use `ProtectedRoute`; unauthenticated users go to `/login`.

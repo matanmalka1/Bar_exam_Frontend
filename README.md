@@ -82,7 +82,8 @@ Protected:
 
 ## API Notes
 
-- Auth uses bearer access tokens plus a backend-set HttpOnly refresh cookie.
+- Auth uses bearer access tokens (memory-only) plus a backend-set HttpOnly refresh cookie.
+- All API calls go through the same origin (`/api/v1/*`). In production, Render proxies these to the backend — so the refresh cookie is same-site and works on iOS Safari/WebKit.
 - User-scoped frontend calls use `/users/me/*`; the client does not send `user_id`.
 - Error responses are expected to use the backend envelope:
 
