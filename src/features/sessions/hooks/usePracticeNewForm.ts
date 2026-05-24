@@ -5,9 +5,9 @@ import { notifyError } from "../../../lib/toast";
 import { createExamSession, createPracticeSession } from "../api";
 import type { QuestionPart } from "../types";
 
-export type PartChoice = QuestionPart | "both";
-export type CountChoice = 10 | 20 | 40 | 50 | 60 | 70 | 80;
-export type PracticeNewFlow = "practice" | "exam";
+type PartChoice = QuestionPart | "both";
+type CountChoice = 10 | 20 | 40 | 50 | 60 | 70 | 80;
+type PracticeNewFlow = "practice" | "exam";
 
 const NETWORK_ERR = "לא ניתן להתחיל תרגול כרגע";
 

@@ -8,7 +8,7 @@ import type { StatsOverview } from "../../stats/types";
 
 type Status = "loading" | "ready";
 
-export interface HomeOverview {
+interface HomeOverview {
   status: Status;
   activeSessions: SessionSummary[];
   stats: StatsOverview | null;

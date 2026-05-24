@@ -8,7 +8,7 @@ import {
 import { setOnUnauthorized } from "../../lib/api";
 import * as authApi from "./api";
 import { AuthContext, type AuthContextValue } from "./AuthContext";
-import { clearTokens, setAccessToken, setRefreshToken } from "./authStorage";
+import { clearTokens, setAccessToken } from "./authStorage";
 import type { AuthStatus, AuthUser, RegisterRequest } from "./types";
 
 interface AuthProviderProps {
@@ -38,7 +38,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     async (email: string, password: string) => {
       const res = await authApi.login({ email, password });
       setAccessToken(res.access_token);
-      setRefreshToken(res.refresh_token);
       applyUser(res.user);
     },
     [applyUser],
@@ -48,7 +47,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     async (input: RegisterRequest) => {
       const res = await authApi.register(input);
       setAccessToken(res.access_token);
-      setRefreshToken(res.refresh_token);
       applyUser(res.user);
     },
     [applyUser],

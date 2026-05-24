@@ -38,10 +38,6 @@ export const notifyError = (message: string): void => {
   toast.error(message);
 };
 
-export const notifyInfo = (message: string): void => {
-  toast(message);
-};
-
 export const notifyApiError = (
   error: unknown,
   fallback = DEFAULT_ERROR,

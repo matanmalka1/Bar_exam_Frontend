@@ -36,7 +36,7 @@ export const greetingForHour = (h: number): string => {
   return "לילה טוב";
 };
 
-export const toNumber = (
+const toNumber = (
   raw: number | string | null | undefined,
 ): number | null => {
   if (raw === null || raw === undefined) return null;

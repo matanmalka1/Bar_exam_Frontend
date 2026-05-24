@@ -4,15 +4,12 @@ import type {
   AnswerOptionSchema,
   AnswerPracticeOutSchema,
   AnswerResultSchema,
-  ExamMistakeBriefSchema,
   PartBreakdownSchema,
-  QuestionOptionsSchema,
   QuestionPartSchema,
   SessionAnswerInlineSchema,
   SessionCompleteSchema,
   SessionDetailSchema,
   SessionModeSchema,
-  SessionPartBreakdownSchema,
   SessionQuestionSchema,
   SessionStatusSchema,
   SessionSummarySchema,
@@ -25,14 +22,6 @@ export const isExamLike = (mode: SessionMode | string): boolean =>
 export type SessionStatus = z.infer<typeof SessionStatusSchema>;
 export type QuestionPart = z.infer<typeof QuestionPartSchema>;
 export type AnswerOption = z.infer<typeof AnswerOptionSchema>;
-export type QuestionOptions = z.infer<typeof QuestionOptionsSchema>;
-
-export interface DraftAnswer {
-  sessionId: number;
-  stableId: string;
-  selectedOption: AnswerOption;
-  updatedAt: string;
-}
 
 export type SessionSummary = z.infer<typeof SessionSummarySchema>;
 export type SessionAnswerInline = z.infer<typeof SessionAnswerInlineSchema>;
@@ -56,6 +45,4 @@ export type AnswerPracticeOut = z.infer<typeof AnswerPracticeOutSchema>;
 export type AnswerExamOut = z.infer<typeof AnswerExamOutSchema>;
 export type AnswerResult = z.infer<typeof AnswerResultSchema>;
 export type PartBreakdown = z.infer<typeof PartBreakdownSchema>;
-export type SessionPartBreakdown = z.infer<typeof SessionPartBreakdownSchema>;
-export type ExamMistakeBrief = z.infer<typeof ExamMistakeBriefSchema>;
 export type SessionComplete = z.infer<typeof SessionCompleteSchema>;

@@ -41,13 +41,11 @@ const ActionRow = ({
   title,
   description,
   onClick,
-  danger = false,
 }: {
   icon: ReactNode;
   title: string;
   description: string;
   onClick: () => void;
-  danger?: boolean;
 }) => (
   <button
     type="button"
@@ -60,15 +58,7 @@ const ActionRow = ({
       </span>
 
       <span>
-        <span
-          className={
-            danger
-              ? "block text-sm font-semibold text-primary"
-              : "block text-sm font-semibold text-primary"
-          }
-        >
-          {title}
-        </span>
+        <span className="block text-sm font-semibold text-primary">{title}</span>
         <span className="mt-0.5 block text-xs text-secondary">
           {description}
         </span>
@@ -153,7 +143,6 @@ const MorePage = () => {
             title="אפס נתוני משתמש"
             description="מחיקת כל התשובות, המפגשים, הטעויות והסימניות"
             onClick={() => setConfirmReset(true)}
-            danger
           />
 
           <ActionRow
@@ -161,7 +150,6 @@ const MorePage = () => {
             title="התנתקות"
             description="יציאה מהחשבון וחזרה למסך ההתחברות"
             onClick={() => setConfirmLogout(true)}
-            danger
           />
         </section>
       </div>

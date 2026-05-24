@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes } from "react";
 import { Check, X } from "lucide-react";
 import { cn } from "../lib/cn";
 
-export type OptionMode = "practice" | "exam" | "review";
+type OptionMode = "practice" | "exam" | "review";
 
 type OptionStateInput = {
   mode: OptionMode;

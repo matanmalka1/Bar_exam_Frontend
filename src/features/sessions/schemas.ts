@@ -23,7 +23,7 @@ export const QuestionOptionsSchema = z.object({
 const DateTimeStringSchema = z.string().min(1);
 const ScorePercentSchema = z.string();
 
-export const SessionPartBreakdownSchema = z.object({
+const SessionPartBreakdownSchema = z.object({
   total: z.number().int(),
   answered: z.number().int(),
   correct: z.number().int(),
@@ -96,7 +96,7 @@ export const PartBreakdownSchema = z.object({
   score_percent: ScorePercentSchema,
 });
 
-export const ExamMistakeBriefSchema = z.object({
+const ExamMistakeBriefSchema = z.object({
   stable_id: z.string(),
   part: QuestionPartSchema,
   number: z.number().int(),

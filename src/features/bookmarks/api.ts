@@ -10,7 +10,7 @@ import type { BookmarkedQuestion } from "./types";
 
 export type Bookmark = z.infer<typeof BookmarkSchema>;
 
-export type BookmarkRemoved = z.infer<typeof BookmarkRemovedSchema>;
+type BookmarkRemoved = z.infer<typeof BookmarkRemovedSchema>;
 
 const dedupeBookmarks = (
   bookmarks: BookmarkedQuestion[],

@@ -5,7 +5,6 @@ import axios, {
 import {
   clearTokens,
   getAccessToken,
-  getRefreshToken,
   setAccessToken,
 } from "../features/auth/authStorage";
 
@@ -61,9 +60,7 @@ type RetriableConfig = InternalAxiosRequestConfig & { _retry?: boolean };
 let refreshPromise: Promise<string> | null = null;
 
 const requestNewAccessToken = async (): Promise<string> => {
-  const res = await api.post<{ access_token: string }>("/auth/refresh", {
-    refresh_token: getRefreshToken(),
-  });
+  const res = await api.post<{ access_token: string }>("/auth/refresh");
   return (res.data as { access_token: string }).access_token;
 };
 
@@ -117,7 +114,7 @@ api.interceptors.response.use(
 export const isApiStatusError = (err: unknown, status: number): boolean =>
   axios.isAxiosError(err) && err.response?.status === status;
 
-export type ApiErrorResponse = {
+type ApiErrorResponse = {
   error: {
     code: string;
     message: string;
@@ -128,7 +125,7 @@ export type ApiErrorResponse = {
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
 
-export const getApiErrorEnvelope = (
+const getApiErrorEnvelope = (
   err: unknown,
 ): ApiErrorResponse["error"] | null => {
   if (!axios.isAxiosError(err)) return null;
@@ -141,9 +138,6 @@ export const getApiErrorEnvelope = (
 
 export const getApiErrorMessage = (err: unknown): string | null =>
   getApiErrorEnvelope(err)?.message ?? null;
-
-export const getApiErrorDetails = (err: unknown): unknown =>
-  getApiErrorEnvelope(err)?.details ?? null;
 
 export const getApiErrorDetail = (err: unknown): unknown => {
   if (!axios.isAxiosError(err)) return null;

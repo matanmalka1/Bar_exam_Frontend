@@ -2,7 +2,7 @@ import axios from "axios";
 import { getApiErrorDetail, getApiErrorMessage } from "./api";
 import { MSG } from "./messages";
 
-export const map422Detail = (detail: unknown): string | null => {
+const map422Detail = (detail: unknown): string | null => {
   const text =
     typeof detail === "string" ? detail : JSON.stringify(detail ?? "");
   const lower = text.toLowerCase();

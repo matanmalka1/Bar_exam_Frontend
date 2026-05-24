@@ -13,7 +13,7 @@ import { RegisterFormSchema } from "./schemas";
 import type { RegisterRequest } from "./types";
 import { useAuth } from "./useAuth";
 
-export type RegisterDraft = {
+type RegisterDraft = {
   fullName: string;
   email: string;
   password: string;

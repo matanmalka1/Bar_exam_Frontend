@@ -1,5 +1,4 @@
 const ACCESS_TOKEN_KEY = "access_token";
-const REFRESH_TOKEN_KEY = "refresh_token";
 
 const readStored = (key: string): string | null => {
   try {
@@ -24,23 +23,12 @@ const writeStored = (key: string, value: string | null): void => {
 };
 
 let accessToken: string | null = readStored(ACCESS_TOKEN_KEY);
-let refreshToken: string | null = readStored(REFRESH_TOKEN_KEY);
 
 export const getAccessToken = (): string | null => accessToken;
-export const getRefreshToken = (): string | null => refreshToken;
 
 export const setAccessToken = (token: string | null): void => {
   accessToken = token;
   writeStored(ACCESS_TOKEN_KEY, token);
 };
 
-export const setRefreshToken = (token: string | null): void => {
-  refreshToken = token;
-  writeStored(REFRESH_TOKEN_KEY, token);
-};
-
-export const clearAccessToken = (): void => setAccessToken(null);
-export const clearTokens = (): void => {
-  setAccessToken(null);
-  setRefreshToken(null);
-};
+export const clearTokens = (): void => setAccessToken(null);

@@ -4,7 +4,7 @@ import type { ExamSummary } from "../types";
 
 type Status = "loading" | "ready" | "error";
 
-export interface ExamDateGroup {
+interface ExamDateGroup {
   exam_date: string;
   label: string;
   total: number;

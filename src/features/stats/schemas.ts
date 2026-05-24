@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const PartStatsSchema = z.object({
+const PartStatsSchema = z.object({
   total_answered: z.number().int(),
   success_rate: z.number().nullable(),
 });

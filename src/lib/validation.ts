@@ -3,7 +3,7 @@ import { z } from "zod";
 const formatZodPath = (path: PropertyKey[]): string =>
   path.length > 0 ? path.map(String).join(".") : "response";
 
-export const formatZodError = (error: z.ZodError): string =>
+const formatZodError = (error: z.ZodError): string =>
   error.issues
     .map((issue) => `${formatZodPath(issue.path)}: ${issue.message}`)
     .join("; ");
