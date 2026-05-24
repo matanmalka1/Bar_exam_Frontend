@@ -7,8 +7,10 @@ interface ConfirmSheetProps {
   description?: ReactNode;
   confirmLabel?: string;
   cancelLabel?: string;
+  tertiaryLabel?: string;
   onConfirm: () => void;
   onCancel: () => void;
+  onTertiary?: () => void;
 }
 
 const ConfirmSheet = ({
@@ -17,8 +19,10 @@ const ConfirmSheet = ({
   description,
   confirmLabel = "אישור",
   cancelLabel = "ביטול",
+  tertiaryLabel,
   onConfirm,
   onCancel,
+  onTertiary,
 }: ConfirmSheetProps) => {
   if (!open) return null;
   return (
@@ -36,6 +40,16 @@ const ConfirmSheet = ({
             {confirmLabel}
           </Button>
         </div>
+        {tertiaryLabel && onTertiary && (
+          <Button
+            variant="ghost"
+            fullWidth
+            className="mt-2"
+            onClick={onTertiary}
+          >
+            {tertiaryLabel}
+          </Button>
+        )}
       </div>
     </div>
   );

@@ -14,7 +14,7 @@ interface RuntimeImportMeta {
   };
 }
 
-const API_BASE_URL =
+export const API_BASE_URL =
   (import.meta as RuntimeImportMeta).env?.VITE_API_BASE_URL ?? "/api/v1";
 
 export const HTTP_UNPROCESSABLE = 422;

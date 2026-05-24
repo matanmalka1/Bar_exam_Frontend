@@ -7,6 +7,7 @@ import Button from "../../../components/Button";
 import PageShell from "../../../components/PageShell";
 import ActiveSessionCard from "../../dashboard/components/ActiveSessionCard";
 import { listUserSessions, abandonSession } from "../api";
+import { isResumableSession } from "../sessionFilters";
 import type { SessionSummary } from "../types";
 import { isExamLike } from "../types";
 import { notifyError } from "../../../lib/toast";
@@ -29,7 +30,7 @@ const ActiveSessionsPage = () => {
     setStatus("loading");
     listUserSessions("active")
       .then((data) => {
-        setSessions(data);
+        setSessions(data.filter(isResumableSession));
         setStatus("ready");
       })
       .catch(() => setStatus("error"));
@@ -38,7 +39,7 @@ const ActiveSessionsPage = () => {
   useEffect(() => {
     listUserSessions("active")
       .then((data) => {
-        setSessions(data);
+        setSessions(data.filter(isResumableSession));
         setStatus("ready");
       })
       .catch(() => setStatus("error"));

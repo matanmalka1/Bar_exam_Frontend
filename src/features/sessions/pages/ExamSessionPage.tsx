@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import AppHeader from "../../../components/AppHeader";
 import BookmarkButton from "../../../components/BookmarkButton";
 import Button from "../../../components/Button";
+import ConfirmSheet from "../../../components/ConfirmSheet";
 import ErrorState from "../../../components/ErrorState";
 import FixedFooter from "../../../components/FixedFooter";
 import PageShell from "../../../components/PageShell";
@@ -13,6 +14,7 @@ import SessionQuestionCard from "../components/SessionQuestionCard";
 import TimerDisplay from "../components/TimerDisplay";
 import TimeUpModal from "../components/TimeUpModal";
 import { useExamSession } from "../hooks/useExamSession";
+import { useSessionExitGuard } from "../hooks/useSessionExitGuard";
 import { useCountdownTimer, useElapsedTimer } from "../hooks/useTimer";
 import { tap } from "../../../lib/haptics";
 
@@ -86,6 +88,16 @@ const ExamSessionPage = () => {
       complete();
     }
   }, [expired, status, complete, clearStorage, clearElapsedStorage]);
+
+  const exitGuard = useSessionExitGuard({
+    sessionId: id,
+    enabled: status === "ready" && !sessionCompleted,
+    answeredCount,
+    onDiscard: () => {
+      clearStorage();
+      clearElapsedStorage();
+    },
+  });
 
   if (status === "loading") {
     return <AppLoader variant="page" label="טוען נתונים..." />;
@@ -208,6 +220,18 @@ const ExamSessionPage = () => {
           )}
         </FixedFooter>
       )}
+
+      <ConfirmSheet
+        open={exitGuard.promptOpen}
+        title="לשמור את הבחינה להמשך?"
+        description="ענית כבר על שאלה אחת לפחות. אפשר לשמור את הבחינה ולחזור אליה אחר כך, או לצאת בלי לשמור."
+        confirmLabel="שמור וצא"
+        cancelLabel={exitGuard.discarding ? "יוצא..." : "אל תשמור"}
+        tertiaryLabel="הישאר בבחינה"
+        onConfirm={exitGuard.saveAndExit}
+        onCancel={() => void exitGuard.discardAndExit()}
+        onTertiary={exitGuard.stay}
+      />
     </PageShell>
   );
 };

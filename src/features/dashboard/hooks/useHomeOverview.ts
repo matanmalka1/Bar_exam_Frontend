@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getBookmarks } from "../../bookmarks/api";
 import type { BookmarkedQuestion } from "../../bookmarks/types";
 import { listUserSessions } from "../../sessions/api";
+import { isResumableSession } from "../../sessions/sessionFilters";
 import type { SessionSummary } from "../../sessions/types";
 import { getStatsOverview } from "../../stats/api";
 import type { StatsOverview } from "../../stats/types";
@@ -19,7 +20,7 @@ interface HomeOverview {
 }
 
 const getActiveSessions = (sessions: SessionSummary[]): SessionSummary[] =>
-  sessions.filter((session) => session.status === "active");
+  sessions.filter(isResumableSession);
 
 export const useHomeOverview = (): HomeOverview => {
   const [status, setStatus] = useState<Status>("loading");

@@ -4,6 +4,7 @@ import { Check, X } from "lucide-react";
 import AppHeader from "../../../components/AppHeader";
 import BookmarkButton from "../../../components/BookmarkButton";
 import Button from "../../../components/Button";
+import ConfirmSheet from "../../../components/ConfirmSheet";
 import ErrorState from "../../../components/ErrorState";
 import FixedFooter from "../../../components/FixedFooter";
 import PageShell from "../../../components/PageShell";
@@ -13,6 +14,7 @@ import SessionAnswerOptions from "../components/SessionAnswerOptions";
 import SessionQuestionCard from "../components/SessionQuestionCard";
 import TimerDisplay from "../components/TimerDisplay";
 import { usePracticeSession } from "../hooks/usePracticeSession";
+import { useSessionExitGuard } from "../hooks/useSessionExitGuard";
 import { useElapsedTimer } from "../hooks/useTimer";
 import { tap } from "../../../lib/haptics";
 
@@ -120,6 +122,13 @@ const SessionPage = () => {
     resetQuestion,
     clearStorage,
   } = useElapsedTimer(id ?? "", currentIndex ?? 0, sessionCompleted);
+
+  const exitGuard = useSessionExitGuard({
+    sessionId: id,
+    enabled: status === "ready" && !sessionCompleted,
+    answeredCount,
+    onDiscard: clearStorage,
+  });
 
   if (status === "loading") {
     return <AppLoader variant="page" label="טוען נתונים..." />;
@@ -262,6 +271,18 @@ const SessionPage = () => {
           )}
         </FixedFooter>
       )}
+
+      <ConfirmSheet
+        open={exitGuard.promptOpen}
+        title="לשמור את התרגול להמשך?"
+        description="ענית כבר על שאלה אחת לפחות. אפשר לשמור את התרגול ולחזור אליו אחר כך, או לצאת בלי לשמור."
+        confirmLabel="שמור וצא"
+        cancelLabel={exitGuard.discarding ? "יוצא..." : "אל תשמור"}
+        tertiaryLabel="הישאר בתרגול"
+        onConfirm={exitGuard.saveAndExit}
+        onCancel={() => void exitGuard.discardAndExit()}
+        onTertiary={exitGuard.stay}
+      />
     </PageShell>
   );
 };
