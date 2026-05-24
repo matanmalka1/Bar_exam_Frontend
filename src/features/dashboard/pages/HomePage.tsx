@@ -118,7 +118,6 @@ const HomePage = () => {
         <div className="mt-7">
           <HomeStatsHero
             stats={stats}
-            onStartPractice={() => navigate(ROUTES.practiceNew)}
             onOpenMistakes={() => navigate(ROUTES.mistakes)}
           />
         </div>

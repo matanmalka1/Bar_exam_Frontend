@@ -1,10 +1,8 @@
-import Button from "../../../components/Button";
 import EmptyState from "../../../components/EmptyState";
 import type { StatsOverview } from "../../stats/types";
 
 type HomeStatsHeroProps = {
   stats: StatsOverview | null;
-  onStartPractice: () => void;
   onOpenMistakes: () => void;
 };
 
@@ -53,17 +51,12 @@ const formatStudyTime = (seconds: number): string => {
 
 const HomeStatsHero = ({
   stats,
-  onStartPractice,
   onOpenMistakes,
 }: HomeStatsHeroProps) => {
   if (!stats || stats.total_answered === 0) {
     return (
       <section className="mt-7">
-        <EmptyState
-          title="טרם התחלת לתרגל"
-          description="בחר חלק וצא לדרך."
-          action={<Button onClick={onStartPractice}>התחל תרגול</Button>}
-        />
+        <EmptyState title="טרם התחלת לתרגל" />
       </section>
     );
   }
