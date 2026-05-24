@@ -5,25 +5,36 @@ import AppHeader from "../../components/AppHeader";
 import AppLoader from "../../components/loader";
 import Button from "../../components/Button";
 import TextField from "../../components/TextField";
-import { notifyApiError, notifyError } from "../../lib/toast";
+import { notifyApiError } from "../../lib/toast";
 import { forgotPassword } from "./api";
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (submitting || success) return;
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
+      setError("יש להזין אימייל");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      setError("אימייל לא תקין");
+      return;
+    }
+    setError(null);
     setSubmitting(true);
     try {
-      const res = await forgotPassword(email);
+      const res = await forgotPassword(trimmedEmail);
       setSuccess(res.message);
       setEmail("");
     } catch (err) {
       if (axios.isAxiosError(err) && err.response?.status === 422) {
-        notifyError("אימייל לא תקין");
+        setError("אימייל לא תקין");
       } else {
         notifyApiError(err, "שגיאה בשרת, נסה שוב");
       }
@@ -53,7 +64,11 @@ const ForgotPasswordPage = () => {
             אפשר לבדוק את תיבת האימייל ולהמשיך לפי ההוראות שנשלחו.
           </div>
         ) : (
-          <form onSubmit={onSubmit} className="flex flex-1 flex-col gap-4">
+          <form
+            noValidate
+            onSubmit={onSubmit}
+            className="flex flex-1 flex-col gap-4"
+          >
             <TextField
               id="forgot-email"
               label="אימייל"
@@ -63,16 +78,20 @@ const ForgotPasswordPage = () => {
               dir="ltr"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setError(null);
+              }}
               disabled={submitting}
               placeholder="name@example.com"
               className="text-right"
+              error={error ?? undefined}
             />
 
             <Button
               type="submit"
               fullWidth
-              disabled={submitting || !email}
+              disabled={submitting}
               className="mt-2"
             >
               {submitting ? (

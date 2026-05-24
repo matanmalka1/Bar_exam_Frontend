@@ -6,7 +6,7 @@ import AppLoader from "../../components/loader";
 import Button from "../../components/Button";
 import PasswordToggle from "../../components/PasswordToggle";
 import { isApiStatusError } from "../../lib/api";
-import { notifyApiError, notifyError } from "../../lib/toast";
+import { notifyApiError } from "../../lib/toast";
 import AuthPageShell from "./components/AuthPageShell";
 import AuthTextField from "./components/AuthTextField";
 import { RegisterFormSchema } from "./schemas";
@@ -19,6 +19,14 @@ type RegisterDraft = {
   password: string;
   confirm: string;
   acceptedTerms: boolean;
+};
+
+type RegisterFieldErrors = {
+  fullName?: string;
+  email?: string;
+  password?: string;
+  confirm?: string;
+  terms?: string;
 };
 
 export type RegisterRouteState = {
@@ -45,7 +53,8 @@ const RegisterPage = () => {
   const [acceptedTerms, setAcceptedTerms] = useState(
     initialDraft?.acceptedTerms ?? false,
   );
-  const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<RegisterFieldErrors>({});
+  const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const registerDraft: RegisterDraft = {
@@ -58,9 +67,23 @@ const RegisterPage = () => {
 
   if (status === "authenticated") return <Navigate to="/" replace />;
 
-  const validate = ():
-    | { ok: true; data: RegisterRequest }
-    | { ok: false; error: string } => {
+  const validate = (): { ok: true; data: RegisterRequest } | { ok: false } => {
+    const requiredErrors: RegisterFieldErrors = {};
+
+    if (!fullName.trim()) requiredErrors.fullName = "שם מלא הוא שדה חובה";
+    if (!email.trim()) requiredErrors.email = "יש להזין אימייל";
+    if (!password) requiredErrors.password = "יש להזין סיסמה";
+    if (!confirm) requiredErrors.confirm = "יש לאמת את הסיסמה";
+    if (!acceptedTerms) {
+      requiredErrors.terms = "יש לאשר את תנאי השימוש ומדיניות הפרטיות";
+    }
+
+    if (Object.values(requiredErrors).some(Boolean)) {
+      setFieldErrors(requiredErrors);
+      setFormError(null);
+      return { ok: false };
+    }
+
     const result = RegisterFormSchema.safeParse({
       full_name: fullName,
       email,
@@ -68,9 +91,37 @@ const RegisterPage = () => {
       confirm,
     });
     if (!result.success) {
+      const nextFieldErrors: RegisterFieldErrors = {};
+
+      result.error.issues.forEach((issue) => {
+        const field = issue.path[0];
+
+        if (field === "full_name" && !nextFieldErrors.fullName) {
+          nextFieldErrors.fullName = fullName.trim()
+            ? issue.message
+            : "שם מלא הוא שדה חובה";
+        }
+        if (field === "email" && !nextFieldErrors.email) {
+          nextFieldErrors.email = email.trim()
+            ? issue.message
+            : "יש להזין אימייל";
+        }
+        if (field === "password" && !nextFieldErrors.password) {
+          nextFieldErrors.password = password
+            ? issue.message
+            : "יש להזין סיסמה";
+        }
+        if (field === "confirm" && !nextFieldErrors.confirm) {
+          nextFieldErrors.confirm = confirm
+            ? issue.message
+            : "יש לאמת את הסיסמה";
+        }
+      });
+
+      setFieldErrors(nextFieldErrors);
+      setFormError(null);
       return {
         ok: false,
-        error: result.error.issues[0]?.message ?? "נתונים לא תקינים",
       };
     }
     return {
@@ -86,25 +137,21 @@ const RegisterPage = () => {
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (submitting) return;
-    if (!acceptedTerms) {
-      setError("יש לאשר את תנאי השימוש ומדיניות הפרטיות");
-      return;
-    }
     const validation = validate();
     if (!validation.ok) {
-      setError(validation.error);
       return;
     }
-    setError(null);
+    setFieldErrors({});
+    setFormError(null);
     setSubmitting(true);
     try {
       await register(validation.data);
       navigate("/", { replace: true });
     } catch (err) {
       if (isApiStatusError(err, 409)) {
-        notifyError("כבר קיים משתמש עם האימייל הזה");
+        setFormError("כבר קיים משתמש עם האימייל הזה");
       } else if (isApiStatusError(err, 422)) {
-        notifyError("נתונים לא תקינים. בדוק שוב את הפרטים");
+        setFormError("לא ניתן ליצור חשבון עם הפרטים שהוזנו");
       } else {
         notifyApiError(err, "ההרשמה נכשלה. נסה שוב");
       }
@@ -129,7 +176,11 @@ const RegisterPage = () => {
         </p>
       }
     >
-        <form onSubmit={onSubmit} className="flex flex-1 flex-col gap-4">
+        <form
+          noValidate
+          onSubmit={onSubmit}
+          className="flex flex-1 flex-col gap-4"
+        >
           <AuthTextField
             id="reg-name"
             label="שם מלא"
@@ -138,9 +189,17 @@ const RegisterPage = () => {
             autoComplete="name"
             required
             value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
+            onChange={(e) => {
+              setFullName(e.target.value);
+              setFormError(null);
+              setFieldErrors((current) => ({
+                ...current,
+                fullName: undefined,
+              }));
+            }}
             disabled={submitting}
             placeholder="ישראל ישראלי"
+            error={fieldErrors.fullName}
           />
 
           <AuthTextField
@@ -153,10 +212,18 @@ const RegisterPage = () => {
             dir="ltr"
             required
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setFormError(null);
+              setFieldErrors((current) => ({
+                ...current,
+                email: undefined,
+              }));
+            }}
             disabled={submitting}
             placeholder="name@example.com"
             className="text-right placeholder:text-right"
+            error={fieldErrors.email}
           />
 
           <AuthTextField
@@ -168,9 +235,17 @@ const RegisterPage = () => {
             required
             minLength={8}
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setFormError(null);
+              setFieldErrors((current) => ({
+                ...current,
+                password: undefined,
+              }));
+            }}
             disabled={submitting}
             placeholder="••••••••"
+            error={fieldErrors.password}
             endSlot={
               <PasswordToggle
                 visible={showPassword}
@@ -189,9 +264,17 @@ const RegisterPage = () => {
             required
             minLength={8}
             value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
+            onChange={(e) => {
+              setConfirm(e.target.value);
+              setFormError(null);
+              setFieldErrors((current) => ({
+                ...current,
+                confirm: undefined,
+              }));
+            }}
             disabled={submitting}
             placeholder="••••••••"
+            error={fieldErrors.confirm}
             endSlot={
               <PasswordToggle
                 visible={showConfirmPassword}
@@ -207,9 +290,18 @@ const RegisterPage = () => {
               type="checkbox"
               required
               checked={acceptedTerms}
-              onChange={(e) => setAcceptedTerms(e.target.checked)}
+              onChange={(e) => {
+                setAcceptedTerms(e.target.checked);
+                setFormError(null);
+                setFieldErrors((current) => ({
+                  ...current,
+                  terms: undefined,
+                }));
+              }}
               disabled={submitting}
               className="mt-1 h-4 w-4 rounded border-[var(--border-default)] text-[var(--ink)] focus:ring-[var(--ink)] disabled:opacity-45"
+              aria-invalid={!!fieldErrors.terms || undefined}
+              aria-describedby={fieldErrors.terms ? "reg-terms-error" : undefined}
             />
             <label htmlFor="reg-terms" className="text-sm text-secondary">
               אני מסכים{" "}
@@ -224,23 +316,25 @@ const RegisterPage = () => {
             </label>
           </div>
 
-          {error && (
+          {fieldErrors.terms && (
+            <p
+              id="reg-terms-error"
+              className="-mt-2 pe-1 text-xs font-semibold text-primary"
+            >
+              {fieldErrors.terms}
+            </p>
+          )}
+
+          {formError && (
             <Alert variant="error" className="bg-white/80">
-              {error}
+              {formError}
             </Alert>
           )}
 
           <Button
             type="submit"
             fullWidth
-            disabled={
-              submitting ||
-              !fullName ||
-              !email ||
-              !password ||
-              !confirm ||
-              !acceptedTerms
-            }
+            disabled={submitting}
             className="mt-6 h-14 rounded-2xl bg-black text-lg font-bold text-white shadow-sm active:scale-95"
           >
             {submitting ? (

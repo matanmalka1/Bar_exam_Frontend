@@ -6,7 +6,7 @@ import Alert from "../../components/Alert";
 import AppLoader from "../../components/loader";
 import Button from "../../components/Button";
 import PasswordToggle from "../../components/PasswordToggle";
-import { dismissToasts, notifyApiError, notifyError } from "../../lib/toast";
+import { dismissToasts, notifyApiError } from "../../lib/toast";
 import AuthPageShell from "./components/AuthPageShell";
 import AuthTextField from "./components/AuthTextField";
 import { LoginRequestSchema } from "./schemas";
@@ -23,7 +23,7 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const [suggestRegister, setSuggestRegister] = useState(false);
@@ -45,7 +45,6 @@ const LoginPage = () => {
 
     if (!trimmedEmail && !password) {
       setFieldErrors({ email: "יש להזין אימייל", password: "יש להזין סיסמה" });
-      setError("יש להזין אימייל וסיסמה");
       return false;
     }
 
@@ -65,14 +64,13 @@ const LoginPage = () => {
     });
 
     setFieldErrors(nextFieldErrors);
-    setError(result.error.issues[0]?.message ?? "נתונים לא תקינים");
     return false;
   };
 
   const onSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (submitting || !validate()) return;
-    setError(null);
+    setFormError(null);
     dismissToasts();
     setSubmitting(true);
     try {
@@ -85,8 +83,7 @@ const LoginPage = () => {
         : undefined;
       if (statusCode === 401 || statusCode === 403) {
         setSuggestRegister(true);
-        setError("פרטי ההתחברות שגויים");
-        notifyError("פרטי ההתחברות שגויים");
+        setFormError("פרטי ההתחברות שגויים");
       } else {
         notifyApiError(err, "החיבור נכשל. נסה שוב");
       }
@@ -98,14 +95,14 @@ const LoginPage = () => {
   const updateEmail = (value: string) => {
     setEmail(value);
     setFieldErrors((e) => ({ ...e, email: undefined }));
-    setError(null);
+    setFormError(null);
     setSuggestRegister(false);
   };
 
   const updatePassword = (value: string) => {
     setPassword(value);
     setFieldErrors((e) => ({ ...e, password: undefined }));
-    setError(null);
+    setFormError(null);
     setSuggestRegister(false);
   };
 
@@ -181,9 +178,9 @@ const LoginPage = () => {
             </Link>
           </div>
 
-          {error && (
+          {formError && (
             <Alert variant="error" className="bg-white/80">
-              {error}
+              {formError}
             </Alert>
           )}
 
