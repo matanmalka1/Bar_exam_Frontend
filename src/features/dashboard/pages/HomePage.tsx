@@ -69,9 +69,12 @@ const HomePage = () => {
   const now = new Date();
   const mistakesCount = stats?.active_mistakes_count ?? 0;
   const totalAnswered = stats?.total_answered ?? 0;
+  const primarySession = activeSessions[0];
 
   const tagline =
-    !stats || totalAnswered === 0
+    primarySession
+      ? "יש לך תרגול פתוח שמחכה להמשך."
+      : !stats || totalAnswered === 0
       ? "בחר חלק וצא לדרך."
       : mistakesCount > 0
         ? `יש לך ${mistakesCount} טעויות פתוחות לחזרה.`
@@ -115,56 +118,65 @@ const HomePage = () => {
           </div>
         </div>
 
-        <div className="mt-7">
-          <HomeStatsHero
-            stats={stats}
-            onOpenMistakes={() => navigate(ROUTES.mistakes)}
-          />
-        </div>
+        <div className="mt-7 space-y-3">
+          {primarySession ? (
+            <>
+              <ActiveSessionCard
+                session={primarySession}
+                onResume={() => navigate(resumePath(primarySession))}
+              />
+              {activeSessions.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => navigate("/sessions/active")}
+                  className="w-full text-center text-xs text-secondary underline underline-offset-2"
+                >
+                  ועוד {activeSessions.length - 1} תרגולים פתוחים
+                </button>
+              )}
+            </>
+          ) : (
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button fullWidth onClick={() => navigate(ROUTES.practiceNew)}>
+                התחל תרגול
+              </Button>
 
-        <div className="mt-7 flex flex-col gap-2 sm:flex-row">
-          <Button fullWidth onClick={() => navigate(ROUTES.practiceNew)}>
-            התחל תרגול
-          </Button>
+              <Button
+                variant="secondary"
+                onClick={handleStartSimulation}
+                disabled={startingSim}
+                className="sm:w-auto sm:min-w-[140px]"
+              >
+                {startingSim ? (
+                  <AppLoader variant="button" label="מתחיל" />
+                ) : (
+                  "מבחן מלא"
+                )}
+              </Button>
+            </div>
+          )}
 
-          <Button
-            variant="secondary"
-            onClick={handleStartSimulation}
-            disabled={startingSim}
-            className="sm:w-auto sm:min-w-[140px]"
-          >
-            {startingSim ? (
-              <AppLoader variant="button" label="מתחיל" />
-            ) : (
-              "מבחן מלא"
-            )}
-          </Button>
-        </div>
-      </section>
-
-      {activeSessions.length > 0 && (
-        <div className="mt-5">
-          <ActiveSessionCard
-            session={activeSessions[0]}
-            onResume={() => navigate(resumePath(activeSessions[0]))}
-          />
-          {activeSessions.length > 1 && (
+          {mistakesCount > 0 && (
             <button
               type="button"
-              onClick={() => navigate("/sessions/active")}
-              className="mt-2 w-full text-center text-xs text-secondary underline underline-offset-2"
+              onClick={() => navigate(ROUTES.mistakes)}
+              className="focus-ring w-full rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-right text-sm font-semibold text-amber-800 transition hover:bg-amber-100 active:scale-[0.99]"
             >
-              ועוד {activeSessions.length - 1} תרגולים פתוחים
+              חזרה על {mistakesCount} טעויות פתוחות
             </button>
           )}
-        </div>
-      )}
 
-      {sessionsUnavailable && (
-        <p className="mt-4 rounded-2xl border border-default bg-surface-muted px-4 py-3 text-xs text-secondary">
-          לא ניתן לטעון תרגול פעיל כרגע.
-        </p>
-      )}
+          {sessionsUnavailable && (
+            <p className="rounded-2xl border border-default bg-surface-muted px-4 py-3 text-xs text-secondary">
+              לא ניתן לטעון תרגול פעיל כרגע.
+            </p>
+          )}
+        </div>
+
+        <div className="mt-7">
+          <HomeStatsHero stats={stats} />
+        </div>
+      </section>
 
       <StudyRoutesList
         mistakesHint={mistakesHint}

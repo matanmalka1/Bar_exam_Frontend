@@ -3,7 +3,6 @@ import type { StatsOverview } from "../../stats/types";
 
 type HomeStatsHeroProps = {
   stats: StatsOverview | null;
-  onOpenMistakes: () => void;
 };
 
 type StatCardProps = {
@@ -49,10 +48,7 @@ const formatStudyTime = (seconds: number): string => {
   return `${h}:${String(m).padStart(2, "0")} שע׳`;
 };
 
-const HomeStatsHero = ({
-  stats,
-  onOpenMistakes,
-}: HomeStatsHeroProps) => {
+const HomeStatsHero = ({ stats }: HomeStatsHeroProps) => {
   if (!stats || stats.total_answered === 0) {
     return (
       <section className="mt-7">
@@ -61,9 +57,11 @@ const HomeStatsHero = ({
     );
   }
 
-  const correctAnswers = Math.max(0, stats.total_answered - stats.incorrect_answers);
+  const correctAnswers = Math.max(
+    0,
+    stats.total_answered - stats.incorrect_answers,
+  );
   const hasMistakes = stats.active_mistakes_count > 0;
-
   return (
     <section className="mt-7" aria-label="סיכום פעילות">
       <div className="grid grid-cols-2 gap-3">
@@ -93,20 +91,10 @@ const HomeStatsHero = ({
           value={
             hasMistakes
               ? `${stats.active_mistakes_count} פתוחות`
-              : "אין"
+            : "אין"
           }
         />
       </div>
-
-      {hasMistakes && (
-        <button
-          type="button"
-          onClick={onOpenMistakes}
-          className="mt-4 w-full rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-right text-sm font-medium text-amber-800 transition hover:bg-amber-100"
-        >
-          יש לך {stats.active_mistakes_count} טעויות פתוחות — רוצה לחזור עליהן?
-        </button>
-      )}
     </section>
   );
 };

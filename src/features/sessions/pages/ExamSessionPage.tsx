@@ -113,6 +113,8 @@ const ExamSessionPage = () => {
     clearElapsedStorage();
     complete();
   };
+  const showFixedFooter =
+    showComplete || answerSubmitted || displaySelected !== null;
 
   return (
     <PageShell className="pb-32">
@@ -161,49 +163,51 @@ const ExamSessionPage = () => {
         />
       </main>
 
-      <FixedFooter>
-        {!showComplete ? (
-          <>
-            <Button
-              fullWidth
-              disabled={primaryDisabled}
-              onClick={handlePrimaryAction}
-            >
-              {submitting ? (
-                <AppLoader variant="button" label="שומר..." />
-              ) : (
-                primaryLabel
-              )}
-            </Button>
+      {showFixedFooter && (
+        <FixedFooter>
+          {!showComplete ? (
+            <>
+              <Button
+                fullWidth
+                disabled={primaryDisabled}
+                onClick={handlePrimaryAction}
+              >
+                {submitting ? (
+                  <AppLoader variant="button" label="שומר..." />
+                ) : (
+                  primaryLabel
+                )}
+              </Button>
 
-            {primaryReason && (
-              <p className="text-center text-xs text-secondary">
-                {primaryReason}
-              </p>
-            )}
-          </>
-        ) : (
-          <>
-            <Button
-              fullWidth
-              disabled={!allAnswered || completing}
-              onClick={handleCompleteAction}
-            >
-              {completing ? (
-                <AppLoader variant="button" label="מסיים..." />
-              ) : (
-                "סיום בחינה"
+              {primaryReason && (
+                <p className="text-center text-xs text-secondary">
+                  {primaryReason}
+                </p>
               )}
-            </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                fullWidth
+                disabled={!allAnswered || completing}
+                onClick={handleCompleteAction}
+              >
+                {completing ? (
+                  <AppLoader variant="button" label="מסיים..." />
+                ) : (
+                  "סיום בחינה"
+                )}
+              </Button>
 
-            {completeReason && (
-              <p className="text-center text-xs text-secondary">
-                {completeReason}
-              </p>
-            )}
-          </>
-        )}
-      </FixedFooter>
+              {completeReason && (
+                <p className="text-center text-xs text-secondary">
+                  {completeReason}
+                </p>
+              )}
+            </>
+          )}
+        </FixedFooter>
+      )}
     </PageShell>
   );
 };

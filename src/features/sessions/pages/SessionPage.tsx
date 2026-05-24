@@ -152,6 +152,8 @@ const SessionPage = () => {
     clearStorage();
     complete();
   };
+  const showFixedFooter =
+    answerSubmitted || displaySelected !== null || current.answer !== null;
 
   return (
     <PageShell className="pb-32">
@@ -211,53 +213,55 @@ const SessionPage = () => {
         />
       </main>
 
-      <FixedFooter>
-        {!answerSubmitted && (
-          <>
-            <Button fullWidth disabled={submitDisabled} onClick={handleSubmit}>
-              {submitting ? (
-                <AppLoader variant="button" label="שומר..." />
-              ) : (
-                "בדוק תשובה"
+      {showFixedFooter && (
+        <FixedFooter>
+          {!answerSubmitted && (
+            <>
+              <Button fullWidth disabled={submitDisabled} onClick={handleSubmit}>
+                {submitting ? (
+                  <AppLoader variant="button" label="שומר..." />
+                ) : (
+                  "בדוק תשובה"
+                )}
+              </Button>
+
+              {submitReason && (
+                <p className="text-center text-xs text-secondary">
+                  {submitReason}
+                </p>
               )}
+            </>
+          )}
+
+          {answerSubmitted && !isLast && (
+            <Button fullWidth onClick={handleNext}>
+              שאלה הבאה
             </Button>
+          )}
 
-            {submitReason && (
-              <p className="text-center text-xs text-secondary">
-                {submitReason}
-              </p>
-            )}
-          </>
-        )}
+          {answerSubmitted && isLast && (
+            <>
+              <Button
+                fullWidth
+                disabled={!allAnswered || completing}
+                onClick={handleComplete}
+              >
+                {completing ? (
+                  <AppLoader variant="button" label="מסיים..." />
+                ) : (
+                  "סיום תרגול"
+                )}
+              </Button>
 
-        {answerSubmitted && !isLast && (
-          <Button fullWidth onClick={handleNext}>
-            שאלה הבאה
-          </Button>
-        )}
-
-        {answerSubmitted && isLast && (
-          <>
-            <Button
-              fullWidth
-              disabled={!allAnswered || completing}
-              onClick={handleComplete}
-            >
-              {completing ? (
-                <AppLoader variant="button" label="מסיים..." />
-              ) : (
-                "סיום תרגול"
+              {completeReason && (
+                <p className="text-center text-xs text-secondary">
+                  {completeReason}
+                </p>
               )}
-            </Button>
-
-            {completeReason && (
-              <p className="text-center text-xs text-secondary">
-                {completeReason}
-              </p>
-            )}
-          </>
-        )}
-      </FixedFooter>
+            </>
+          )}
+        </FixedFooter>
+      )}
     </PageShell>
   );
 };

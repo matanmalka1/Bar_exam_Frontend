@@ -17,7 +17,7 @@ const ActiveSessionCard = ({ session, onResume }: ActiveSessionCardProps) => {
     <button
       type="button"
       onClick={onResume}
-      className="focus-ring group mt-7 block w-full overflow-hidden rounded-2xl bg-[var(--accent-ink)] p-4 text-right text-white shadow-[var(--shadow-elevated)] transition active:scale-[0.99]"
+      className="focus-ring group block w-full overflow-hidden rounded-2xl bg-[var(--accent-ink)] p-4 text-right text-white shadow-[var(--shadow-elevated)] transition active:scale-[0.99]"
     >
       <div className="flex items-center gap-4">
         <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/25 transition group-hover:bg-white/25">
