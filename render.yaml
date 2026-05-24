@@ -28,5 +28,7 @@ services:
         name: Referrer-Policy
         value: strict-origin-when-cross-origin
     envVars:
+      - key: NODE_VERSION
+        value: "22"
       - key: VITE_API_BASE_URL
-        sync: false
+        value: https://bar-exam-api.onrender.com/api/v1
