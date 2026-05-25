@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { Navigate, createBrowserRouter } from "react-router-dom";
 import HomePage from "../features/dashboard/pages/HomePage";
 import PracticeNewPage from "../features/sessions/pages/PracticeNewPage";
 import ActiveSessionsPage from "../features/sessions/pages/ActiveSessionsPage";
@@ -9,7 +9,6 @@ import MistakesPage from "../features/mistakes/pages/MistakesPage";
 import BookmarksPage from "../features/bookmarks/pages/BookmarksPage";
 import MorePage from "../features/auth/pages/MorePage";
 import StatsPage from "../features/stats/pages/StatsPage";
-import ReviewPage from "../features/review/pages/ReviewPage";
 import QuestionsPage from "../features/questions/pages/QuestionsPage";
 import QuestionDetailPage from "../features/questions/pages/QuestionDetailPage";
 import NotFoundPage from "./NotFoundPage";
@@ -42,7 +41,7 @@ export const router = createBrowserRouter([
           { path: "/mistakes", element: <MistakesPage /> },
           { path: "/bookmarks", element: <BookmarksPage /> },
           { path: "/stats", element: <StatsPage /> },
-          { path: "/review", element: <ReviewPage /> },
+          { path: "/review", element: <Navigate to="/questions" replace /> },
           { path: "/questions", element: <QuestionsPage /> },
           { path: "/questions/:stableId", element: <QuestionDetailPage /> },
           {

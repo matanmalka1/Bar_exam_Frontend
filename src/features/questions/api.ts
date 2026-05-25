@@ -13,6 +13,20 @@ export const getQuestions = async (
   return parseApiResponse(PracticeQuestionSchema.array(), data, "getQuestions");
 };
 
+export const getQuestionsForReview = async (
+  examDate: string,
+  part: "B" | "C",
+): Promise<ReviewQuestionDetail[]> => {
+  const { data } = await api.get<unknown>("/questions/review", {
+    params: { exam_date: examDate, part },
+  });
+  return parseApiResponse(
+    ReviewQuestionDetailSchema.array(),
+    data,
+    "getQuestionsForReview",
+  );
+};
+
 export const getQuestion = async (
   stableId: string,
 ): Promise<PracticeQuestion> => {

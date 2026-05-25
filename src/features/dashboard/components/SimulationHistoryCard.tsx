@@ -23,6 +23,26 @@ const PART_LABEL: Record<"B" | "C", string> = {
   C: "דין מהותי",
 };
 
+const MONTH_LABELS: Record<string, string> = {
+  "02": "פברואר",
+  "04": "אפריל",
+  "06": "יוני",
+  "09": "ספטמבר",
+  "12": "דצמבר",
+};
+
+const formatExamLabel = (examDate: string | null | undefined): string => {
+  if (!examDate) return "כל המועדים";
+  const [year, month] = examDate.split("-");
+  if (!year || !month) return examDate;
+  return `${MONTH_LABELS[month] ?? month} ${year}`;
+};
+
+const formatPartsLabel = (part: string | null | undefined): string => {
+  if (!part) return "חלקים ב׳ + ג׳";
+  return PART_LABEL[part as "B" | "C"] ?? part;
+};
+
 const formatShortDate = (iso: string): string => {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return "—";
@@ -150,12 +170,22 @@ const SimulationRow = ({ session, isLast }: SimulationRowProps) => {
     <article className={`px-5 py-4 ${!isLast ? "border-b border-default" : ""}`}>
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-sm font-bold text-primary">
-            {formatShortDate(session.created_at)}
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-bold text-primary">
+              {formatExamLabel(session.exam_date)}
+            </p>
+
+            <span className="rounded-full bg-[var(--color-beige-strong)] px-2 py-0.5 text-[10px] font-semibold text-[var(--color-black)]">
+              סימולציה
+            </span>
+          </div>
+
+          <p className="mt-0.5 text-xs font-medium text-secondary">
+            {formatPartsLabel(session.part)}
           </p>
 
-          <p className="mt-1 text-xs text-secondary">
-            {session.total_questions} שאלות ·{" "}
+          <p className="mt-1 text-xs text-[var(--text-tertiary)]">
+            {formatShortDate(session.created_at)} · {session.total_questions} שאלות ·{" "}
             {formatDuration(session.started_at, session.completed_at)}
           </p>
         </div>

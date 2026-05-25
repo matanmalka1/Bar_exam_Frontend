@@ -52,6 +52,10 @@
   --color-fail-bg: #fee2e2;
   --color-fail-text: #991b1b;
   --color-warn: #d97706;
+
+  --amber-300: #fcd34d;
+  --amber-800: #92400e;
+  --amber-50: #fffbeb;
 }
 
 html,
