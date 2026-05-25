@@ -52,7 +52,7 @@ interface UseExamSessionResult {
   submitOrNext: () => Promise<void>;
   prev: () => void;
   next: () => void;
-  complete: () => Promise<void>;
+  complete: (force?: boolean) => Promise<void>;
   toggleBookmark: () => Promise<void>;
 }
 
@@ -133,7 +133,11 @@ export const useExamSession = ({
   const total = questionsCount;
   const answeredCount =
     session?.questions.filter((question) => question.answer).length ?? 0;
-  const allAnswered = questionsCount > 0 && answeredCount >= questionsCount;
+  const activeQuestions =
+    session?.questions.filter((q) => q.status !== "invalidated") ?? [];
+  const activeCount = activeQuestions.length;
+  const activeAnsweredCount = activeQuestions.filter((q) => q.answer).length;
+  const allAnswered = activeCount > 0 && activeAnsweredCount >= activeCount;
   const isLast = currentIndex === questionsCount - 1;
   const answerSubmitted =
     current?.answer !== null && current?.answer !== undefined;
@@ -154,7 +158,7 @@ export const useExamSession = ({
   const primaryReason =
     !answerSubmitted && !displaySelected ? "בחר תשובה" : null;
   const completeReason = !allAnswered
-    ? `יש לענות על כל ${total} השאלות לפני סיום`
+    ? `יש לענות על כל ${activeCount} השאלות הפעילות לפני סיום`
     : null;
 
   const clearTransientState = useCallback(() => {
@@ -257,8 +261,8 @@ export const useExamSession = ({
     submitting,
   ]);
 
-  const complete = useCallback(async () => {
-    if (!allAnswered || !sessionId || completing || completingRef.current) {
+  const complete = useCallback(async (force = false) => {
+    if ((!force && !allAnswered) || !sessionId || completing || completingRef.current) {
       return;
     }
 

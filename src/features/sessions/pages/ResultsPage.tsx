@@ -271,6 +271,14 @@ const ResultsPage = () => {
       .then((data) => {
         if (cancelled) return;
 
+        if (data.status !== "completed") {
+          const route = isExamLike(data.mode)
+            ? `/session/${id}/exam`
+            : `/session/${id}`;
+          navigate(route, { replace: true });
+          return;
+        }
+
         setSession(data);
         setStatus("ready");
       })
@@ -283,7 +291,7 @@ const ResultsPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [id, reloadKey]);
+  }, [id, reloadKey, navigate]);
 
   const mistakes = useMemo<SessionQuestion[]>(
     () => session?.questions.filter(isMistake) ?? [],

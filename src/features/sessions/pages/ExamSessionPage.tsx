@@ -138,7 +138,7 @@ const ExamSessionPage = () => {
     if (expired && status === "ready") {
       clearStorage();
       clearElapsedStorage();
-      complete();
+      void complete(true);
     }
   }, [expired, status, complete, clearStorage, clearElapsedStorage]);
 
@@ -189,7 +189,7 @@ const ExamSessionPage = () => {
 
   return (
     <PageShell className="pb-32">
-      {expired && <TimeUpModal onConfirm={complete} />}
+      {expired && <TimeUpModal onConfirm={() => void complete(true)} />}
 
       <AppHeader
         back={{ onClick: () => navigate("/") }}
