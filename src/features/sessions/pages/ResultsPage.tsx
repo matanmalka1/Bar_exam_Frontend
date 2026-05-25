@@ -59,7 +59,7 @@ const StatItem = ({
   </div>
 );
 
-const PASSING_SCORE = 48;
+const PASSING_SCORE = 60;
 
 const ScoreCard = ({
   session,

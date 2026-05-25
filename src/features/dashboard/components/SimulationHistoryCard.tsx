@@ -16,7 +16,7 @@ const HEBREW_MONTHS = [
   "דצמ׳",
 ];
 
-const PASSING_SCORE = 48;
+const PASSING_SCORE = 60;
 
 const PART_LABEL: Record<"B" | "C", string> = {
   B: "דין דיוני",
