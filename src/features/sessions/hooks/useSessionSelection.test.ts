@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import type { SessionDetail } from "../types";
+import type { AnswerExamOut, SessionDetail } from "../types";
 import { useExamSession } from "./useExamSession";
 import { usePracticeSession } from "./usePracticeSession";
 
@@ -9,20 +9,25 @@ const getPracticeSessionMock = vi.fn();
 const loadBookmarksMock = vi.fn();
 const toggleBookmarkMock = vi.fn();
 
+const submitAnswerMock = vi.fn();
+
 vi.mock("../api", () => ({
   completeSession: vi.fn(),
   getPracticeSession: (...args: unknown[]) => getPracticeSessionMock(...args),
-  submitAnswer: vi.fn(),
+  submitAnswer: (...args: unknown[]) => submitAnswerMock(...args),
 }));
 
-vi.mock("./useSessionBookmarks", () => ({
-  useSessionBookmarks: () => ({
+vi.mock("./useSessionBookmarks", () => {
+  // Stable object — same reference returned on every call to useSessionBookmarks()
+  // so useSessionLoader's useEffect dep on loadBookmarks doesn't re-fire each render.
+  const stable = {
     bookmarkBusy: false,
     bookmarkIds: new Set<string>(),
-    loadBookmarks: loadBookmarksMock,
-    toggleBookmark: toggleBookmarkMock,
-  }),
-}));
+    loadBookmarks: (..._args: unknown[]) => Promise.resolve(),
+    toggleBookmark: vi.fn(),
+  };
+  return { useSessionBookmarks: () => stable };
+});
 
 const makeSession = (mode: SessionDetail["mode"]): SessionDetail => ({
   id: 10,
@@ -63,6 +68,7 @@ beforeEach(() => {
   getPracticeSessionMock.mockReset();
   loadBookmarksMock.mockReset();
   toggleBookmarkMock.mockReset();
+  submitAnswerMock.mockReset();
 });
 
 describe("session answer selection", () => {
@@ -108,5 +114,49 @@ describe("session answer selection", () => {
 
     act(() => result.current.selectAnswer("ב"));
     await waitFor(() => expect(result.current.displaySelected).toBeNull());
+  });
+});
+
+describe("exam answer submission state", () => {
+  test("submitOrNext calls submitAnswer and does not receive is_correct from the API", async () => {
+    getPracticeSessionMock.mockResolvedValue(makeSession("exam"));
+
+    const examResult: AnswerExamOut = {
+      stable_id: "2025-04_B_001",
+      selected_answer: "א",
+      answered_at: "2026-05-25T10:00:00Z",
+    };
+    submitAnswerMock.mockResolvedValue(examResult);
+
+    const onRedirectToPractice = vi.fn();
+    const onComplete = vi.fn();
+
+    const { result } = renderHook(() =>
+      useExamSession({
+        sessionId: "10",
+        onRedirectToPractice,
+        onComplete,
+      }),
+    );
+
+    await waitFor(() => expect(result.current.status).toBe("ready"));
+    await waitFor(() => expect(result.current.current).not.toBeNull());
+
+    act(() => result.current.selectAnswer("א"));
+    await waitFor(() => expect(result.current.displaySelected).toBe("א"));
+
+    await act(async () => {
+      await result.current.submitOrNext();
+    });
+
+    expect(submitAnswerMock).toHaveBeenCalledWith("10", {
+      stable_id: "2025-04_B_001",
+      selected_answer: "א",
+    });
+
+    // exam answer response has no is_correct / scoring_status
+    const callResult = await submitAnswerMock.mock.results[0].value as AnswerExamOut;
+    expect("is_correct" in callResult).toBe(false);
+    expect("correct_answer" in callResult).toBe(false);
   });
 });
