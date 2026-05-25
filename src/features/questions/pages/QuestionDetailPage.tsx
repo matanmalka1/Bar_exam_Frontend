@@ -16,6 +16,13 @@ import type { PracticeQuestion, ReviewQuestionDetail } from "../types";
 
 const OPTIONS: AnswerOption[] = ["א", "ב", "ג", "ד"];
 
+const InvalidationNote = ({ note }: { note: string | null | undefined }) =>
+  note ? (
+    <p className="rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-700">
+      {note}
+    </p>
+  ) : null;
+
 const hasReviewAnswer = (
   question: PracticeQuestion | ReviewQuestionDetail,
 ): question is ReviewQuestionDetail => "correct_answer" in question;
@@ -32,11 +39,7 @@ const BrowseBody = ({ question }: { question: PracticeQuestion }) => (
       part={question.part}
     />
 
-    {question.invalidation_note && (
-      <p className="rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-700">
-        {question.invalidation_note}
-      </p>
-    )}
+    <InvalidationNote note={question.invalidation_note} />
 
     <p className="whitespace-pre-wrap text-[17px] leading-[1.85] text-primary">
       {question.body}
@@ -68,11 +71,7 @@ const ReviewBody = ({ question }: { question: ReviewQuestionDetail }) => {
         part={question.part}
       />
 
-      {isInvalidated && (
-        <p className="rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-700">
-          {question.invalidation_note}
-        </p>
-      )}
+      <InvalidationNote note={question.invalidation_note} />
 
       <p className="whitespace-pre-wrap text-[17px] leading-[1.85] text-primary">
         {question.body}

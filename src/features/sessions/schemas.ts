@@ -28,7 +28,7 @@ export const QuestionOptionsSchema = z.object({
 const DateTimeStringSchema = z.string().min(1);
 const ScoreSchema = z.string();
 
-const SessionPartBreakdownSchema = z.object({
+export const SessionPartBreakdownSchema = z.object({
   total: z.number().int(),
   answered: z.number().int(),
   correct: z.number().int(),
@@ -100,13 +100,7 @@ export const AnswerResultSchema = z.union([
   AnswerExamOutSchema,
 ]);
 
-export const PartBreakdownSchema = z.object({
-  total: z.number().int(),
-  answered: z.number().int(),
-  correct: z.number().int(),
-  score: ScoreSchema,
-  max_score: z.number().int(),
-});
+export const PartBreakdownSchema = SessionPartBreakdownSchema;
 
 const ExamMistakeBriefSchema = z.object({
   stable_id: z.string(),

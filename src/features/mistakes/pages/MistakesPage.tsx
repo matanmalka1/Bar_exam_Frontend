@@ -7,16 +7,13 @@ import Card from "../../../components/Card";
 import EmptyState from "../../../components/EmptyState";
 import ErrorState from "../../../components/ErrorState";
 import FixedFooter from "../../../components/FixedFooter";
-import OptionCard from "../../../components/OptionCard";
+import AnswerPanel from "../../../components/AnswerPanel";
 import PageShell from "../../../components/PageShell";
 import QuestionMeta from "../../../components/QuestionMeta";
-import ReferenceBox from "../../../components/ReferenceBox";
 import AppLoader from "../../../components/loader";
 import { useMistakes } from "../hooks/useMistakes";
-import type { AnswerOption } from "../../sessions/types";
 import { cn } from "../../../lib/cn";
-
-const OPTIONS: AnswerOption[] = ["א", "ב", "ג", "ד"];
+import { setToggle } from "../../../lib/set-toggle";
 
 const formatExamDate = (raw: string): string => {
   const match = raw.match(/^(\d{4})-(\d{2})/);
@@ -74,22 +71,12 @@ const MistakeItem = ({
       </button>
 
       {open && (
-        <div id={panelId} className="space-y-3">
-          <div className="grid gap-2">
-            {OPTIONS.map((opt) => (
-              <OptionCard
-                key={opt}
-                mode="review"
-                label={opt}
-                text={question.options[opt]}
-                isCorrect={correct === opt}
-                showCorrectBadge
-              />
-            ))}
-          </div>
-
-          {question.reference && <ReferenceBox reference={question.reference} />}
-        </div>
+        <AnswerPanel
+          id={panelId}
+          options={question.options}
+          correctAnswer={correct}
+          reference={question.reference}
+        />
       )}
     </Card>
   );
@@ -102,19 +89,7 @@ const MistakesPage = () => {
 
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
-  const toggle = (id: string) => {
-    setExpanded((prev) => {
-      const next = new Set(prev);
-
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-
-      return next;
-    });
-  };
+  const toggle = (id: string) => setExpanded((prev) => setToggle(prev, id));
 
   if (status === "loading") {
     return (

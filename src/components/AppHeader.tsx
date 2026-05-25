@@ -61,6 +61,16 @@ const AppHeader = ({
     }
   };
 
+  const TitleRow = () =>
+    title || meta ? (
+      <div className="mt-2 flex items-end justify-between gap-3">
+        {title && (
+          <p className="font-display text-lg font-bold text-primary">{title}</p>
+        )}
+        {meta && <div>{meta}</div>}
+      </div>
+    ) : null;
+
   const progressPct = progress
     ? Math.min(
         100,
@@ -109,16 +119,7 @@ const AppHeader = ({
             </p>
           )}
 
-          {(title || meta) && (
-            <div className="mt-2 flex items-end justify-between gap-3">
-              {title && (
-                <p className="font-display text-lg font-bold text-primary">
-                  {title}
-                </p>
-              )}
-              {meta && <div>{meta}</div>}
-            </div>
-          )}
+          <TitleRow />
         </div>
       ) : (
         <>
@@ -152,16 +153,7 @@ const AppHeader = ({
             )}
           </div>
 
-          {(title || meta) && (
-            <div className="mt-2 flex items-end justify-between gap-3">
-              {title && (
-                <p className="font-display text-lg font-bold text-primary">
-                  {title}
-                </p>
-              )}
-              {meta && <div>{meta}</div>}
-            </div>
-          )}
+          <TitleRow />
         </>
       )}
 

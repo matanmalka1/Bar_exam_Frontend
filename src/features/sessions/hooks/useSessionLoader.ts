@@ -1,9 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
 import { getPracticeSession } from "../api";
-import type { SessionDetail } from "../types";
+import type { SessionDetail, SessionQuestion } from "../types";
 import { useSessionBookmarks } from "./useSessionBookmarks";
 
 type Status = "loading" | "ready" | "error";
+
+export const findFirstUnansweredIndex = (questions: SessionQuestion[]): number => {
+  const index = questions.findIndex((q) => q.answer === null);
+  return index === -1 ? Math.max(questions.length - 1, 0) : index;
+};
 
 interface UseSessionLoaderOptions {
   sessionId: string | undefined;

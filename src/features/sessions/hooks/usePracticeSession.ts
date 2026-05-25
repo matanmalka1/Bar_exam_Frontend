@@ -10,18 +10,14 @@ import type {
   SessionQuestion,
 } from "../types";
 import { useSessionBookmarks } from "./useSessionBookmarks";
-import { useSessionLoader } from "./useSessionLoader";
+import { findFirstUnansweredIndex, useSessionLoader } from "./useSessionLoader";
+import { useSessionNavigation } from "./useSessionNavigation";
 
 const SUBMIT_ERR = "לא ניתן לשמור תשובה. נסה שוב";
 const COMPLETE_ERR = "לא ניתן לסיים את התרגול כרגע";
 
 type PracticeAnswer = NonNullable<SessionQuestion["answer"]> & {
   scoring_status: "correct" | "incorrect" | "invalidated";
-};
-
-const findFirstUnansweredIndex = (questions: SessionQuestion[]): number => {
-  const index = questions.findIndex((question) => question.answer === null);
-  return index === -1 ? Math.max(questions.length - 1, 0) : index;
 };
 
 const isPracticeAnswer = (
@@ -46,8 +42,6 @@ export const usePracticeSession = ({
   onComplete,
 }: UsePracticeSessionOptions) => {
   const [session, setSession] = useState<SessionDetail | null>(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [selected, setSelected] = useState<AnswerOption | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
   const [completing, setCompleting] = useState(false);
@@ -57,6 +51,19 @@ export const usePracticeSession = ({
     bookmarkIds,
     toggleBookmark: toggleBookmarkById,
   } = useSessionBookmarks();
+
+  const {
+    currentIndex,
+    setCurrentIndex,
+    selected,
+    setSelected,
+    next: navNext,
+    prev,
+  } = useSessionNavigation();
+
+  const questionsCount = session?.questions.length ?? 0;
+  const total = questionsCount || session?.total_questions || 0;
+  const isLast = currentIndex === questionsCount - 1;
 
   const validate = useCallback(
     (data: SessionDetail, sid: string) => {
@@ -69,11 +76,14 @@ export const usePracticeSession = ({
     [onRedirectToExam],
   );
 
-  const onReady = useCallback((data: SessionDetail) => {
-    setSession(data);
-    setCurrentIndex(findFirstUnansweredIndex(data.questions));
-    setSelected(null);
-  }, []);
+  const onReady = useCallback(
+    (data: SessionDetail) => {
+      setSession(data);
+      setCurrentIndex(findFirstUnansweredIndex(data.questions));
+      setSelected(null);
+    },
+    [setCurrentIndex, setSelected],
+  );
 
   const { status, retry } = useSessionLoader({ sessionId, validate, onReady });
 
@@ -82,12 +92,9 @@ export const usePracticeSession = ({
     [session, currentIndex],
   );
 
-  const questionsCount = session?.questions.length ?? 0;
-  const total = questionsCount || session?.total_questions || 0;
   const answeredCount =
-    session?.questions.filter((question) => question.answer).length ?? 0;
+    session?.questions.filter((q) => q.answer).length ?? 0;
   const allAnswered = questionsCount > 0 && answeredCount >= questionsCount;
-  const isLast = currentIndex === questionsCount - 1;
   const answered = current?.answer ?? null;
   const answerSubmitted = answered !== null;
   const practiceAnswer = isPracticeAnswer(answered) ? answered : null;
@@ -109,29 +116,15 @@ export const usePracticeSession = ({
     return "תרגול חופשי";
   })();
 
-  const clearTransientState = useCallback(() => {
-    setSelected(null);
-  }, []);
+  const next = useCallback(() => navNext(questionsCount), [navNext, questionsCount]);
 
   const selectAnswer = useCallback(
     (option: AnswerOption) => {
       if (submitting || answerSubmitted) return;
       setSelected((prev) => (prev === option ? null : option));
     },
-    [answerSubmitted, submitting],
+    [answerSubmitted, submitting, setSelected],
   );
-
-  const next = useCallback(() => {
-    if (currentIndex >= questionsCount - 1) return;
-    setCurrentIndex((index) => index + 1);
-    clearTransientState();
-  }, [clearTransientState, currentIndex, questionsCount]);
-
-  const prev = useCallback(() => {
-    if (currentIndex <= 0) return;
-    setCurrentIndex((index) => index - 1);
-    clearTransientState();
-  }, [clearTransientState, currentIndex]);
 
   const toggleBookmark = useCallback(async () => {
     if (!current || bookmarkBusy) return;

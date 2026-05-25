@@ -18,6 +18,7 @@ import { getQuestionsForReview } from "../api";
 import type { PracticeQuestion, ReviewQuestionDetail } from "../types";
 import { useState } from "react";
 import { cn } from "../../../lib/cn";
+import { setToggle } from "../../../lib/set-toggle";
 
 const OPTIONS: AnswerOption[] = ["א", "ב", "ג", "ד"];
 
@@ -274,14 +275,7 @@ const QuestionsPage = () => {
     }
   };
 
-  const toggle = (id: string) => {
-    setExpanded((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
+  const toggle = (id: string) => setExpanded((prev) => setToggle(prev, id));
 
   const activeStatus = viewMode === "review" ? reviewState.status : status;
   const activeCount =
