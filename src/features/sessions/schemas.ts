@@ -12,6 +12,11 @@ export const SessionStatusSchema = z.enum(["active", "completed", "abandoned"]);
 
 export const QuestionPartSchema = z.enum(["B", "C"]);
 export const AnswerOptionSchema = z.enum(["א", "ב", "ג", "ד"]);
+export const ScoringStatusSchema = z.enum([
+  "correct",
+  "incorrect",
+  "invalidated",
+]);
 
 export const QuestionOptionsSchema = z.object({
   א: z.string(),
@@ -50,6 +55,7 @@ export const SessionSummarySchema = z.object({
 export const SessionAnswerInlineSchema = z.object({
   selected_answer: AnswerOptionSchema,
   is_correct: z.boolean().nullable().optional(),
+  scoring_status: ScoringStatusSchema.nullable().optional(),
   answered_at: DateTimeStringSchema,
 });
 
@@ -60,6 +66,7 @@ export const SessionQuestionSchema = z.object({
   body: z.string(),
   options: QuestionOptionsSchema,
   status: z.string(),
+  invalidation_note: z.string().nullable().optional(),
   answer: SessionAnswerInlineSchema.nullable(),
   correct_answer: AnswerOptionSchema.nullable().optional(),
   reference: z.string().nullable().optional(),
@@ -73,6 +80,7 @@ export const AnswerPracticeOutSchema = z.object({
   stable_id: z.string(),
   selected_answer: AnswerOptionSchema,
   is_correct: z.boolean(),
+  scoring_status: ScoringStatusSchema,
   correct_answer: AnswerOptionSchema.nullable(),
   reference: z.string().nullable(),
   answered_at: DateTimeStringSchema,
@@ -81,6 +89,7 @@ export const AnswerPracticeOutSchema = z.object({
 export const AnswerExamOutSchema = z.object({
   stable_id: z.string(),
   selected_answer: AnswerOptionSchema,
+  scoring_status: ScoringStatusSchema.nullable().optional(),
   answered_at: DateTimeStringSchema,
 });
 

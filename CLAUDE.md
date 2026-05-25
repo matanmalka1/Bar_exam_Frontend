@@ -100,6 +100,9 @@ Protected shell routes:
 - Do not add legal explanations.
 - Do not reveal answer correctness during exam/simulation sessions before completion.
 - Normal practice, mistakes, and bookmarks reveal feedback only after the user submits an answer.
+- Invalidated questions must be visually marked as invalidated wherever they appear.
+- Invalidated questions are answerable and grant full credit, but UI copy and analytics must distinguish invalidated credit from genuinely correct answers.
+- Invalidated questions must not be shown as mistakes.
 - Use `/users/me/*` endpoints for user-scoped data.
 
 ## Architecture

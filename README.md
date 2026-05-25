@@ -85,6 +85,9 @@ Protected:
 - Auth uses bearer access tokens (memory-only) plus a backend-set HttpOnly refresh cookie.
 - All API calls go through the same origin (`/api/v1/*`). In production, Render proxies these to the backend — so the refresh cookie is same-site and works on iOS Safari/WebKit.
 - User-scoped frontend calls use `/users/me/*`; the client does not send `user_id`.
+- Invalidated questions arrive with `status = "invalidated"` and optional `invalidation_note`.
+- Invalidated questions are answerable and grant full credit, but must be visually marked and distinguished from genuinely correct answers via `scoring_status = "invalidated"` and invalidated-credit stats.
+- Invalidated questions are not mistakes and should not appear in mistake lists.
 - Error responses are expected to use the backend envelope:
 
 ```ts

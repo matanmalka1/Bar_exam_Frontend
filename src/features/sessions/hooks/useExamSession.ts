@@ -224,6 +224,7 @@ export const useExamSession = ({
                 answer: {
                   selected_answer: result.selected_answer,
                   is_correct: null,
+                  scoring_status: null,
                   answered_at: result.answered_at,
                 },
               }

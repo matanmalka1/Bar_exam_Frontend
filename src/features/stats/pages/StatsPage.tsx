@@ -155,12 +155,16 @@ type PartProgressCardProps = {
   part: "B" | "C";
   totalAnswered: number;
   successRate: number | null;
+  genuineCorrect: number;
+  invalidatedCredits: number;
 };
 
 const PartProgressCard = ({
   part,
   totalAnswered,
   successRate,
+  genuineCorrect,
+  invalidatedCredits,
 }: PartProgressCardProps) => {
   const roundedRate = successRate !== null ? Math.round(successRate) : null;
   const barWidth =
@@ -193,7 +197,7 @@ const PartProgressCard = ({
       <p className="mt-3 text-xs tabular-nums text-secondary">
         {totalAnswered === 0
           ? "אין עדיין תשובות בחלק הזה"
-          : `${totalAnswered} שאלות נענו`}
+          : `${genuineCorrect} נכונות אמיתיות · ${invalidatedCredits} נקודות פסילה`}
       </p>
     </div>
   );
@@ -309,10 +313,7 @@ const StatsPage = () => {
                   tone="accent"
                   sub={
                     overview.total_answered > 0
-                      ? `${Math.max(
-                          0,
-                          overview.total_answered - overview.incorrect_answers,
-                        )} נכונות · ${overview.incorrect_answers} שגויות`
+                      ? `${overview.genuine_correct_answers} נכונות אמיתיות · ${overview.invalidated_credit_answers} נקודות פסילה · ${overview.incorrect_answers} שגויות`
                       : "עדיין אין תשובות"
                   }
                 />
@@ -339,6 +340,12 @@ const StatsPage = () => {
                 />
 
                 <SummaryCard
+                  label="נקודות פסילה"
+                  value={overview.invalidated_credit_answers}
+                  sub="נספרות בציון, בנפרד מתשובות נכונות"
+                />
+
+                <SummaryCard
                   label="טעויות פתוחות"
                   value={overview.active_mistakes_count}
                   tone={
@@ -359,12 +366,20 @@ const StatsPage = () => {
                   part="B"
                   totalAnswered={overview.part_b.total_answered}
                   successRate={overview.part_b.success_rate}
+                  genuineCorrect={overview.part_b.genuine_correct_answers}
+                  invalidatedCredits={
+                    overview.part_b.invalidated_credit_answers
+                  }
                 />
 
                 <PartProgressCard
                   part="C"
                   totalAnswered={overview.part_c.total_answered}
                   successRate={overview.part_c.success_rate}
+                  genuineCorrect={overview.part_c.genuine_correct_answers}
+                  invalidatedCredits={
+                    overview.part_c.invalidated_credit_answers
+                  }
                 />
               </div>
             </section>

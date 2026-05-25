@@ -6,6 +6,7 @@ import type {
   AnswerResultSchema,
   PartBreakdownSchema,
   QuestionPartSchema,
+  ScoringStatusSchema,
   SessionAnswerInlineSchema,
   SessionCompleteSchema,
   SessionDetailSchema,
@@ -22,6 +23,7 @@ export const isExamLike = (mode: SessionMode | string): boolean =>
 export type SessionStatus = z.infer<typeof SessionStatusSchema>;
 export type QuestionPart = z.infer<typeof QuestionPartSchema>;
 export type AnswerOption = z.infer<typeof AnswerOptionSchema>;
+export type ScoringStatus = z.infer<typeof ScoringStatusSchema>;
 
 export type SessionSummary = z.infer<typeof SessionSummarySchema>;
 export type SessionAnswerInline = z.infer<typeof SessionAnswerInlineSchema>;
@@ -33,7 +35,6 @@ export interface SessionCreateInput {
   exam_date?: string;
   part?: QuestionPart | null;
   question_count?: number;
-  include_invalidated?: boolean;
 }
 
 export interface AnswerSubmitPayload {

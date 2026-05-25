@@ -39,7 +39,7 @@ const formatDate = (iso: string | null): string => {
 };
 
 const isMistake = (q: SessionQuestion): boolean =>
-  q.answer !== null && q.answer.is_correct === false;
+  q.status !== "invalidated" && q.answer !== null && q.answer.is_correct === false;
 
 const StatItem = ({
   label,
@@ -65,6 +65,7 @@ const ScoreCard = ({
   answered,
   correct,
   mistakesCount,
+  invalidatedCredits,
   scoreValue,
 }: {
   session: SessionDetail;
@@ -72,6 +73,7 @@ const ScoreCard = ({
   answered: number;
   correct: number;
   mistakesCount: number;
+  invalidatedCredits: number;
   scoreValue: string;
 }) => {
   const examMode = isExamLike(session.mode);
@@ -107,6 +109,12 @@ const ScoreCard = ({
           <StatItem label="נכונות" value={correct} />
           <StatItem label="טעויות" value={mistakesCount} />
         </div>
+
+        {invalidatedCredits > 0 && (
+          <p className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-900">
+            {invalidatedCredits} נקודות ניתנו על שאלות שנפסלו
+          </p>
+        )}
 
         {session.completed_at && (
           <p className="mt-4 text-xs text-secondary">
@@ -240,6 +248,9 @@ const ResultsPage = () => {
   const total = session.total_questions;
   const answered = session.answered_count;
   const correct = session.correct_count ?? 0;
+  const invalidatedCredits = session.questions.filter(
+    (question) => question.status === "invalidated",
+  ).length;
 
   const scoreNumber = Number(
     session.score_percent ?? (total > 0 ? (correct / total) * 100 : 0),
@@ -260,6 +271,7 @@ const ResultsPage = () => {
           answered={answered}
           correct={correct}
           mistakesCount={mistakes.length}
+          invalidatedCredits={invalidatedCredits}
           scoreValue={scorePercent}
         />
 

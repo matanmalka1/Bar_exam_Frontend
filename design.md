@@ -13,6 +13,9 @@ The goal is to keep the product Hebrew, RTL, mobile-first, clean, and consistent
 - Do not add legal explanations.
 - Do not reveal answer correctness in exam or simulation sessions before completion.
 - In normal practice, mistakes, and bookmarks, reveal feedback only after the user submits an answer.
+- Visually mark invalidated questions wherever they appear.
+- Invalidated-question feedback should say that the question was invalidated and grants full credit; do not present it as an ordinary correct answer.
+- Do not show invalidated questions in mistake lists.
 
 ## Visual Language
 

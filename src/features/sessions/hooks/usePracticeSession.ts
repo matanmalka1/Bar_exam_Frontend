@@ -202,6 +202,7 @@ export const usePracticeSession = ({
                 answer: {
                   selected_answer: result.selected_answer,
                   is_correct: result.is_correct,
+                  scoring_status: result.scoring_status,
                   answered_at: result.answered_at,
                 },
                 correct_answer:

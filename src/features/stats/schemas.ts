@@ -3,6 +3,8 @@ import { z } from "zod";
 const PartStatsSchema = z.object({
   total_answered: z.number().int(),
   success_rate: z.number().nullable(),
+  genuine_correct_answers: z.number().int(),
+  invalidated_credit_answers: z.number().int(),
 });
 
 export const StatsOverviewSchema = z.object({
@@ -12,6 +14,10 @@ export const StatsOverviewSchema = z.object({
   unique_answered_questions: z.number().int(),
   total_answer_attempts: z.number().int(),
   latest_correct_answers: z.number().int(),
+  genuine_correct_answers: z.number().int(),
+  invalidated_credit_answers: z.number().int(),
+  latest_genuine_correct_answers: z.number().int(),
+  latest_invalidated_credit_answers: z.number().int(),
   part_b: PartStatsSchema,
   part_c: PartStatsSchema,
   simulations_completed: z.number().int(),

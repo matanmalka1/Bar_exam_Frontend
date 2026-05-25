@@ -21,9 +21,11 @@ import { tap } from "../../../lib/haptics";
 const AnswerFeedback = ({
   isCorrect,
   correctAnswer,
+  scoringStatus,
 }: {
   isCorrect: boolean;
   correctAnswer: string | null;
+  scoringStatus?: string | null;
 }) => (
   <div
     role="status"
@@ -31,7 +33,12 @@ const AnswerFeedback = ({
     className="rounded-2xl border border-default bg-[var(--surface-muted)] px-4 py-3 text-sm font-semibold text-primary"
   >
     <div className="flex items-center gap-2">
-      {isCorrect ? (
+      {scoringStatus === "invalidated" ? (
+        <>
+          <Check className="h-4 w-4 shrink-0" strokeWidth={2.6} />
+          <span>השאלה נפסלה, ולכן ניתנה עליה נקודה מלאה.</span>
+        </>
+      ) : isCorrect ? (
         <>
           <Check className="h-4 w-4 shrink-0" strokeWidth={2.6} />
           <span>תשובה נכונה.</span>
@@ -194,6 +201,7 @@ const SessionPage = () => {
           <AnswerFeedback
             isCorrect={practiceAnswer.is_correct}
             correctAnswer={correctAnswer}
+            scoringStatus={practiceAnswer.scoring_status}
           />
         )}
 

@@ -25,6 +25,7 @@ const SessionQuestionCard = ({
   isBookmarked,
 }: SessionQuestionCardProps) => {
   const meta = parseStableId(question.stable_id);
+  const invalidated = question.status === "invalidated";
   return (
     <article className="rounded-3xl border border-default bg-[var(--surface-muted)] p-5 shadow-[var(--shadow-default)]">
       <div className="flex items-baseline justify-between gap-2 border-b border-black/10 pb-3">
@@ -47,6 +48,14 @@ const SessionQuestionCard = ({
           </span>
         )}
       </div>
+      {invalidated && (
+        <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold leading-6 text-amber-900">
+          <p>שאלה שנפסלה. ניתן לענות עליה, והיא מזכה בנקודה מלאה.</p>
+          {question.invalidation_note && (
+            <p className="mt-1 font-normal">{question.invalidation_note}</p>
+          )}
+        </div>
+      )}
       <p className="mt-4 whitespace-pre-wrap text-[17px] leading-[1.85] text-primary">
         {question.body}
       </p>
