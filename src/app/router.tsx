@@ -1,54 +1,83 @@
+import type { ReactElement } from "react";
 import { Navigate, createBrowserRouter } from "react-router-dom";
-import HomePage from "../features/dashboard/pages/HomePage";
-import PracticeNewPage from "../features/sessions/pages/PracticeNewPage";
-import ActiveSessionsPage from "../features/sessions/pages/ActiveSessionsPage";
-import SessionPage from "../features/sessions/pages/SessionPage";
-import ExamSessionPage from "../features/sessions/pages/ExamSessionPage";
-import ResultsPage from "../features/sessions/pages/ResultsPage";
-import MistakesPage from "../features/mistakes/pages/MistakesPage";
-import BookmarksPage from "../features/bookmarks/pages/BookmarksPage";
-import MorePage from "../features/auth/pages/MorePage";
-import StatsPage from "../features/stats/pages/StatsPage";
-import QuestionsPage from "../features/questions/pages/QuestionsPage";
-import QuestionDetailPage from "../features/questions/pages/QuestionDetailPage";
 import NotFoundPage from "./NotFoundPage";
-import ForgotPasswordPage from "../features/auth/ForgotPasswordPage";
-import LoginPage from "../features/auth/LoginPage";
 import ProtectedRoute from "../features/auth/ProtectedRoute";
-import RegisterPage from "../features/auth/RegisterPage";
-import ResetPasswordPage from "../features/auth/ResetPasswordPage";
-import TermsPage from "../features/auth/TermsPage";
+import {
+  ActiveSessionsPage,
+  BookmarksPage,
+  ExamSessionPage,
+  ForgotPasswordPage,
+  HomePage,
+  LoginPage,
+  MistakesPage,
+  MorePage,
+  PracticeNewPage,
+  QuestionDetailPage,
+  QuestionsPage,
+  RegisterPage,
+  ResetPasswordPage,
+  ResultsPage,
+  SessionPage,
+  StatsPage,
+  TermsPage,
+} from "./lazyPages";
+import RoutePageBoundary from "./RoutePageBoundary";
 import Shell from "./Shell";
 
+const withPageBoundary = (page: ReactElement) => (
+  <RoutePageBoundary>{page}</RoutePageBoundary>
+);
+
 export const router = createBrowserRouter([
-  { path: "/login", element: <LoginPage /> },
-  { path: "/register", element: <RegisterPage /> },
-  { path: "/forgot-password", element: <ForgotPasswordPage /> },
-  { path: "/reset-password", element: <ResetPasswordPage /> },
-  { path: "/terms", element: <TermsPage /> },
+  { path: "/login", element: withPageBoundary(<LoginPage />) },
+  { path: "/register", element: withPageBoundary(<RegisterPage />) },
+  {
+    path: "/forgot-password",
+    element: withPageBoundary(<ForgotPasswordPage />),
+  },
+  {
+    path: "/reset-password",
+    element: withPageBoundary(<ResetPasswordPage />),
+  },
+  { path: "/terms", element: withPageBoundary(<TermsPage />) },
   {
     element: <ProtectedRoute />,
     children: [
       {
         element: <Shell />,
         children: [
-          { path: "/", element: <HomePage /> },
-          { path: "/practice/new", element: <PracticeNewPage /> },
-          { path: "/session/:id", element: <SessionPage /> },
-          { path: "/session/:id/exam", element: <ExamSessionPage /> },
-          { path: "/session/:id/results", element: <ResultsPage /> },
-          { path: "/sessions/active", element: <ActiveSessionsPage /> },
-          { path: "/mistakes", element: <MistakesPage /> },
-          { path: "/bookmarks", element: <BookmarksPage /> },
-          { path: "/stats", element: <StatsPage /> },
+          { path: "/", element: withPageBoundary(<HomePage />) },
+          {
+            path: "/practice/new",
+            element: withPageBoundary(<PracticeNewPage />),
+          },
+          { path: "/session/:id", element: withPageBoundary(<SessionPage />) },
+          {
+            path: "/session/:id/exam",
+            element: withPageBoundary(<ExamSessionPage />),
+          },
+          {
+            path: "/session/:id/results",
+            element: withPageBoundary(<ResultsPage />),
+          },
+          {
+            path: "/sessions/active",
+            element: withPageBoundary(<ActiveSessionsPage />),
+          },
+          { path: "/mistakes", element: withPageBoundary(<MistakesPage />) },
+          { path: "/bookmarks", element: withPageBoundary(<BookmarksPage />) },
+          { path: "/stats", element: withPageBoundary(<StatsPage />) },
           { path: "/review", element: <Navigate to="/questions" replace /> },
-          { path: "/questions", element: <QuestionsPage /> },
-          { path: "/questions/:stableId", element: <QuestionDetailPage /> },
+          { path: "/questions", element: withPageBoundary(<QuestionsPage />) },
+          {
+            path: "/questions/:stableId",
+            element: withPageBoundary(<QuestionDetailPage />),
+          },
           {
             path: "/questions/:stableId/review",
-            element: <QuestionDetailPage mode="review" />,
+            element: withPageBoundary(<QuestionDetailPage mode="review" />),
           },
-          { path: "/more", element: <MorePage /> },
+          { path: "/more", element: withPageBoundary(<MorePage />) },
           { path: "*", element: <NotFoundPage /> },
         ],
       },

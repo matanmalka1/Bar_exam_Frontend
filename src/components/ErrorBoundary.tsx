@@ -4,6 +4,7 @@ import Card from "./Card";
 
 type ErrorBoundaryProps = {
   children: ReactNode;
+  fallback?: ReactNode;
 };
 
 type ErrorBoundaryState = {
@@ -33,6 +34,8 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
   render() {
     if (!this.state.hasError) return this.props.children;
+
+    if (this.props.fallback) return this.props.fallback;
 
     return (
       <main
