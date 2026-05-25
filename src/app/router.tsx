@@ -9,6 +9,7 @@ import MistakesPage from "../features/mistakes/pages/MistakesPage";
 import BookmarksPage from "../features/bookmarks/pages/BookmarksPage";
 import MorePage from "../features/auth/pages/MorePage";
 import StatsPage from "../features/stats/pages/StatsPage";
+import ReviewPage from "../features/review/pages/ReviewPage";
 import NotFoundPage from "./NotFoundPage";
 import ForgotPasswordPage from "../features/auth/ForgotPasswordPage";
 import LoginPage from "../features/auth/LoginPage";
@@ -39,6 +40,7 @@ export const router = createBrowserRouter([
           { path: "/mistakes", element: <MistakesPage /> },
           { path: "/bookmarks", element: <BookmarksPage /> },
           { path: "/stats", element: <StatsPage /> },
+          { path: "/review", element: <ReviewPage /> },
           { path: "/more", element: <MorePage /> },
           { path: "*", element: <NotFoundPage /> },
         ],

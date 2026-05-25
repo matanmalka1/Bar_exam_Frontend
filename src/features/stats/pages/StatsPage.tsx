@@ -197,7 +197,7 @@ const PartProgressCard = ({
       <p className="mt-3 text-xs tabular-nums text-secondary">
         {totalAnswered === 0
           ? "אין עדיין תשובות בחלק הזה"
-          : `${genuineCorrect} נכונות אמיתיות · ${invalidatedCredits} נקודות פסילה`}
+          : `${genuineCorrect} נכונות · ${invalidatedCredits} נקודות פסילה`}
       </p>
     </div>
   );
@@ -313,7 +313,7 @@ const StatsPage = () => {
                   tone="accent"
                   sub={
                     overview.total_answered > 0
-                      ? `${overview.genuine_correct_answers} נכונות אמיתיות · ${overview.invalidated_credit_answers} נקודות פסילה · ${overview.incorrect_answers} שגויות`
+                      ? `${overview.genuine_correct_answers} נכונות  · ${overview.invalidated_credit_answers} נקודות פסילה · ${overview.incorrect_answers} שגויות`
                       : "עדיין אין תשובות"
                   }
                 />

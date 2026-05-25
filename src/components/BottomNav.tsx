@@ -1,9 +1,9 @@
 import {
+  BookOpen,
   ChartBar,
   CircleAlert,
   Home,
   MoreHorizontal,
-  PencilLine,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "../lib/cn";
@@ -11,7 +11,7 @@ import { tap } from "../lib/haptics";
 
 const ITEMS = [
   { to: "/", label: "בית", icon: Home },
-  { to: "/practice/new", label: "תרגול", icon: PencilLine },
+  { to: "/review", label: "עיון", icon: BookOpen },
   { to: "/mistakes", label: "טעויות", icon: CircleAlert },
   { to: "/stats", label: "סטטיסטיקות", icon: ChartBar },
   { to: "/more", label: "פרופיל", icon: MoreHorizontal },
