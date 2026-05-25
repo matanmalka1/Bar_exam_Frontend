@@ -1,4 +1,3 @@
-import axios from "axios";
 import { Lock } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
@@ -7,7 +6,7 @@ import AppLoader from "../../components/loader";
 import Button from "../../components/Button";
 import ErrorState from "../../components/ErrorState";
 import PasswordToggle from "../../components/PasswordToggle";
-import { getApiErrorMessage } from "../../lib/api";
+import { getApiErrorMessage, isAxiosError } from "../../lib/api";
 import { notifySuccess } from "../../lib/toast";
 import { resetPassword } from "./api";
 import AuthPageShell from "./components/AuthPageShell";
@@ -71,7 +70,7 @@ const ResetPasswordPage = () => {
       setSuccess(true);
       notifySuccess("הסיסמה אופסה בהצלחה");
     } catch (err) {
-      const message = axios.isAxiosError(err)
+      const message = isAxiosError(err)
         ? (getApiErrorMessage(err) ?? "לא ניתן לאפס סיסמה. נסה לבקש קישור חדש")
         : "לא ניתן לאפס סיסמה. נסה לבקש קישור חדש";
       setError(message);

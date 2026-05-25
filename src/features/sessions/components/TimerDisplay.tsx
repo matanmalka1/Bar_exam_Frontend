@@ -16,7 +16,7 @@ type ElapsedProps = {
 type TimerDisplayProps = CountdownProps | ElapsedProps;
 
 const timerText = (urgent: boolean) =>
-  urgent ? "text-red-600" : "text-primary";
+  urgent ? "text-[var(--color-fail)]" : "text-primary";
 
 const TimerDisplay = (props: TimerDisplayProps) => {
   if (props.kind === "countdown") {

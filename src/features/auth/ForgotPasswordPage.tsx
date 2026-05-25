@@ -1,9 +1,9 @@
-import axios from "axios";
 import { Mail } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import AppLoader from "../../components/loader";
 import Button from "../../components/Button";
+import { isAxiosError } from "../../lib/api";
 import { notifyApiError } from "../../lib/toast";
 import { forgotPassword } from "./api";
 import AuthPageShell from "./components/AuthPageShell";
@@ -34,7 +34,7 @@ const ForgotPasswordPage = () => {
       setSuccess(res.message);
       setEmail("");
     } catch (err) {
-      if (axios.isAxiosError(err) && err.response?.status === 422) {
+      if (isAxiosError(err) && err.response?.status === 422) {
         setError("אימייל לא תקין");
       } else {
         notifyApiError(err, "שגיאה בשרת, נסה שוב");

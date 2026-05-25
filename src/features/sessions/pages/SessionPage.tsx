@@ -8,6 +8,7 @@ import ConfirmSheet from "../../../components/ConfirmSheet";
 import ErrorState from "../../../components/ErrorState";
 import FixedFooter from "../../../components/FixedFooter";
 import PageShell from "../../../components/PageShell";
+import ReferenceBox from "../../../components/ReferenceBox";
 import AppLoader from "../../../components/loader";
 import QuestionNavigation from "../components/QuestionNavigation";
 import SessionAnswerOptions from "../components/SessionAnswerOptions";
@@ -59,16 +60,6 @@ const AnswerFeedback = ({
   </div>
 );
 
-const ReferenceBox = ({ reference }: { reference: string }) => (
-  <section className="rounded-2xl border border-default bg-[var(--surface-muted)] p-4">
-    <p className="font-display text-[10px] uppercase tracking-[0.22em] text-secondary">
-      הפניה
-    </p>
-    <p className="mt-2 whitespace-pre-wrap text-sm leading-7 text-primary">
-      {reference}
-    </p>
-  </section>
-);
 
 const SessionPage = () => {
   const { id } = useParams<{ id: string }>();

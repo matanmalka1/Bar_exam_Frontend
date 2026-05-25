@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useState, type SyntheticEvent } from "react";
 import { Lock, Mail } from "lucide-react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
@@ -6,6 +5,7 @@ import Alert from "../../components/Alert";
 import AppLoader from "../../components/loader";
 import Button from "../../components/Button";
 import PasswordToggle from "../../components/PasswordToggle";
+import { isAxiosError } from "../../lib/api";
 import { dismissToasts, notifyApiError } from "../../lib/toast";
 import AuthPageShell from "./components/AuthPageShell";
 import AuthTextField from "./components/AuthTextField";
@@ -78,7 +78,7 @@ const LoginPage = () => {
       dismissToasts();
       navigate("/", { replace: true });
     } catch (err) {
-      const statusCode = axios.isAxiosError(err)
+      const statusCode = isAxiosError(err)
         ? err.response?.status
         : undefined;
       if (statusCode === 401 || statusCode === 403) {

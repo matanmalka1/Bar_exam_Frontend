@@ -14,7 +14,6 @@ import { usePracticeNewForm } from "../hooks/usePracticeNewForm";
 import { cn } from "../../../lib/cn";
 
 interface StepSectionProps {
-  index: string;
   title: string;
   complete: boolean;
   children: ReactNode;
@@ -26,12 +25,7 @@ const IntroBox = ({ children }: { children: ReactNode }) => (
   </p>
 );
 
-const StepSection = ({
-  index,
-  title,
-  complete,
-  children,
-}: StepSectionProps) => (
+const StepSection = ({ title, complete, children }: StepSectionProps) => (
   <section
     className={cn(
       "mt-5 rounded-[1.5rem] border bg-surface p-4 transition",
@@ -39,22 +33,9 @@ const StepSection = ({
     )}
   >
     <div className="flex items-center justify-between gap-3">
-      <div className="flex items-center gap-3">
-        <span
-          className={cn(
-            "flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold tabular-nums",
-            complete
-              ? "bg-[var(--accent-ink)] text-white"
-              : "border border-default bg-[var(--surface-muted)] text-secondary",
-          )}
-        >
-          {index}
-        </span>
-
-        <h2 className="font-display text-base font-bold text-[var(--accent-ink)]">
-          {title}
-        </h2>
-      </div>
+      <h2 className="font-display text-base font-bold text-[var(--accent-ink)]">
+        {title}
+      </h2>
 
       <span
         className={cn(
@@ -74,6 +55,20 @@ const StepSection = ({
 );
 
 type PartChoice = "B" | "C" | "both";
+
+const PartChips = ({
+  part,
+  onSelect,
+}: {
+  part: PartChoice | null;
+  onSelect: (p: PartChoice) => void;
+}) => (
+  <div className="flex flex-wrap gap-2.5">
+    <Chip selected={part === "B"} onClick={() => onSelect("B")}>דין דיוני</Chip>
+    <Chip selected={part === "C"} onClick={() => onSelect("C")}>דין מהותי</Chip>
+    <Chip selected={part === "both"} onClick={() => onSelect("both")}>שני החלקים יחד</Chip>
+  </div>
+);
 
 const examQuestionCount = (
   exams: { exam_date: string; part: "B" | "C"; question_count: number }[],
@@ -151,24 +146,12 @@ const PracticeNewPage = () => {
           בחר חלק ומועד בחינה. השאלות מאותו מועד יוצגו ללא משוב מיידי.
         </IntroBox>
 
-        <StepSection index="01" title="חלק" complete={part !== null}>
-          <div className="flex flex-wrap gap-2.5">
-            <Chip selected={part === "B"} onClick={() => setPart("B")}>
-              דין דיוני
-            </Chip>
-
-            <Chip selected={part === "C"} onClick={() => setPart("C")}>
-              דין מהותי
-            </Chip>
-
-            <Chip selected={part === "both"} onClick={() => setPart("both")}>
-              שני החלקים יחד
-            </Chip>
-          </div>
+        <StepSection title="חלק" complete={part !== null}>
+          <PartChips part={part} onSelect={setPart} />
         </StepSection>
 
         {part !== null && (
-          <StepSection index="02" title="בחר מועד" complete={examDate !== null}>
+          <StepSection title="בחר מועד" complete={examDate !== null}>
             {examDateOptions.length === 0 ? (
               <p className="rounded-2xl border border-default bg-[var(--surface-muted)] p-4 text-sm text-secondary">
                 אין מועדים זמינים
@@ -234,24 +217,12 @@ const PracticeNewPage = () => {
         תשובה.
       </IntroBox>
 
-      <StepSection index="01" title="חלק" complete={part !== null}>
-        <div className="flex flex-wrap gap-2.5">
-          <Chip selected={part === "B"} onClick={() => setPart("B")}>
-            דין דיוני
-          </Chip>
-
-          <Chip selected={part === "C"} onClick={() => setPart("C")}>
-            דין מהותי
-          </Chip>
-
-          <Chip selected={part === "both"} onClick={() => setPart("both")}>
-            שני החלקים יחד
-          </Chip>
-        </div>
+      <StepSection title="חלק" complete={part !== null}>
+        <PartChips part={part} onSelect={setPart} />
       </StepSection>
 
       {part !== null && (
-        <StepSection index="02" title="מועד" complete={dateSelected}>
+        <StepSection title="מועד" complete={dateSelected}>
           <div className="flex flex-wrap gap-2.5">
             <Chip selected={allDates} onClick={selectAllDates}>
               כל המועדים
@@ -271,7 +242,7 @@ const PracticeNewPage = () => {
       )}
 
       {part !== null && dateSelected && (
-        <StepSection index="03" title="מספר שאלות" complete={count !== null}>
+        <StepSection title="מספר שאלות" complete={count !== null}>
           <div className="flex flex-wrap gap-2.5">
             {([10, 20, 40] as const).map((n) => (
               <Chip key={n} selected={count === n} onClick={() => setCount(n)}>

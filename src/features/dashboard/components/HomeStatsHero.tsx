@@ -67,36 +67,23 @@ const HomeStatsHero = ({ stats, hasActiveSession = false }: HomeStatsHeroProps) 
   const hasMistakes = stats.active_mistakes_count > 0;
   return (
     <section className="mt-7" aria-label="סיכום פעילות">
-      <div className="grid grid-cols-2 gap-3">
-        <StatCard
-          label="שאלות נענו"
-          value={stats.total_answered}
-          sub={`${correctAnswers} נכונות · ${stats.incorrect_answers} שגויות`}
-        />
+      <StatCard
+        label="שאלות נענו"
+        value={stats.total_answered}
+        sub={`${correctAnswers} נכונות · ${stats.incorrect_answers} שגויות`}
+      />
+      <div className="mt-3 grid grid-cols-2 gap-3">
         <StatCard
           label="זמן לימוד"
           value={formatStudyTime(stats.total_study_seconds)}
         />
         <StatCard
-          label="תרגולים"
-          value={stats.practices_completed}
-        />
-        <StatCard
-          label="מבחנים"
-          value={stats.exams_completed}
-        />
-        <StatCard
-          label="סימולציות"
-          value={stats.simulations_completed}
-        />
-        <StatCard
           label="טעויות לחזרה"
-          value={
-            hasMistakes
-              ? `${stats.active_mistakes_count} פתוחות`
-            : "אין"
-          }
+          value={hasMistakes ? `${stats.active_mistakes_count} פתוחות` : "אין"}
         />
+        <StatCard label="תרגולים" value={stats.practices_completed} />
+        <StatCard label="מבחנים" value={stats.exams_completed} />
+        <StatCard label="סימולציות" value={stats.simulations_completed} />
       </div>
     </section>
   );

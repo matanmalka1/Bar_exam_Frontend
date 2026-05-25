@@ -94,11 +94,10 @@ const ScoreCard = ({
 
         {examMode && (
           <p
-            className={`mt-2 inline-block rounded-full px-3 py-1 text-xs font-semibold ${
-              passed
-                ? "bg-green-100 text-green-800"
-                : "bg-red-100 text-red-800"
-            }`}
+            className="mt-2 inline-block rounded-full px-3 py-1 text-xs font-semibold"
+            style={passed
+              ? { background: "var(--color-pass-bg)", color: "var(--color-pass-text)" }
+              : { background: "var(--color-fail-bg)", color: "var(--color-fail-text)" }}
           >
             {passed ? "עבר ✓" : "לא עבר ✗"} (מעבר: {PASSING_SCORE})
           </p>

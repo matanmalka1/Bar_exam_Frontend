@@ -3,7 +3,6 @@ import { ArrowLeft } from "lucide-react";
 import AppLoader from "../../../components/loader";
 
 type RouteRowProps = {
-  index: string;
   icon: ComponentType<{ className?: string; strokeWidth?: number }>;
   title: string;
   hint: string;
@@ -13,7 +12,6 @@ type RouteRowProps = {
 };
 
 const RouteRow = ({
-  index,
   icon: Icon,
   title,
   hint,
@@ -27,9 +25,6 @@ const RouteRow = ({
     disabled={disabled}
     className="focus-ring group flex w-full items-center gap-4 py-4 text-right transition disabled:cursor-not-allowed disabled:opacity-45"
   >
-    <span className="font-display w-7 shrink-0 text-xs tabular-nums text-secondary opacity-60">
-      {index}
-    </span>
     <span className="surface inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-default transition group-hover:border-strong group-active:scale-95">
       <Icon className="h-5 w-5" strokeWidth={1.8} />
     </span>

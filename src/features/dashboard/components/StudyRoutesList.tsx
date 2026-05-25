@@ -41,7 +41,6 @@ const StudyRoutesList = ({
     <ul className="divide-y divide-black/10">
       <li>
         <RouteRow
-          index="01"
           icon={PencilLine}
           title="תרגול חדש"
           hint="בחר חלק, מועד וכמות שאלות"
@@ -50,7 +49,6 @@ const StudyRoutesList = ({
       </li>
       <li>
         <RouteRow
-          index="02"
           icon={CalendarDays}
           title="בחינת מועד"
           hint="בחר מועד בחינה רשמי"
@@ -59,7 +57,6 @@ const StudyRoutesList = ({
       </li>
       <li>
         <RouteRow
-          index="03"
           icon={ClipboardList}
           title="סימולציה מלאה"
           hint="80 שאלות אקראיות מכל המאגר"
@@ -70,7 +67,6 @@ const StudyRoutesList = ({
       </li>
       <li>
         <RouteRow
-          index="04"
           icon={CircleAlert}
           title="חזרה על טעויות"
           hint={mistakesHint}
@@ -79,7 +75,6 @@ const StudyRoutesList = ({
       </li>
       <li>
         <RouteRow
-          index="05"
           icon={Bookmark}
           title="שאלות שסומנו"
           hint={bookmarksHint}

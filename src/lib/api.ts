@@ -111,6 +111,8 @@ api.interceptors.response.use(
   },
 );
 
+export const isAxiosError = axios.isAxiosError;
+
 export const isApiStatusError = (err: unknown, status: number): boolean =>
   axios.isAxiosError(err) && err.response?.status === status;
 

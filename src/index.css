@@ -43,6 +43,14 @@
   --duration-fast: 150ms;
   --duration-base: 250ms;
   --duration-slow: 500ms;
+
+  --color-pass: #15803d;
+  --color-pass-bg: #dcfce7;
+  --color-pass-text: #166534;
+  --color-fail: #dc2626;
+  --color-fail-bg: #fee2e2;
+  --color-fail-text: #991b1b;
+  --color-warn: #d97706;
 }
 
 html,

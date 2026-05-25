@@ -1,32 +1,37 @@
-import { useEffect, useState } from "react";
+import { useEffect, useReducer } from "react";
 import { getReviewQuestions } from "../api";
 import type { ReviewQuestion } from "../types";
 
 type Status = "idle" | "loading" | "ready" | "error";
 
+type State = { status: "ready"; questions: ReviewQuestion[] }
+  | { status: "error"; questions: ReviewQuestion[] }
+  | { status: "idle" | "loading"; questions: [] };
+
+type Action =
+  | { type: "ready"; questions: ReviewQuestion[] }
+  | { type: "error" };
+
+const reduce = (_: State, action: Action): State => {
+  if (action.type === "ready") return { status: "ready", questions: action.questions };
+  return { status: "error", questions: [] };
+};
+
 export const useReview = (examDate: string | null, part: "B" | "C" | null) => {
-  const [status, setStatus] = useState<Status>("idle");
-  const [questions, setQuestions] = useState<ReviewQuestion[]>([]);
-  const [reloadKey, setReloadKey] = useState(0);
+  const [state, dispatch] = useReducer(reduce, { status: "idle", questions: [] });
+  const [reloadKey, setReloadKey] = useReducer((n: number) => n + 1, 0);
 
   useEffect(() => {
-    if (!examDate || !part) {
-      setStatus("idle");
-      setQuestions([]);
-      return;
-    }
+    if (!examDate || !part) return;
 
     let cancelled = false;
-    setStatus("loading");
 
     getReviewQuestions(examDate, part)
       .then((data) => {
-        if (cancelled) return;
-        setQuestions(data);
-        setStatus("ready");
+        if (!cancelled) dispatch({ type: "ready", questions: data });
       })
       .catch(() => {
-        if (!cancelled) setStatus("error");
+        if (!cancelled) dispatch({ type: "error" });
       });
 
     return () => {
@@ -34,10 +39,9 @@ export const useReview = (examDate: string | null, part: "B" | "C" | null) => {
     };
   }, [examDate, part, reloadKey]);
 
-  const retry = () => {
-    setStatus("loading");
-    setReloadKey((k) => k + 1);
-  };
+  const status: Status = !examDate || !part ? "idle" : state.status === "idle" ? "loading" : state.status;
 
-  return { status, questions, retry };
+  const retry = () => setReloadKey();
+
+  return { status, questions: state.questions, retry };
 };

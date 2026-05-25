@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { SessionSummary } from "../../sessions/types";
 
 const HEBREW_MONTHS = [
@@ -61,11 +62,11 @@ const parseScore = (value: string | number | null | undefined): number | null =>
   return Math.round(score);
 };
 
-const scoreColorClass = (score: number | null): string => {
-  if (score === null) return "text-secondary";
-  if (score >= PASSING_SCORE) return "text-green-700";
-  if (score >= 40) return "text-amber-600";
-  return "text-red-600";
+const scoreColorStyle = (score: number | null): CSSProperties => {
+  if (score === null) return {};
+  if (score >= PASSING_SCORE) return { color: "var(--color-pass)" };
+  if (score >= 40) return { color: "var(--color-warn)" };
+  return { color: "var(--color-fail)" };
 };
 
 const ScoreBadge = ({
@@ -76,12 +77,12 @@ const ScoreBadge = ({
   maxScore: number | null | undefined;
 }) => {
   const score = parseScore(scoreProp);
-  const colorClass = scoreColorClass(score);
+  const colorStyle = scoreColorStyle(score);
 
   const max = maxScore ?? null;
 
   return (
-    <div className={`shrink-0 text-left ${colorClass}`}>
+    <div className="shrink-0 text-left" style={colorStyle}>
       <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-secondary">
         ציון
       </p>

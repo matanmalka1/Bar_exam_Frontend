@@ -1,6 +1,5 @@
-import axios from "axios";
 import { toast } from "sonner";
-import { getApiErrorDetail, getApiErrorMessage } from "./api";
+import { getApiErrorDetail, getApiErrorMessage, isAxiosError } from "./api";
 
 const DEFAULT_ERROR = "אירעה שגיאה. נסה שוב";
 const NETWORK_ERROR = "אין חיבור לשרת. נסה שוב";
@@ -46,7 +45,7 @@ export const notifyApiError = (
   error: unknown,
   fallback = DEFAULT_ERROR,
 ): void => {
-  if (!axios.isAxiosError(error)) {
+  if (!isAxiosError(error)) {
     const message =
       error instanceof Error && error.message.toLowerCase().includes("network")
         ? NETWORK_ERROR
