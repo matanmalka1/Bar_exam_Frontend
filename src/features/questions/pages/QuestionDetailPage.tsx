@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Eye } from "lucide-react";
 import AppHeader from "../../../components/AppHeader";
 import AppLoader from "../../../components/loader";
 import Button from "../../../components/Button";
@@ -23,11 +24,7 @@ type QuestionDetailPageProps = {
   mode?: "practice" | "review";
 };
 
-const QuestionBody = ({
-  question,
-}: {
-  question: PracticeQuestion | ReviewQuestionDetail;
-}) => (
+const BrowseBody = ({ question }: { question: PracticeQuestion }) => (
   <Card className="space-y-4">
     <QuestionMeta
       number={question.number}
@@ -52,19 +49,74 @@ const QuestionBody = ({
           mode="review"
           label={option}
           text={question.options[option]}
-          isCorrect={
-            hasReviewAnswer(question) && question.correct_answer === option
-          }
-          showCorrectBadge={hasReviewAnswer(question)}
         />
       ))}
     </div>
-
-    {hasReviewAnswer(question) && question.reference.trim() && (
-      <ReferenceBox reference={question.reference} />
-    )}
   </Card>
 );
+
+const ReviewBody = ({ question }: { question: ReviewQuestionDetail }) => {
+  const [revealed, setRevealed] = useState(false);
+  const reference = question.reference?.trim();
+  const isInvalidated = !!question.invalidation_note;
+
+  return (
+    <Card className="space-y-4">
+      <QuestionMeta
+        number={question.number}
+        examDate={question.exam_date}
+        part={question.part}
+      />
+
+      {isInvalidated && (
+        <p className="rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-700">
+          {question.invalidation_note}
+        </p>
+      )}
+
+      <p className="whitespace-pre-wrap text-[17px] leading-[1.85] text-primary">
+        {question.body}
+      </p>
+
+      <div className="grid gap-2">
+        {OPTIONS.map((option) => (
+          <OptionCard
+            key={option}
+            mode="review"
+            label={option}
+            text={question.options[option]}
+            isCorrect={!isInvalidated && revealed && question.correct_answer === option}
+            showCorrectBadge={!isInvalidated && revealed}
+          />
+        ))}
+      </div>
+
+      {!isInvalidated && !revealed && (
+        <Button
+          onClick={() => setRevealed(true)}
+          className="w-full"
+        >
+          <Eye className="h-4 w-4" strokeWidth={2} />
+          הצג תשובה נכונה
+        </Button>
+      )}
+
+      {!isInvalidated && revealed && reference && (
+        <ReferenceBox reference={reference} />
+      )}
+
+      {!isInvalidated && revealed && (
+        <button
+          type="button"
+          onClick={() => setRevealed(false)}
+          className="inline-flex items-center gap-1 px-1 py-1 text-xs font-medium text-secondary transition hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ink)]/30"
+        >
+          הסתר תשובה
+        </button>
+      )}
+    </Card>
+  );
+};
 
 const QuestionDetailPage = ({ mode = "practice" }: QuestionDetailPageProps) => {
   const { stableId } = useParams();
@@ -101,7 +153,7 @@ const QuestionDetailPage = ({ mode = "practice" }: QuestionDetailPageProps) => {
                   to={`/questions/${question.stable_id}/review`}
                   className="focus-ring inline-flex items-center gap-1 rounded-xl px-2 py-1.5 text-xs font-medium text-secondary transition hover:text-primary"
                 >
-                  הצג תשובה
+                  עיון ותשובה
                   <ChevronLeft className="h-4 w-4" strokeWidth={2.3} />
                 </Link>
               )
@@ -118,7 +170,13 @@ const QuestionDetailPage = ({ mode = "practice" }: QuestionDetailPageProps) => {
           />
         )}
 
-        {status === "ready" && question && <QuestionBody question={question} />}
+        {status === "ready" && question && mode === "practice" && (
+          <BrowseBody question={question as PracticeQuestion} />
+        )}
+
+        {status === "ready" && question && mode === "review" && hasReviewAnswer(question) && (
+          <ReviewBody question={question} />
+        )}
       </div>
     </PageShell>
   );

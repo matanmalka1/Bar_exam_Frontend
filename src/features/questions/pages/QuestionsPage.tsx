@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
+import ActionCard from "../../../components/ActionCard";
 import AppHeader from "../../../components/AppHeader";
 import AppLoader from "../../../components/loader";
 import Button from "../../../components/Button";
@@ -25,6 +26,11 @@ const PART_LABEL: Record<string, string> = {
   C: "דין מהותי",
 };
 
+const PART_HINT: Record<string, string> = {
+  B: "סדר הדין האזרחי והפלילי",
+  C: "דיני חוזים, נזיקין, קניין ועוד",
+};
+
 type Selection = { examDate: string; part: "B" | "C"; label: string };
 type ViewMode = "practice" | "review";
 
@@ -44,15 +50,16 @@ const ExamPicker = ({
   }
 
   return (
-    <section className="grid gap-3">
+    <section className="space-y-6">
       {[...grouped.entries()].map(([examDate, { label, parts }]) => (
-        <Card key={examDate} className="space-y-3">
-          <p className="font-display font-semibold text-primary">{label}</p>
-          <div className="grid gap-2">
+        <div key={examDate}>
+          <p className="mb-2.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-secondary">
+            {label}
+          </p>
+          <div className="grid gap-2.5">
             {parts.map((exam) => (
-              <button
+              <ActionCard
                 key={exam.part}
-                type="button"
                 onClick={() =>
                   onSelect({
                     examDate,
@@ -60,19 +67,24 @@ const ExamPicker = ({
                     label: `${label} · ${PART_LABEL[exam.part]}`,
                   })
                 }
-                className="focus-ring flex items-center justify-between rounded-xl border border-default bg-[var(--surface-muted)] px-4 py-3 text-right transition hover:bg-[var(--surface-hover)]"
               >
-                <span className="text-sm font-medium text-primary">
-                  {PART_LABEL[exam.part]}
-                </span>
-                <span className="flex items-center gap-1 text-xs text-secondary">
-                  {exam.question_count} שאלות
-                  <ChevronLeft className="h-4 w-4" strokeWidth={2} />
-                </span>
-              </button>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-display text-base font-bold text-[var(--accent-ink)]">
+                      {PART_LABEL[exam.part]}
+                    </p>
+                    <p className="mt-0.5 text-[13px] text-secondary">
+                      {PART_HINT[exam.part]}
+                    </p>
+                  </div>
+                  <span className="shrink-0 tabular-nums text-sm text-secondary">
+                    {exam.question_count} שאלות
+                  </span>
+                </div>
+              </ActionCard>
             ))}
           </div>
-        </Card>
+        </div>
       ))}
     </section>
   );
@@ -129,34 +141,36 @@ const ReviewPreview = ({
 }) => {
   const panelId = `review-${question.stable_id}`;
   const reference = question.reference?.trim();
+  const isInvalidated = !!question.invalidation_note;
 
   return (
     <Card className="space-y-3">
-      <QuestionMeta
-        number={question.number}
-        examDate={question.exam_date}
-        part={question.part}
-      />
+      <div className="flex items-start justify-between gap-3">
+        <QuestionMeta
+          number={question.number}
+          examDate={question.exam_date}
+          part={question.part}
+        />
+        <Link
+          to={`/questions/${question.stable_id}/review`}
+          className="focus-ring inline-flex shrink-0 items-center gap-1 rounded-xl px-2 py-1 text-xs font-medium text-secondary transition hover:text-primary"
+        >
+          פתח
+          <ChevronLeft className="h-4 w-4" strokeWidth={2.4} />
+        </Link>
+      </div>
 
-      <button
-        type="button"
-        className="w-full rounded-xl text-right focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ink)]/30"
-        onClick={onToggle}
-        aria-expanded={open}
-        aria-controls={panelId}
-      >
-        <p className="whitespace-pre-wrap text-sm leading-7 text-[var(--ink)]">
-          {question.body}
-        </p>
-      </button>
-
-      {question.invalidation_note && (
+      {isInvalidated && (
         <p className="rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-700">
           {question.invalidation_note}
         </p>
       )}
 
-      <div className="flex flex-wrap items-center gap-2">
+      <p className="whitespace-pre-wrap text-sm leading-7 text-[var(--ink)]">
+        {question.body}
+      </p>
+
+      {!isInvalidated && (
         <button
           type="button"
           className="inline-flex items-center gap-1 rounded-xl px-1 py-1 text-xs font-medium text-secondary transition hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ink)]/30"
@@ -170,17 +184,9 @@ const ReviewPreview = ({
           />
           {open ? "הסתר תשובה" : "הצג תשובה"}
         </button>
+      )}
 
-        <Link
-          to={`/questions/${question.stable_id}/review`}
-          className="focus-ring inline-flex items-center gap-1 rounded-xl px-1 py-1 text-xs font-medium text-secondary transition hover:text-primary"
-        >
-          פתח שאלה
-          <ChevronLeft className="h-4 w-4" strokeWidth={2.4} />
-        </Link>
-      </div>
-
-      {open && (
+      {open && !isInvalidated && (
         <div id={panelId} className="space-y-3">
           <div className="grid gap-2">
             {OPTIONS.map((option) => (
@@ -195,6 +201,19 @@ const ReviewPreview = ({
             ))}
           </div>
           {reference && <ReferenceBox reference={reference} />}
+        </div>
+      )}
+
+      {isInvalidated && (
+        <div id={panelId} className="grid gap-2">
+          {OPTIONS.map((option) => (
+            <OptionCard
+              key={option}
+              mode="review"
+              label={option}
+              text={question.options[option]}
+            />
+          ))}
         </div>
       )}
     </Card>
@@ -296,7 +315,7 @@ const QuestionsPage = () => {
           title={selection?.label ?? "מאגר שאלות"}
           back={back}
           meta={
-            activeStatus === "ready" ? (
+            selection && activeStatus === "ready" ? (
               <p className="tabular-nums text-sm text-secondary">
                 {activeCount} שאלות
               </p>
@@ -304,7 +323,14 @@ const QuestionsPage = () => {
           }
         />
 
-        {!selection && <ExamPicker exams={exams} onSelect={selectExam} />}
+        {!selection && (
+          <>
+            <p className="rounded-2xl border border-default bg-[var(--surface-muted)] px-4 py-3 text-sm leading-6 text-secondary">
+              בחר מועד וחלק לצפייה בשאלות. ניתן לעבור בין מצב עיון רגיל לצפייה בתשובות.
+            </p>
+            <ExamPicker exams={exams} onSelect={selectExam} />
+          </>
+        )}
 
         {selection && (
           <div className="grid grid-cols-2 rounded-2xl border border-default bg-[var(--surface-muted)] p-1">
