@@ -11,7 +11,8 @@ import PageShell from "../../../components/PageShell";
 import ReferenceBox from "../../../components/ReferenceBox";
 import AppLoader from "../../../components/loader";
 import { cn } from "../../../lib/cn";
-import { getPracticeSession } from "../api";
+import { notifyError } from "../../../lib/toast";
+import { getPracticeSession, createMistakesSession } from "../api";
 import type {
   AnswerOption,
   SessionDetail,
@@ -281,9 +282,23 @@ const ResultsPage = () => {
     [session],
   );
 
+  const [startingMistakes, setStartingMistakes] = useState(false);
+
   const retry = () => {
     setStatus("loading");
     setReloadKey((key) => key + 1);
+  };
+
+  const handlePracticeMistakes = async () => {
+    setStartingMistakes(true);
+    try {
+      const s = await createMistakesSession();
+      navigate(`/session/${s.id}`);
+    } catch {
+      notifyError("לא ניתן לפתוח תרגול טעויות כרגע");
+    } finally {
+      setStartingMistakes(false);
+    }
   };
 
   if (status === "loading") {
@@ -380,12 +395,20 @@ const ResultsPage = () => {
       </main>
 
       <FixedFooter>
+        {mistakes.length > 0 && (
+          <Button fullWidth disabled={startingMistakes} onClick={() => void handlePracticeMistakes()}>
+            {startingMistakes ? (
+              <AppLoader variant="button" label="פותח..." />
+            ) : (
+              `תרגל ${mistakes.length} טעויות`
+            )}
+          </Button>
+        )}
         <div className="flex gap-2">
           <Button variant="secondary" fullWidth onClick={() => navigate("/")}>
             חזרה לבית
           </Button>
-
-          <Button fullWidth onClick={() => navigate("/practice/new")}>
+          <Button variant="secondary" fullWidth onClick={() => navigate("/practice/new")}>
             תרגול חדש
           </Button>
         </div>
