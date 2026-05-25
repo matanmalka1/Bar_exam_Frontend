@@ -49,6 +49,17 @@ export const forgotPassword = async (
   return parseApiResponse(ForgotPasswordResponseSchema, data, "forgotPassword");
 };
 
+export const requestProfilePasswordReset = async (): Promise<
+  z.infer<typeof ForgotPasswordResponseSchema>
+> => {
+  const { data } = await api.post<unknown>("/auth/me/password-reset");
+  return parseApiResponse(
+    ForgotPasswordResponseSchema,
+    data,
+    "requestProfilePasswordReset",
+  );
+};
+
 export const resetUserData = async (): Promise<void> => {
   await api.delete("/users/me/data");
 };

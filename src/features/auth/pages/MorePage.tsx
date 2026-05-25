@@ -1,12 +1,20 @@
 import { useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Mail, UserRound, Info, ChevronLeft, Trash2 } from "lucide-react";
+import {
+  LogOut,
+  Mail,
+  UserRound,
+  Info,
+  ChevronLeft,
+  Trash2,
+  KeyRound,
+} from "lucide-react";
 import AppHeader from "../../../components/AppHeader";
 import Card from "../../../components/Card";
 import ConfirmSheet from "../../../components/ConfirmSheet";
 import PageShell from "../../../components/PageShell";
-import { notifyError } from "../../../lib/toast";
-import { resetUserData } from "../api";
+import { notifyApiError, notifyError, notifySuccess } from "../../../lib/toast";
+import { requestProfilePasswordReset, resetUserData } from "../api";
 import { useAuth } from "../useAuth";
 
 const SectionTitle = ({ children }: { children: ReactNode }) => (
@@ -74,7 +82,9 @@ const MorePage = () => {
   const { user, logout } = useAuth();
   const [confirmLogout, setConfirmLogout] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [confirmPasswordReset, setConfirmPasswordReset] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [sendingPasswordReset, setSendingPasswordReset] = useState(false);
 
   const onResetData = async () => {
     setResetting(true);
@@ -92,6 +102,19 @@ const MorePage = () => {
   const onLogout = async () => {
     await logout();
     navigate("/login", { replace: true });
+  };
+
+  const onPasswordReset = async () => {
+    setSendingPasswordReset(true);
+    try {
+      const res = await requestProfilePasswordReset();
+      notifySuccess(res.message);
+    } catch (error) {
+      notifyApiError(error, "לא ניתן לשלוח קישור איפוס. נסה שוב.");
+    } finally {
+      setSendingPasswordReset(false);
+      setConfirmPasswordReset(false);
+    }
   };
 
   return (
@@ -139,6 +162,13 @@ const MorePage = () => {
           <SectionTitle>פעולות</SectionTitle>
 
           <ActionRow
+            icon={<KeyRound className="h-5 w-5" />}
+            title="איפוס סיסמה"
+            description="שליחת קישור איפוס לאימייל שמוגדר בחשבון"
+            onClick={() => setConfirmPasswordReset(true)}
+          />
+
+          <ActionRow
             icon={<Trash2 className="h-5 w-5" />}
             title="אפס נתוני משתמש"
             description="מחיקת כל התשובות, המפגשים, הטעויות והסימניות"
@@ -153,6 +183,20 @@ const MorePage = () => {
           />
         </section>
       </div>
+
+      <ConfirmSheet
+        open={confirmPasswordReset}
+        title="לשלוח קישור איפוס סיסמה?"
+        description={
+          user
+            ? `קישור איפוס יישלח אל ${user.email}.`
+            : "קישור איפוס יישלח לאימייל שמוגדר בחשבון."
+        }
+        confirmLabel={sendingPasswordReset ? "שולח..." : "שלח קישור"}
+        cancelLabel="ביטול"
+        onConfirm={() => void onPasswordReset()}
+        onCancel={() => setConfirmPasswordReset(false)}
+      />
 
       <ConfirmSheet
         open={confirmReset}

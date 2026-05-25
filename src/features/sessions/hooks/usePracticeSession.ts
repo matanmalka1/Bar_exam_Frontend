@@ -189,7 +189,7 @@ export const usePracticeSession = ({
       submittingRef.current = false;
       setSubmitting(false);
     }
-  }, [current, selected, sessionId, submitting]);
+  }, [current, selected, sessionId, setSelected, submitting]);
 
   const complete = useCallback(async () => {
     if (!allAnswered || !sessionId || completing || completingRef.current) {

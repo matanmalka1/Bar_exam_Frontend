@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import Button from "./Button";
 
 interface ConfirmSheetProps {
@@ -8,6 +8,8 @@ interface ConfirmSheetProps {
   confirmLabel?: string;
   cancelLabel?: string;
   tertiaryLabel?: string;
+  confirmVariant?: "primary" | "danger";
+  closeOnBackdrop?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
   onTertiary?: () => void;
@@ -20,26 +22,87 @@ const ConfirmSheet = ({
   confirmLabel = "אישור",
   cancelLabel = "ביטול",
   tertiaryLabel,
+  confirmVariant = "primary",
+  closeOnBackdrop = true,
   onConfirm,
   onCancel,
   onTertiary,
 }: ConfirmSheetProps) => {
+  useEffect(() => {
+    if (!open) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onCancel();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [open, onCancel]);
+
   if (!open) return null;
+
+  const handleBackdropClick = () => {
+    if (closeOnBackdrop) {
+      onCancel();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40">
-      <div className="surface w-full rounded-t-2xl p-4 shadow-[var(--shadow-elevated)]">
-        <h2 className="text-lg font-semibold text-primary">{title}</h2>
-        {description && (
-          <p className="mt-2 text-sm text-secondary">{description}</p>
-        )}
-        <div className="mt-4 flex gap-2">
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 px-3 pb-3 backdrop-blur-[2px] sm:items-center sm:p-4"
+      onMouseDown={handleBackdropClick}
+      aria-hidden={!open}
+    >
+      <section
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-sheet-title"
+        aria-describedby={description ? "confirm-sheet-description" : undefined}
+        className="surface w-full max-w-md rounded-2xl border border-default p-4 shadow-[var(--shadow-elevated)] animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-150 sm:p-5"
+        onMouseDown={(event) => event.stopPropagation()}
+      >
+        <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-[var(--border-default)] sm:hidden" />
+
+        <div className="space-y-2 text-right">
+          <h2
+            id="confirm-sheet-title"
+            className="text-lg font-semibold text-primary"
+          >
+            {title}
+          </h2>
+
+          {description && (
+            <div
+              id="confirm-sheet-description"
+              className="text-sm leading-6 text-secondary"
+            >
+              {description}
+            </div>
+          )}
+        </div>
+
+        <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row">
           <Button variant="secondary" fullWidth onClick={onCancel}>
             {cancelLabel}
           </Button>
-          <Button variant="primary" fullWidth onClick={onConfirm}>
+
+          <Button
+            variant={confirmVariant}
+            fullWidth
+            autoFocus
+            onClick={onConfirm}
+          >
             {confirmLabel}
           </Button>
         </div>
+
         {tertiaryLabel && onTertiary && (
           <Button
             variant="ghost"
@@ -50,7 +113,7 @@ const ConfirmSheet = ({
             {tertiaryLabel}
           </Button>
         )}
-      </div>
+      </section>
     </div>
   );
 };

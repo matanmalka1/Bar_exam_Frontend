@@ -61,7 +61,7 @@ const AppHeader = ({
     }
   };
 
-  const TitleRow = () =>
+  const titleRow =
     title || meta ? (
       <div className="mt-2 flex items-end justify-between gap-3">
         {title && (
@@ -85,7 +85,7 @@ const AppHeader = ({
 
   return (
     <header className={cn(variant === "inline" ? INLINE : STICKY, className)}>
-{titleLayout === "stacked" ? (
+      {titleLayout === "stacked" ? (
         <div>
           {(back !== false && back) || actions ? (
             <div className="mb-2 flex items-center justify-between gap-2">
@@ -119,7 +119,7 @@ const AppHeader = ({
             </p>
           )}
 
-          <TitleRow />
+          {titleRow}
         </div>
       ) : (
         <>
@@ -153,7 +153,7 @@ const AppHeader = ({
             )}
           </div>
 
-          <TitleRow />
+          {titleRow}
         </>
       )}
 
