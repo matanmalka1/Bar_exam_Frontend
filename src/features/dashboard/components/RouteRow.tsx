@@ -25,7 +25,7 @@ const RouteRow = ({
     disabled={disabled}
     className="focus-ring group flex w-full items-center gap-4 py-4 text-right transition disabled:cursor-not-allowed disabled:opacity-45"
   >
-    <span className="surface inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-default transition group-hover:border-strong group-active:scale-95">
+    <span className="surface inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-default transition group-hover:border-strong group-active:scale-95">
       <Icon className="h-5 w-5" strokeWidth={1.8} />
     </span>
     <span className="min-w-0 flex-1">

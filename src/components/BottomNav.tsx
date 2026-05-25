@@ -19,7 +19,7 @@ const ITEMS = [
 
 const BottomNav = () => (
   <nav
-    className="fixed inset-x-0 bottom-0 z-40 border-t border-default bg-white/85 shadow-[0_-10px_30px_rgba(0,0,0,0.06)] backdrop-blur-md supports-[backdrop-filter]:bg-white/70"
+    className="fixed inset-x-0 bottom-0 z-40 border-t border-default bg-white/85 shadow-[var(--shadow-nav-up)] backdrop-blur-md supports-[backdrop-filter]:bg-white/70"
     aria-label="ניווט תחתון"
   >
     <ul className="grid grid-cols-5 px-1 pb-[calc(env(safe-area-inset-bottom)_+_0.25rem)] pt-1.5">

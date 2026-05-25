@@ -14,6 +14,7 @@
   --border-strong: rgba(0, 0, 0, 0.72);
   --shadow-default: 0 10px 30px rgba(0, 0, 0, 0.08);
   --shadow-elevated: 0 18px 46px rgba(0, 0, 0, 0.12);
+  --shadow-nav-up: 0 -10px 30px rgba(0, 0, 0, 0.06);
   --accent: var(--color-black);
   --accent-soft: var(--color-beige);
   --accent-ink: var(--color-black);
