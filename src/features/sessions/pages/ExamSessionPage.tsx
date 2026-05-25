@@ -1,5 +1,6 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Flag, Grid3x3 } from "lucide-react";
 import AppHeader from "../../../components/AppHeader";
 import BookmarkButton from "../../../components/BookmarkButton";
 import Button from "../../../components/Button";
@@ -8,6 +9,7 @@ import ErrorState from "../../../components/ErrorState";
 import FixedFooter from "../../../components/FixedFooter";
 import PageShell from "../../../components/PageShell";
 import AppLoader from "../../../components/loader";
+import QuestionGridSheet from "../components/QuestionGridSheet";
 import QuestionNavigation from "../components/QuestionNavigation";
 import SessionAnswerOptions from "../components/SessionAnswerOptions";
 import SessionQuestionCard from "../components/SessionQuestionCard";
@@ -75,6 +77,7 @@ const getPartProgress = (
 const ExamSessionPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [gridOpen, setGridOpen] = useState(false);
 
   const handleRedirectToPractice = useCallback(
     (sessionId: string) => {
@@ -93,6 +96,7 @@ const ExamSessionPage = () => {
   const {
     status,
     sessionCompleted,
+    isSimulation,
     questions,
     current,
     currentIndex,
@@ -111,6 +115,9 @@ const ExamSessionPage = () => {
     primaryLabel,
     primaryReason,
     completeReason,
+    flaggedIndices,
+    toggleFlag,
+    goTo,
     retry,
     selectAnswer,
     submitOrNext,
@@ -196,7 +203,7 @@ const ExamSessionPage = () => {
         eyebrow={EXAM_MODE_LABEL}
         progress={{ current: currentIndex + 1, total, answered: answeredCount }}
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <TimerDisplay
               kind="countdown"
               display={display}
@@ -204,6 +211,32 @@ const ExamSessionPage = () => {
               questionDisplay={questionDisplay}
               questionUrgent={questionUrgent}
             />
+            <button
+              type="button"
+              onClick={() => {
+                tap();
+                toggleFlag(currentIndex);
+              }}
+              className="focus-ring flex h-9 w-9 items-center justify-center rounded-xl transition"
+              aria-label="סמן שאלה לחזרה"
+              aria-pressed={flaggedIndices.has(currentIndex)}
+            >
+              <Flag
+                className={
+                  flaggedIndices.has(currentIndex)
+                    ? "h-4 w-4 fill-amber-500 text-amber-500"
+                    : "h-4 w-4 text-secondary"
+                }
+              />
+            </button>
+            <button
+              type="button"
+              onClick={() => setGridOpen(true)}
+              className="focus-ring flex h-9 w-9 items-center justify-center rounded-xl transition"
+              aria-label="רשימת שאלות"
+            >
+              <Grid3x3 className="h-4 w-4 text-secondary" />
+            </button>
             <BookmarkButton
               isBookmarked={isBookmarked}
               busy={bookmarkBusy}
@@ -255,7 +288,6 @@ const ExamSessionPage = () => {
         <QuestionNavigation
           currentIndex={currentIndex}
           isLast={isLast}
-          canGoNext={answerSubmitted}
           onPrev={prev}
           onNext={next}
         />
@@ -305,6 +337,17 @@ const ExamSessionPage = () => {
             </>
           )}
         </FixedFooter>
+      )}
+
+      {gridOpen && (
+        <QuestionGridSheet
+          questions={questions}
+          currentIndex={currentIndex}
+          flaggedIndices={flaggedIndices}
+          isSimulation={isSimulation}
+          onNavigate={goTo}
+          onClose={() => setGridOpen(false)}
+        />
       )}
 
       <ConfirmSheet

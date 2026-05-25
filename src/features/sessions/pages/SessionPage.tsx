@@ -1,6 +1,6 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Check, X } from "lucide-react";
+import { Check, Flag, Grid3x3, X } from "lucide-react";
 import AppHeader from "../../../components/AppHeader";
 import BookmarkButton from "../../../components/BookmarkButton";
 import Button from "../../../components/Button";
@@ -10,6 +10,7 @@ import FixedFooter from "../../../components/FixedFooter";
 import PageShell from "../../../components/PageShell";
 import ReferenceBox from "../../../components/ReferenceBox";
 import AppLoader from "../../../components/loader";
+import QuestionGridSheet from "../components/QuestionGridSheet";
 import QuestionNavigation from "../components/QuestionNavigation";
 import SessionAnswerOptions from "../components/SessionAnswerOptions";
 import SessionQuestionCard from "../components/SessionQuestionCard";
@@ -78,9 +79,13 @@ const SessionPage = () => {
     [navigate],
   );
 
+  const [gridOpen, setGridOpen] = useState(false);
+
   const {
     status,
     sessionCompleted,
+    isMultiPart,
+    questions,
     current,
     currentIndex,
     submitting,
@@ -99,6 +104,9 @@ const SessionPage = () => {
     submitReason,
     completeReason,
     modeLabel,
+    flaggedIndices,
+    toggleFlag,
+    goTo,
     retry,
     selectAnswer,
     submit,
@@ -168,13 +176,39 @@ const SessionPage = () => {
         eyebrow={modeLabel}
         progress={{ current: currentIndex + 1, total, answered: answeredCount }}
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <TimerDisplay
               kind="elapsed"
               totalDisplay={totalDisplay}
               questionDisplay={questionDisplay}
               questionUrgent={questionUrgent}
             />
+            <button
+              type="button"
+              onClick={() => {
+                tap();
+                if (currentIndex !== null) toggleFlag(currentIndex);
+              }}
+              className="focus-ring flex h-9 w-9 items-center justify-center rounded-xl transition"
+              aria-label="סמן שאלה לחזרה"
+              aria-pressed={flaggedIndices.has(currentIndex)}
+            >
+              <Flag
+                className={
+                  flaggedIndices.has(currentIndex)
+                    ? "h-4 w-4 fill-amber-500 text-amber-500"
+                    : "h-4 w-4 text-secondary"
+                }
+              />
+            </button>
+            <button
+              type="button"
+              onClick={() => setGridOpen(true)}
+              className="focus-ring flex h-9 w-9 items-center justify-center rounded-xl transition"
+              aria-label="רשימת שאלות"
+            >
+              <Grid3x3 className="h-4 w-4 text-secondary" />
+            </button>
             <BookmarkButton
               isBookmarked={isBookmarked}
               busy={bookmarkBusy}
@@ -214,7 +248,6 @@ const SessionPage = () => {
         <QuestionNavigation
           currentIndex={currentIndex}
           isLast={isLast}
-          canGoNext={answerSubmitted}
           onPrev={prev}
           onNext={next}
         />
@@ -272,6 +305,17 @@ const SessionPage = () => {
             </>
           )}
         </FixedFooter>
+      )}
+
+      {gridOpen && (
+        <QuestionGridSheet
+          questions={questions}
+          currentIndex={currentIndex}
+          flaggedIndices={flaggedIndices}
+          isSimulation={isMultiPart}
+          onNavigate={goTo}
+          onClose={() => setGridOpen(false)}
+        />
       )}
 
       <ConfirmSheet

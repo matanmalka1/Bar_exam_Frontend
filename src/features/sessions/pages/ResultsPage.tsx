@@ -130,6 +130,66 @@ const ScoreCard = ({
   );
 };
 
+const PART_LABEL: Record<string, string> = {
+  B: "חלק ב׳ · דין דיוני",
+  C: "חלק ג׳ · דין מהותי",
+};
+
+const PartBreakdownCard = ({
+  breakdown,
+}: {
+  breakdown: NonNullable<SessionDetail["part_breakdown"]>;
+}) => {
+  const parts = (["B", "C"] as const).filter((p) => breakdown[p]);
+
+  if (parts.length === 0) return null;
+
+  return (
+    <Card className="space-y-4">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-secondary">
+        פירוט לפי חלק
+      </p>
+
+      {parts.map((part) => {
+        const bd = breakdown[part];
+        if (!bd) return null;
+
+        const score = Math.round(Number(bd.score));
+        const pct =
+          bd.max_score > 0
+            ? Math.round((bd.correct / bd.max_score) * 100)
+            : 0;
+
+        return (
+          <div key={part} className="space-y-2">
+            <div className="flex items-baseline justify-between gap-3">
+              <span className="text-sm font-semibold text-[var(--accent-ink)]">
+                {PART_LABEL[part]}
+              </span>
+              <span className="font-display tabular-nums text-lg font-black leading-none text-[var(--accent-ink)]">
+                {score} / {bd.max_score}
+              </span>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-[var(--surface-muted)]">
+              <div
+                className="h-full rounded-full bg-[var(--accent-ink)] transition-all duration-500"
+                style={{ width: `${pct}%` }}
+              />
+            </div>
+            <div className="flex gap-3 text-[11px] tabular-nums text-secondary">
+              <span>{bd.answered} נענו</span>
+              <span>·</span>
+              <span>{bd.correct} נכונות</span>
+              <span>·</span>
+              <span>{Math.max(0, bd.answered - bd.correct)} שגויות</span>
+            </div>
+          </div>
+        );
+      })}
+    </Card>
+  );
+};
+
 const QuestionResultCard = ({
   question,
   variant,
@@ -341,6 +401,10 @@ const ResultsPage = () => {
           score={score}
           maxScore={maxScore}
         />
+
+        {session.part_breakdown && (
+          <PartBreakdownCard breakdown={session.part_breakdown} />
+        )}
 
         <section className="space-y-3">
           <div className="flex items-center justify-between gap-3">

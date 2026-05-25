@@ -57,6 +57,9 @@ export const usePracticeSession = ({
     setCurrentIndex,
     selected,
     setSelected,
+    flaggedIndices,
+    toggleFlag,
+    goTo,
     next: navNext,
     prev,
   } = useSessionNavigation();
@@ -215,6 +218,8 @@ export const usePracticeSession = ({
   return {
     status,
     sessionCompleted: session?.status === "completed",
+    isMultiPart: session?.part === null && (session?.questions.some(q => q.stable_id.includes("_B_")) && session?.questions.some(q => q.stable_id.includes("_C_"))),
+    questions: session?.questions ?? [],
     current,
     currentIndex,
     submitting,
@@ -233,6 +238,9 @@ export const usePracticeSession = ({
     submitReason,
     completeReason,
     modeLabel,
+    flaggedIndices,
+    toggleFlag,
+    goTo,
     retry,
     selectAnswer,
     submit,

@@ -26,6 +26,7 @@ interface UseExamSessionOptions {
 interface UseExamSessionResult {
   status: Status;
   sessionCompleted: boolean;
+  isSimulation: boolean;
   questions: SessionQuestion[];
   current: SessionQuestion | null;
   currentIndex: number;
@@ -44,6 +45,9 @@ interface UseExamSessionResult {
   primaryLabel: string;
   primaryReason: string | null;
   completeReason: string | null;
+  flaggedIndices: Set<number>;
+  toggleFlag: (index: number) => void;
+  goTo: (index: number) => void;
   retry: () => void;
   selectAnswer: (option: AnswerOption) => void;
   submitOrNext: () => Promise<void>;
@@ -74,6 +78,9 @@ export const useExamSession = ({
     setCurrentIndex,
     selected,
     setSelected,
+    flaggedIndices,
+    toggleFlag,
+    goTo,
     next: navNext,
     prev,
   } = useSessionNavigation();
@@ -253,6 +260,7 @@ export const useExamSession = ({
   return {
     status,
     sessionCompleted: session?.status === "completed",
+    isSimulation: session?.mode === "simulation",
     questions: session?.questions ?? [],
     current,
     currentIndex,
@@ -271,6 +279,9 @@ export const useExamSession = ({
     primaryLabel,
     primaryReason,
     completeReason,
+    flaggedIndices,
+    toggleFlag,
+    goTo,
     retry,
     selectAnswer,
     submitOrNext,

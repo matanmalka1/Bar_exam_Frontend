@@ -3,7 +3,6 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 type QuestionNavigationProps = {
   currentIndex: number;
   isLast: boolean;
-  canGoNext: boolean;
   onPrev: () => void;
   onNext: () => void;
 };
@@ -11,7 +10,6 @@ type QuestionNavigationProps = {
 const QuestionNavigation = ({
   currentIndex,
   isLast,
-  canGoNext,
   onPrev,
   onNext,
 }: QuestionNavigationProps) => (
@@ -28,7 +26,7 @@ const QuestionNavigation = ({
     <button
       type="button"
       onClick={onNext}
-      disabled={isLast || !canGoNext}
+      disabled={isLast}
       className="focus-ring inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium text-secondary transition hover:text-primary disabled:cursor-not-allowed disabled:opacity-30"
     >
       הבאה
