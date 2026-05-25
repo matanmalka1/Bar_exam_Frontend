@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useBlocker } from "react-router-dom";
-import { API_BASE_URL, isApiStatusError } from "../../../lib/api";
+import { isApiStatusError } from "../../../lib/api";
 import { notifyError } from "../../../lib/toast";
-import { getAccessToken } from "../../auth/authStorage";
-import { abandonSession } from "../api";
+import { abandonSession, abandonSessionOnUnload } from "../api";
 
 const EXIT_ERR = "לא ניתן לצאת מהתרגול כרגע. נסה שוב";
 
@@ -23,19 +22,6 @@ const isSameSessionPath = (pathname: string, sessionId: string): boolean =>
 
 const isAlreadyInactiveSessionError = (err: unknown): boolean =>
   isApiStatusError(err, 404) || isApiStatusError(err, 409);
-
-const abandonOnUnload = (sessionId: string) => {
-  const token = getAccessToken();
-  const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
-  const baseUrl = API_BASE_URL.replace(/\/$/, "");
-
-  void fetch(`${baseUrl}/practice-sessions/${sessionId}`, {
-    method: "DELETE",
-    credentials: "include",
-    headers,
-    keepalive: true,
-  });
-};
 
 export const useSessionExitGuard = ({
   sessionId,
@@ -156,7 +142,7 @@ export const useSessionExitGuard = ({
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       if (answeredCount === 0) {
         onDiscard?.();
-        abandonOnUnload(sessionId);
+        abandonSessionOnUnload(sessionId);
         return;
       }
 

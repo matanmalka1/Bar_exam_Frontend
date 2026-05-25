@@ -129,83 +129,49 @@ const ScoreCard = ({
   );
 };
 
-const MistakeCard = ({ question }: { question: SessionQuestion }) => {
+const QuestionResultCard = ({
+  question,
+  variant,
+}: {
+  question: SessionQuestion;
+  variant: "mistake" | "invalidated";
+}) => {
   const [open, setOpen] = useState(false);
   const selected = question.answer?.selected_answer ?? null;
   const correctAns = question.correct_answer ?? null;
+  const isInvalidated = variant === "invalidated";
 
   return (
-    <Card className="space-y-4">
-      <div className="flex items-center justify-between gap-3 border-b border-default pb-3">
-        <p className="text-xs font-semibold text-[var(--accent)]">
-          שאלה {question.number}
-        </p>
-
-        <p className="rounded-full border border-default bg-[var(--surface-muted)] px-3 py-1 text-xs text-secondary">
-          תשובה נכונה: {correctAns}
-        </p>
-      </div>
-
-      <button
-        type="button"
-        className="w-full text-right"
-        onClick={() => setOpen((v) => !v)}
-      >
-        <p className="whitespace-pre-wrap text-sm leading-7 text-[var(--ink)]">
-          {question.body}
-        </p>
-      </button>
-
-      <button
-        type="button"
-        className="inline-flex items-center gap-1 rounded-xl px-1 py-1 text-xs font-medium text-secondary transition hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ink)]/30"
-        onClick={() => setOpen((v) => !v)}
-      >
-        <ChevronLeft
-          className={cn("h-4 w-4 transition-transform", open && "-rotate-90")}
-          strokeWidth={2.4}
-        />
-        {open ? "הסתר תשובה" : "הצג תשובה"}
-      </button>
-
-      {open && (
-        <>
-          <div className="grid gap-2">
-            {OPTIONS.map((opt) => (
-              <OptionCard
-                key={opt}
-                mode="review"
-                label={opt}
-                text={question.options[opt]}
-                isCorrect={correctAns === opt}
-                isWrong={selected === opt && correctAns !== opt}
-                showCorrectBadge
-                showSelectedBadge
-              />
-            ))}
-          </div>
-
-          {question.reference && <ReferenceBox reference={question.reference} />}
-        </>
+    <Card
+      className={cn(
+        "space-y-4",
+        isInvalidated && "border-amber-200 bg-amber-50/40",
       )}
-    </Card>
-  );
-};
-
-const InvalidatedQuestionCard = ({ question }: { question: SessionQuestion }) => {
-  const [open, setOpen] = useState(false);
-  const selected = question.answer?.selected_answer ?? null;
-
-  return (
-    <Card className="space-y-4 border-amber-200 bg-amber-50/40">
-      <div className="flex items-center justify-between gap-3 border-b border-amber-200 pb-3">
-        <p className="text-xs font-semibold text-amber-900">
+    >
+      <div
+        className={cn(
+          "flex items-center justify-between gap-3 border-b pb-3",
+          isInvalidated ? "border-amber-200" : "border-default",
+        )}
+      >
+        <p
+          className={cn(
+            "text-xs font-semibold",
+            isInvalidated ? "text-amber-900" : "text-[var(--accent)]",
+          )}
+        >
           שאלה {question.number}
         </p>
 
-        <p className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-900">
-          שאלה שנפסלה
-        </p>
+        {isInvalidated ? (
+          <p className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-900">
+            שאלה שנפסלה
+          </p>
+        ) : (
+          <p className="rounded-full border border-default bg-[var(--surface-muted)] px-3 py-1 text-xs text-secondary">
+            תשובה נכונה: {correctAns}
+          </p>
+        )}
       </div>
 
       <button
@@ -218,10 +184,12 @@ const InvalidatedQuestionCard = ({ question }: { question: SessionQuestion }) =>
         </p>
       </button>
 
-      <p className="rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-900">
-        {selected ? `סומנה תשובה ${selected}. ` : ""}
-        השאלה נפסלה, ולכן ניתנה עליה נקודה מלאה.
-      </p>
+      {isInvalidated && (
+        <p className="rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-900">
+          {selected ? `סומנה תשובה ${selected}. ` : ""}
+          השאלה נפסלה, ולכן ניתנה עליה נקודה מלאה.
+        </p>
+      )}
 
       <button
         type="button"
@@ -236,18 +204,30 @@ const InvalidatedQuestionCard = ({ question }: { question: SessionQuestion }) =>
       </button>
 
       {open && (
-        <div className="grid gap-2">
-          {OPTIONS.map((opt) => (
-            <OptionCard
-              key={opt}
-              mode="review"
-              label={opt}
-              text={question.options[opt]}
-              selected={selected === opt}
-              showSelectedBadge
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid gap-2">
+            {OPTIONS.map((opt) => (
+              <OptionCard
+                key={opt}
+                mode="review"
+                label={opt}
+                text={question.options[opt]}
+                {...(isInvalidated
+                  ? { selected: selected === opt, showSelectedBadge: true }
+                  : {
+                      isCorrect: correctAns === opt,
+                      isWrong: selected === opt && correctAns !== opt,
+                      showCorrectBadge: true,
+                      showSelectedBadge: true,
+                    })}
+              />
+            ))}
+          </div>
+
+          {!isInvalidated && question.reference && (
+            <ReferenceBox reference={question.reference} />
+          )}
+        </>
       )}
     </Card>
   );
@@ -372,7 +352,7 @@ const ResultsPage = () => {
           ) : (
             <div className="space-y-3">
               {mistakes.map((q) => (
-                <MistakeCard key={q.stable_id} question={q} />
+                <QuestionResultCard key={q.stable_id} question={q} variant="mistake" />
               ))}
             </div>
           )}
@@ -392,7 +372,7 @@ const ResultsPage = () => {
 
             <div className="space-y-3">
               {invalidatedQuestions.map((q) => (
-                <InvalidatedQuestionCard key={q.stable_id} question={q} />
+                <QuestionResultCard key={q.stable_id} question={q} variant="invalidated" />
               ))}
             </div>
           </section>

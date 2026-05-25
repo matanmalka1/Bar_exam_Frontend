@@ -20,6 +20,7 @@ import {
 } from "../dashboardFormat";
 import { useSimulationHistory } from "../hooks/useSimulationHistory";
 import type { StatsOverview } from "../../stats/types";
+import { formatStudyTime } from "../../../lib/time-format";
 
 const NETWORK_ERR = "החיבור נכשל. נסה שוב";
 const SIM_422 = "אין מספיק שאלות זמינות למבחן";
@@ -35,18 +36,6 @@ const ROUTES = {
 
 const resumePath = (s: SessionSummary): string =>
   isExamLike(s.mode) ? ROUTES.exam(s.id) : ROUTES.session(s.id);
-
-// ─── Formatting ───────────────────────────────────────────────────────────────
-
-const formatStudyTime = (seconds: number): string => {
-  if (seconds === 0) return "—";
-  if (seconds < 60) return "פחות מדקה";
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  if (h === 0) return `${m} דק׳`;
-  if (m === 0) return `${h} שע׳`;
-  return `${h}:${String(m).padStart(2, "0")} שע׳`;
-};
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 

@@ -6,6 +6,10 @@ import { getStatsOverview } from "../api";
 import { useSessionHistory } from "../hooks/useSessionHistory";
 import type { StatsOverview } from "../types";
 import type { SessionSummary } from "../../sessions/types";
+import {
+  formatOptionalDuration,
+  formatStudyTime,
+} from "../../../lib/time-format";
 
 const PART_LABEL: Record<string, string> = {
   B: "חלק ב׳",
@@ -33,29 +37,6 @@ const formatDate = (iso: string): string => {
     month: "2-digit",
     year: "2-digit",
   });
-};
-
-const formatDuration = (seconds: number | null): string => {
-  if (seconds === null || seconds <= 0) return "";
-  if (seconds < 60) return "פחות מדקה";
-
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-
-  if (h === 0) return `${m} דק׳`;
-  return `${h}:${String(m).padStart(2, "0")} שע׳`;
-};
-
-const formatTotalStudy = (seconds: number): string => {
-  if (seconds === 0) return "—";
-  if (seconds < 60) return "פחות מדקה";
-
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-
-  if (h === 0) return `${m} דק׳`;
-  if (m === 0) return `${h} שע׳`;
-  return `${h}:${String(m).padStart(2, "0")} שע׳`;
 };
 
 const sessionDurationSeconds = (s: SessionSummary): number | null => {
@@ -210,7 +191,7 @@ type SessionRowProps = {
 const SessionRow = ({ session: s }: SessionRowProps) => {
   const correct = s.correct_count ?? null;
   const incorrect = getIncorrectCount(s);
-  const durationText = formatDuration(sessionDurationSeconds(s));
+  const durationText = formatOptionalDuration(sessionDurationSeconds(s));
   const score = getScore(s);
   const dateText = s.completed_at ? formatDate(s.completed_at) : "";
 
@@ -320,7 +301,7 @@ const StatsPage = () => {
 
                 <SummaryCard
                   label="זמן לימוד"
-                  value={formatTotalStudy(overview.total_study_seconds)}
+                  value={formatStudyTime(overview.total_study_seconds)}
                   tone="accent"
                 />
 

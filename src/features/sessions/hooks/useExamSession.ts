@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { notifyError, notifySuccess } from "../../../lib/toast";
-import { completeSession, getPracticeSession, submitAnswer } from "../api";
+import { completeSession, submitAnswer } from "../api";
 import { isExamLike } from "../types";
 import type {
   AnswerExamOut,
@@ -9,6 +9,7 @@ import type {
   SessionQuestion,
 } from "../types";
 import { useSessionBookmarks } from "./useSessionBookmarks";
+import { useSessionLoader } from "./useSessionLoader";
 
 type Status = "loading" | "ready" | "error";
 
@@ -61,9 +62,7 @@ export const useExamSession = ({
   onRedirectToPractice,
   onComplete,
 }: UseExamSessionOptions): UseExamSessionResult => {
-  const [status, setStatus] = useState<Status>("loading");
   const [session, setSession] = useState<SessionDetail | null>(null);
-  const [reloadKey, setReloadKey] = useState(0);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selected, setSelected] = useState<AnswerOption | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -73,56 +72,33 @@ export const useExamSession = ({
   const {
     bookmarkBusy,
     bookmarkIds,
-    loadBookmarks,
     toggleBookmark: toggleBookmarkById,
   } = useSessionBookmarks();
 
-  useEffect(() => {
-    let cancelled = false;
-
-    const loadSession = async () => {
-      if (!sessionId) {
-        setStatus("error");
-        return;
+  const validate = useCallback(
+    (data: SessionDetail, sid: string) => {
+      if (!isExamLike(data.mode)) {
+        onRedirectToPractice(sid);
+        return false;
       }
-
-      setStatus("loading");
-      setSession(null);
-      setSelected(null);
-
-      try {
-        const data = await getPracticeSession(sessionId);
-        if (cancelled) return;
-
-        if (!isExamLike(data.mode)) {
-          onRedirectToPractice(sessionId);
-          return;
-        }
-
-        if (
-          data.questions.length === 0 ||
-          data.questions.length !== data.total_questions
-        ) {
-          setStatus("error");
-          return;
-        }
-
-        setSession(data);
-        setCurrentIndex(findFirstUnansweredIndex(data.questions));
-        setStatus("ready");
-
-        void loadBookmarks(() => cancelled);
-      } catch {
-        if (!cancelled) setStatus("error");
+      if (
+        data.questions.length === 0 ||
+        data.questions.length !== data.total_questions
+      ) {
+        return false;
       }
-    };
+      return true;
+    },
+    [onRedirectToPractice],
+  );
 
-    void loadSession();
+  const onReady = useCallback((data: SessionDetail) => {
+    setSession(data);
+    setCurrentIndex(findFirstUnansweredIndex(data.questions));
+    setSelected(null);
+  }, []);
 
-    return () => {
-      cancelled = true;
-    };
-  }, [sessionId, onRedirectToPractice, reloadKey, loadBookmarks]);
+  const { status, retry } = useSessionLoader({ sessionId, validate, onReady });
 
   const current = useMemo<SessionQuestion | null>(
     () => session?.questions[currentIndex] ?? null,
@@ -165,18 +141,10 @@ export const useExamSession = ({
     setSelected(null);
   }, []);
 
-  const retry = useCallback(() => {
-    setStatus("loading");
-    setSession(null);
-    setCurrentIndex(0);
-    setSelected(null);
-    setReloadKey((key) => key + 1);
-  }, []);
-
   const selectAnswer = useCallback(
     (option: AnswerOption) => {
       if (submitting || answerSubmitted) return;
-      setSelected((current) => (current === option ? null : option));
+      setSelected((prev) => (prev === option ? null : option));
     },
     [answerSubmitted, submitting],
   );
@@ -261,24 +229,32 @@ export const useExamSession = ({
     submitting,
   ]);
 
-  const complete = useCallback(async (force = false) => {
-    if ((!force && !allAnswered) || !sessionId || completing || completingRef.current) {
-      return;
-    }
+  const complete = useCallback(
+    async (force = false) => {
+      if (
+        (!force && !allAnswered) ||
+        !sessionId ||
+        completing ||
+        completingRef.current
+      ) {
+        return;
+      }
 
-    completingRef.current = true;
-    setCompleting(true);
-    try {
-      await completeSession(sessionId);
-      notifySuccess("הבחינה הסתיימה בהצלחה");
-      onComplete(sessionId);
-    } catch {
-      notifyError(COMPLETE_ERR);
-    } finally {
-      completingRef.current = false;
-      setCompleting(false);
-    }
-  }, [allAnswered, completing, onComplete, sessionId]);
+      completingRef.current = true;
+      setCompleting(true);
+      try {
+        await completeSession(sessionId);
+        notifySuccess("הבחינה הסתיימה בהצלחה");
+        onComplete(sessionId);
+      } catch {
+        notifyError(COMPLETE_ERR);
+      } finally {
+        completingRef.current = false;
+        setCompleting(false);
+      }
+    },
+    [allAnswered, completing, onComplete, sessionId],
+  );
 
   return {
     status,

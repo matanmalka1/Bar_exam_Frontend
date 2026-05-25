@@ -1,5 +1,6 @@
-import { api } from "../../lib/api";
+import { api, API_BASE_URL } from "../../lib/api";
 import { parseApiResponse } from "../../lib/validation";
+import { getAccessToken } from "../auth/authStorage";
 import {
   AnswerResultSchema,
   SessionCompleteSchema,
@@ -92,4 +93,17 @@ export const abandonSession = async (
   sessionId: number | string,
 ): Promise<void> => {
   await api.delete(`/practice-sessions/${sessionId}`);
+};
+
+export const abandonSessionOnUnload = (sessionId: number | string): void => {
+  const token = getAccessToken();
+  const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+  const baseUrl = API_BASE_URL.replace(/\/$/, "");
+
+  void fetch(`${baseUrl}/practice-sessions/${sessionId}`, {
+    method: "DELETE",
+    credentials: "include",
+    headers,
+    keepalive: true,
+  });
 };

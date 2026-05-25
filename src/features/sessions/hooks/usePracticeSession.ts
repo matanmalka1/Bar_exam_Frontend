@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { notifyError, notifySuccess } from "../../../lib/toast";
-import { completeSession, getPracticeSession, submitAnswer } from "../api";
+import { completeSession, submitAnswer } from "../api";
 import { isExamLike } from "../types";
 import type {
   AnswerOption,
@@ -10,8 +10,7 @@ import type {
   SessionQuestion,
 } from "../types";
 import { useSessionBookmarks } from "./useSessionBookmarks";
-
-type Status = "loading" | "ready" | "error";
+import { useSessionLoader } from "./useSessionLoader";
 
 const SUBMIT_ERR = "לא ניתן לשמור תשובה. נסה שוב";
 const COMPLETE_ERR = "לא ניתן לסיים את התרגול כרגע";
@@ -28,7 +27,9 @@ const findFirstUnansweredIndex = (questions: SessionQuestion[]): number => {
 const isPracticeAnswer = (
   answer: SessionQuestion["answer"],
 ): answer is PracticeAnswer =>
-  answer !== null && answer.scoring_status !== null && answer.scoring_status !== undefined;
+  answer !== null &&
+  answer.scoring_status !== null &&
+  answer.scoring_status !== undefined;
 
 const isPracticeResult = (result: AnswerResult): result is AnswerPracticeOut =>
   "is_correct" in result;
@@ -44,9 +45,7 @@ export const usePracticeSession = ({
   onRedirectToExam,
   onComplete,
 }: UsePracticeSessionOptions) => {
-  const [status, setStatus] = useState<Status>("loading");
   const [session, setSession] = useState<SessionDetail | null>(null);
-  const [reloadKey, setReloadKey] = useState(0);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selected, setSelected] = useState<AnswerOption | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -56,48 +55,27 @@ export const usePracticeSession = ({
   const {
     bookmarkBusy,
     bookmarkIds,
-    loadBookmarks,
     toggleBookmark: toggleBookmarkById,
   } = useSessionBookmarks();
 
-  useEffect(() => {
-    let cancelled = false;
-
-    const loadSession = async () => {
-      if (!sessionId) {
-        setStatus("error");
-        return;
+  const validate = useCallback(
+    (data: SessionDetail, sid: string) => {
+      if (isExamLike(data.mode)) {
+        onRedirectToExam(sid);
+        return false;
       }
+      return true;
+    },
+    [onRedirectToExam],
+  );
 
-      setStatus("loading");
-      setSession(null);
-      setSelected(null);
+  const onReady = useCallback((data: SessionDetail) => {
+    setSession(data);
+    setCurrentIndex(findFirstUnansweredIndex(data.questions));
+    setSelected(null);
+  }, []);
 
-      try {
-        const data = await getPracticeSession(sessionId);
-        if (cancelled) return;
-
-        if (isExamLike(data.mode)) {
-          onRedirectToExam(sessionId);
-          return;
-        }
-
-        setSession(data);
-        setCurrentIndex(findFirstUnansweredIndex(data.questions));
-        setStatus("ready");
-
-        void loadBookmarks(() => cancelled);
-      } catch {
-        if (!cancelled) setStatus("error");
-      }
-    };
-
-    void loadSession();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [sessionId, onRedirectToExam, reloadKey, loadBookmarks]);
+  const { status, retry } = useSessionLoader({ sessionId, validate, onReady });
 
   const current = useMemo<SessionQuestion | null>(
     () => session?.questions[currentIndex] ?? null,
@@ -135,18 +113,10 @@ export const usePracticeSession = ({
     setSelected(null);
   }, []);
 
-  const retry = useCallback(() => {
-    setStatus("loading");
-    setSession(null);
-    setCurrentIndex(0);
-    setSelected(null);
-    setReloadKey((key) => key + 1);
-  }, []);
-
   const selectAnswer = useCallback(
     (option: AnswerOption) => {
       if (submitting || answerSubmitted) return;
-      setSelected((current) => (current === option ? null : option));
+      setSelected((prev) => (prev === option ? null : option));
     },
     [answerSubmitted, submitting],
   );
