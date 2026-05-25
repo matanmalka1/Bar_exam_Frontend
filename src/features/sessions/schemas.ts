@@ -26,13 +26,14 @@ export const QuestionOptionsSchema = z.object({
 });
 
 const DateTimeStringSchema = z.string().min(1);
-const ScorePercentSchema = z.string();
+const ScoreSchema = z.string();
 
 const SessionPartBreakdownSchema = z.object({
   total: z.number().int(),
   answered: z.number().int(),
   correct: z.number().int(),
-  score_percent: ScorePercentSchema,
+  score: ScoreSchema,
+  max_score: z.number().int(),
 });
 
 export const SessionSummarySchema = z.object({
@@ -45,7 +46,8 @@ export const SessionSummarySchema = z.object({
   total_questions: z.number().int(),
   answered_count: z.number().int(),
   correct_count: z.number().int().nullable(),
-  score_percent: ScorePercentSchema.nullable(),
+  score: ScoreSchema.nullable(),
+  max_score: z.number().int().nullable(),
   started_at: DateTimeStringSchema,
   completed_at: DateTimeStringSchema.nullable(),
   created_at: DateTimeStringSchema,
@@ -102,7 +104,8 @@ export const PartBreakdownSchema = z.object({
   total: z.number().int(),
   answered: z.number().int(),
   correct: z.number().int(),
-  score_percent: ScorePercentSchema,
+  score: ScoreSchema,
+  max_score: z.number().int(),
 });
 
 const ExamMistakeBriefSchema = z.object({
@@ -123,7 +126,8 @@ export const SessionCompleteSchema = z.object({
   scorable_questions: z.number().int(),
   answered_count: z.number().int(),
   correct_count: z.number().int(),
-  score_percent: ScorePercentSchema,
+  score: ScoreSchema,
+  max_score: z.number().int(),
   completed_at: DateTimeStringSchema,
   part_breakdown: z
     .record(z.string(), PartBreakdownSchema)

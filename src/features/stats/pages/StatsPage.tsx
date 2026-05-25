@@ -77,8 +77,8 @@ const sessionTitle = (s: SessionSummary): string => {
 };
 
 const getScore = (s: SessionSummary): number | null => {
-  if (s.score_percent === null || s.score_percent === undefined) return null;
-  return Math.round(Number(s.score_percent));
+  if (s.score === null || s.score === undefined) return null;
+  return Math.round(Number(s.score));
 };
 
 const getIncorrectCount = (s: SessionSummary): number | null => {

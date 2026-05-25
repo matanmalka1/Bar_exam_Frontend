@@ -1,98 +1,186 @@
 import type { SessionSummary } from "../../sessions/types";
-import { formatPercent } from "../dashboardFormat";
 
 const HEBREW_MONTHS = [
-  "ינו׳","פבר׳","מרץ","אפר׳","מאי","יוני",
-  "יולי","אוג׳","ספט׳","אוק׳","נוב׳","דצמ׳",
+  "ינו׳",
+  "פבר׳",
+  "מרץ",
+  "אפר׳",
+  "מאי",
+  "יוני",
+  "יולי",
+  "אוג׳",
+  "ספט׳",
+  "אוק׳",
+  "נוב׳",
+  "דצמ׳",
 ];
 
+const PASSING_SCORE = 48;
+
+const PART_LABEL: Record<"B" | "C", string> = {
+  B: "דין דיוני",
+  C: "דין מהותי",
+};
+
 const formatShortDate = (iso: string): string => {
-  const d = new Date(iso);
-  return `${d.getDate()} ${HEBREW_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "—";
+
+  return `${date.getDate()} ${HEBREW_MONTHS[date.getMonth()]} ${date.getFullYear()}`;
 };
 
-const formatDuration = (startedAt: string, completedAt: string | null): string => {
-  if (!completedAt) return "—";
-  const ms = new Date(completedAt).getTime() - new Date(startedAt).getTime();
-  const totalMin = Math.round(ms / 60000);
+const formatDuration = (
+  startedAt: string | null | undefined,
+  completedAt: string | null | undefined,
+): string => {
+  if (!startedAt || !completedAt) return "—";
+
+  const started = new Date(startedAt).getTime();
+  const completed = new Date(completedAt).getTime();
+
+  if (Number.isNaN(started) || Number.isNaN(completed)) return "—";
+
+  const totalMin = Math.max(0, Math.round((completed - started) / 60000));
+
   if (totalMin < 60) return `${totalMin} דק׳`;
-  const h = Math.floor(totalMin / 60);
-  const m = totalMin % 60;
-  return m === 0 ? `${h} שע׳` : `${h}:${String(m).padStart(2, "0")} שע׳`;
+
+  const hours = Math.floor(totalMin / 60);
+  const minutes = totalMin % 60;
+
+  return minutes === 0
+    ? `${hours} שע׳`
+    : `${hours}:${String(minutes).padStart(2, "0")} שע׳`;
 };
 
-const PASSING_SCORE = 60;
+const parseScore = (value: string | number | null | undefined): number | null => {
+  if (value === null || value === undefined) return null;
+
+  const score = Number(value);
+  if (Number.isNaN(score)) return null;
+
+  return Math.round(score);
+};
+
+const scoreColorClass = (score: number | null): string => {
+  if (score === null) return "text-secondary";
+  if (score >= PASSING_SCORE) return "text-green-700";
+  if (score >= 40) return "text-amber-600";
+  return "text-red-600";
+};
 
 const ScoreBadge = ({
-  scorePercent,
+  score: scoreProp,
+  maxScore,
 }: {
-  scorePercent: string | null | undefined;
+  score: string | number | null | undefined;
+  maxScore: number | null | undefined;
 }) => {
-  const score = scorePercent !== null && scorePercent !== undefined ? Math.round(Number(scorePercent)) : null;
-  const color =
-    score === null ? "text-secondary" :
-    score >= PASSING_SCORE ? "text-green-700" :
-    score >= 50 ? "text-amber-600" :
-    "text-red-600";
+  const score = parseScore(scoreProp);
+  const colorClass = scoreColorClass(score);
+
+  const max = maxScore ?? null;
+
   return (
-    <div className={`flex flex-col items-end ${color}`}>
-      <span className="text-[10px] font-semibold uppercase tracking-wide text-secondary">ציון</span>
-      <span className="font-display text-2xl font-black tabular-nums leading-none">
-        {score !== null ? score : "—"}
-      </span>
-      {score !== null && (
-        <span className="text-[10px] font-semibold">נק׳</span>
-      )}
+    <div className={`shrink-0 text-left ${colorClass}`}>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-secondary">
+        ציון
+      </p>
+
+      <div className="mt-1 flex items-end justify-end gap-1">
+        <span className="font-display text-3xl font-black tabular-nums leading-none">
+          {score ?? "—"}
+        </span>
+
+        {score !== null && max !== null && (
+          <span className="pb-0.5 text-[11px] font-bold leading-none">/ {max}</span>
+        )}
+      </div>
     </div>
   );
 };
 
-type SimulationRowProps = { session: SessionSummary; isLast: boolean };
+const PartScoreCard = ({
+  label,
+  correct,
+  total,
+  score: scoreProp,
+}: {
+  label: string;
+  correct: number;
+  total: number;
+  score: string | number | null | undefined;
+}) => {
+  const score = parseScore(scoreProp);
 
-const SimulationRow = ({ session, isLast }: SimulationRowProps) => {
-  const pb = session.part_breakdown;
   return (
-    <div className={`px-5 py-4 ${!isLast ? "border-b border-default" : ""}`}>
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex flex-col gap-0.5">
-          <span className="text-xs text-secondary">
-            {formatShortDate(session.created_at)}
-          </span>
-          <span className="text-xs text-secondary">
-            {session.total_questions} שאלות ·{" "}
-            {formatDuration(session.started_at, session.completed_at)}
-          </span>
-        </div>
-        <ScoreBadge scorePercent={session.score_percent} />
+    <div className="rounded-xl border border-default bg-surface-muted px-3 py-2.5">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-[11px] font-semibold text-secondary">{label}</p>
+
+        <p className="text-xs font-semibold tabular-nums text-secondary">
+          {correct}/{total}
+        </p>
       </div>
 
-      {pb && (
-        <div className="mt-3 grid grid-cols-2 gap-2">
+      <div className="mt-1 flex items-end gap-1">
+        <span className="font-display text-xl font-black tabular-nums text-[var(--accent-ink)]">
+          {score ?? "—"}
+        </span>
+
+        {score !== null && (
+          <span className="pb-0.5 text-[10px] font-bold text-secondary">
+            נק׳
+          </span>
+        )}
+      </div>
+    </div>
+  );
+};
+
+type SimulationRowProps = {
+  session: SessionSummary;
+  isLast: boolean;
+};
+
+const SimulationRow = ({ session, isLast }: SimulationRowProps) => {
+  const partBreakdown = session.part_breakdown;
+
+  return (
+    <article className={`px-5 py-4 ${!isLast ? "border-b border-default" : ""}`}>
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-sm font-bold text-primary">
+            {formatShortDate(session.created_at)}
+          </p>
+
+          <p className="mt-1 text-xs text-secondary">
+            {session.total_questions} שאלות ·{" "}
+            {formatDuration(session.started_at, session.completed_at)}
+          </p>
+        </div>
+
+        <ScoreBadge score={session.score} maxScore={session.max_score} />
+      </div>
+
+      {partBreakdown && (
+        <div className="mt-4 grid grid-cols-2 gap-2">
           {(["B", "C"] as const).map((part) => {
-            const data = pb[part];
+            const data = partBreakdown[part];
             if (!data) return null;
+
             return (
-              <div
+              <PartScoreCard
                 key={part}
-                className="rounded-xl bg-surface-muted px-3 py-2"
-              >
-                <p className="text-[10px] font-semibold uppercase tracking-[0.15em] text-secondary">
-                  {part === "B" ? "דין דיוני" : "דין מהותי"}
-                </p>
-                <div className="mt-1 flex items-baseline justify-between">
-                  <span className="font-display text-base font-black tabular-nums text-[var(--accent-ink)]">
-                    {formatPercent(data.score_percent)}
-                  </span>
-                  <span className="text-[10px] tabular-nums text-secondary">
-                    {data.correct}/{data.total}
-                  </span>
-                </div>
-              </div>
+                label={PART_LABEL[part]}
+                correct={data.correct}
+                total={data.total}
+                score={data.score}
+              />
             );
           })}
         </div>
       )}
-    </div>
+    </article>
   );
 };
 
@@ -104,19 +192,22 @@ const SimulationHistoryCard = ({ simulations }: Props) => {
   if (simulations.length === 0) return null;
 
   return (
-    <section className="mt-6 overflow-hidden rounded-2xl border border-default bg-surface">
-      <div className="border-b border-default px-5 py-3">
+    <section className="mt-6 overflow-hidden rounded-2xl border border-default bg-surface shadow-sm">
+      <header className="border-b border-default bg-surface-muted/60 px-5 py-3">
         <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-secondary">
           היסטוריית מבחנים
         </h2>
+      </header>
+
+      <div>
+        {simulations.map((session, index) => (
+          <SimulationRow
+            key={session.id}
+            session={session}
+            isLast={index === simulations.length - 1}
+          />
+        ))}
       </div>
-      {simulations.map((s, i) => (
-        <SimulationRow
-          key={s.id}
-          session={s}
-          isLast={i === simulations.length - 1}
-        />
-      ))}
     </section>
   );
 };

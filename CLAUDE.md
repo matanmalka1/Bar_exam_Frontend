@@ -105,6 +105,10 @@ Protected shell routes:
 - Invalidated questions must not be shown as mistakes.
 - Use `/users/me/*` endpoints for user-scoped data.
 
+## Scoring Display
+
+Backend returns `score` and `max_score` (raw points, not percentages). Display scores as `score / max_score` (e.g., `68 / 80`). Do not label the primary score as a percentage. Progress bars may compute `score / max_score * 100` locally but must not label that value as the official score.
+
 ## Architecture
 
 Keep files small.

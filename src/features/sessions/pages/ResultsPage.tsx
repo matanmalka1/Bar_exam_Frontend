@@ -56,8 +56,7 @@ const StatItem = ({
   </div>
 );
 
-const PASSING_SCORE = 60;
-
+const PASSING_SCORE = 48;
 
 const ScoreCard = ({
   session,
@@ -66,7 +65,8 @@ const ScoreCard = ({
   correct,
   mistakesCount,
   invalidatedCredits,
-  scoreValue,
+  score,
+  maxScore,
 }: {
   session: SessionDetail;
   total: number;
@@ -74,10 +74,11 @@ const ScoreCard = ({
   correct: number;
   mistakesCount: number;
   invalidatedCredits: number;
-  scoreValue: string;
+  score: number;
+  maxScore: number;
 }) => {
   const examMode = isExamLike(session.mode);
-  const passed = examMode && Number(scoreValue) >= PASSING_SCORE;
+  const passed = examMode && score >= PASSING_SCORE;
 
   return (
     <Card className="surface-muted">
@@ -85,7 +86,7 @@ const ScoreCard = ({
         <p className="text-sm font-medium text-[var(--accent)]">הציון שלך</p>
 
         <p className="font-display mt-2 tabular-nums text-7xl font-black leading-none text-[var(--accent-ink)]">
-          {scoreValue} <span className="text-3xl">נק׳</span>
+          {score} <span className="text-3xl">/ {maxScore}</span>
         </p>
 
         {examMode && (
@@ -252,13 +253,9 @@ const ResultsPage = () => {
     (question) => question.status === "invalidated",
   ).length;
 
-  const scoreNumber = Number(
-    session.score_percent ?? (total > 0 ? (correct / total) * 100 : 0),
-  );
-
-  const scorePercent = Number.isFinite(scoreNumber)
-    ? Math.round(scoreNumber).toString()
-    : "0";
+  const scoreRaw = Number(session.score ?? correct);
+  const score = Number.isFinite(scoreRaw) ? Math.round(scoreRaw) : 0;
+  const maxScore = session.max_score ?? total;
 
   return (
     <PageShell className="pb-28">
@@ -272,7 +269,8 @@ const ResultsPage = () => {
           correct={correct}
           mistakesCount={mistakes.length}
           invalidatedCredits={invalidatedCredits}
-          scoreValue={scorePercent}
+          score={score}
+          maxScore={maxScore}
         />
 
         <section className="space-y-3">
