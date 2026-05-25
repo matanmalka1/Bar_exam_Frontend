@@ -337,7 +337,7 @@ const ResultsPage = () => {
       <AppHeader
         back={{ onClick: () => navigate("/") }}
         title="תוצאות"
-        breadcrumbs={[{ label: "בית", to: "/" }, { label: "תוצאות" }]}
+
       />
 
       <main className="mt-4 space-y-5">

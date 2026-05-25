@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { cn } from "../lib/cn";
 
@@ -17,14 +17,8 @@ type AppHeaderProgress = {
   answered?: number;
 };
 
-export type BreadcrumbItem = {
-  label: string;
-  to?: string;
-};
-
 type AppHeaderProps = {
   back?: AppHeaderBack;
-  breadcrumbs?: BreadcrumbItem[];
   eyebrow?: string;
   title?: string;
   meta?: ReactNode;
@@ -41,32 +35,8 @@ const STICKY =
   "sticky top-0 z-20 -mx-4 -mt-4 mb-4 border-b border-default bg-[var(--paper)]/85 px-4 pt-4 pb-3 backdrop-blur supports-[backdrop-filter]:bg-[var(--paper)]/70";
 const INLINE = "mb-6";
 
-const Breadcrumbs = ({ items }: { items: BreadcrumbItem[] }) => (
-  <nav aria-label="נתיב ניווט" className="mb-2 flex items-center gap-1 text-xs text-secondary overflow-x-auto">
-    {items.map((item, i) => {
-      const isLast = i === items.length - 1;
-      return (
-        <span key={i} className="flex items-center gap-1 shrink-0">
-          {i > 0 && <ChevronRight className="h-3 w-3 shrink-0 opacity-40" aria-hidden="true" />}
-          {isLast || !item.to ? (
-            <span className={cn(isLast ? "font-medium text-primary" : "text-secondary")}>{item.label}</span>
-          ) : (
-            <Link
-              to={item.to}
-              className="hover:text-primary transition focus-ring rounded-sm px-0.5"
-            >
-              {item.label}
-            </Link>
-          )}
-        </span>
-      );
-    })}
-  </nav>
-);
-
 const AppHeader = ({
   back,
-  breadcrumbs,
   eyebrow,
   title,
   meta,
@@ -105,10 +75,7 @@ const AppHeader = ({
 
   return (
     <header className={cn(variant === "inline" ? INLINE : STICKY, className)}>
-      {breadcrumbs && breadcrumbs.length > 0 && (
-        <Breadcrumbs items={breadcrumbs} />
-      )}
-      {titleLayout === "stacked" ? (
+{titleLayout === "stacked" ? (
         <div>
           {(back !== false && back) || actions ? (
             <div className="mb-2 flex items-center justify-between gap-2">

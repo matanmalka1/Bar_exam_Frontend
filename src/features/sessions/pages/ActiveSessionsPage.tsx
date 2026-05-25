@@ -63,7 +63,7 @@ const ActiveSessionsPage = () => {
       <AppHeader
         back={{ label: "חזרה", onClick: () => navigate(-1) }}
         title="תרגולים פתוחים"
-        breadcrumbs={[{ label: "בית", to: "/" }, { label: "תרגולים פתוחים" }]}
+
       />
 
       <p className="mt-2 text-sm leading-6 text-secondary">

@@ -134,10 +134,7 @@ const QuestionDetailPage = ({ mode = "practice" }: QuestionDetailPageProps) => {
         <AppHeader
           title={title}
           back={{}}
-          breadcrumbs={[
-            { label: "מאגר שאלות", to: "/questions" },
-            { label: title },
-          ]}
+
           actions={
             status === "ready" && question ? (
               mode === "review" ? (

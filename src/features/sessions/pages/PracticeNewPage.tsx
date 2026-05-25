@@ -140,7 +140,7 @@ const PracticeNewPage = () => {
           back={{ label: "ביטול", onClick: goBack }}
           eyebrow="תרגול חדש"
           title="בחינת מועד"
-          breadcrumbs={[{ label: "בית", to: "/" }, { label: "תרגול חדש" }]}
+
         />
 
         <IntroBox>
@@ -211,7 +211,6 @@ const PracticeNewPage = () => {
         back={{ label: "ביטול", onClick: goBack }}
         eyebrow="תרגול חדש"
         title="תרגול חופשי"
-        breadcrumbs={[{ label: "בית", to: "/" }, { label: "תרגול חדש" }]}
       />
 
       <IntroBox>
