@@ -3,18 +3,40 @@ import { useNavigate } from "react-router-dom";
 import { extractApiError } from "../../../lib/api-errors";
 import { notifyError } from "../../../lib/toast";
 import { createExamSession, createPracticeSession } from "../api";
+import type { ExamSummary } from "../../exams/types";
 import type { QuestionPart } from "../types";
 
 type PartChoice = QuestionPart | "both";
-type CountChoice = 10 | 20 | 40 | 50 | 60 | 70 | 80;
+type CountChoice = 10 | 20 | 40 | "all";
 type PracticeNewFlow = "practice" | "exam";
 
 const NETWORK_ERR = "לא ניתן להתחיל תרגול כרגע";
 
+const MAX_PRACTICE_QUESTIONS = 80;
+
 const partToApi = (part: PartChoice): QuestionPart | null =>
   part === "both" ? null : part;
 
-export const usePracticeNewForm = (flow: PracticeNewFlow) => {
+const availableQuestionCount = ({
+  exams,
+  part,
+  examDate,
+  allDates,
+}: {
+  exams: ExamSummary[];
+  part: PartChoice;
+  examDate: string | null;
+  allDates: boolean;
+}) =>
+  exams
+    .filter((exam) => (part === "both" ? true : exam.part === part))
+    .filter((exam) => (allDates ? true : exam.exam_date === examDate))
+    .reduce((total, exam) => total + exam.question_count, 0);
+
+export const usePracticeNewForm = (
+  flow: PracticeNewFlow,
+  exams: ExamSummary[] = [],
+) => {
   const navigate = useNavigate();
   const [part, setPart] = useState<PartChoice | null>(null);
   const [examDate, setExamDate] = useState<string | null>(null);
@@ -72,7 +94,13 @@ export const usePracticeNewForm = (flow: PracticeNewFlow) => {
         part: partToApi(part),
       };
       if (!allDates && examDate) payload.exam_date = examDate;
-      payload.question_count = count;
+      payload.question_count =
+        count === "all"
+          ? Math.min(
+              MAX_PRACTICE_QUESTIONS,
+              availableQuestionCount({ exams, part, examDate, allDates }),
+            )
+          : count;
 
       const session = await createPracticeSession(payload);
       navigate(`/session/${session.id}`);
