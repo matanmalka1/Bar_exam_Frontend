@@ -21,7 +21,6 @@ export const BookmarkedQuestionSchema = z.object({
 });
 
 export const BookmarkSchema = z.object({
-  user_id: z.number().int(),
   stable_id: z.string(),
   created_at: DateTimeStringSchema,
 });

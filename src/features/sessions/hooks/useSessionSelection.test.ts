@@ -26,7 +26,6 @@ vi.mock("./useSessionBookmarks", () => ({
 
 const makeSession = (mode: SessionDetail["mode"]): SessionDetail => ({
   id: 10,
-  user_id: 1,
   mode,
   status: "active",
   exam_date: null,

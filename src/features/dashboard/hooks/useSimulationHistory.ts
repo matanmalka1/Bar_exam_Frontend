@@ -11,7 +11,7 @@ export const useSimulationHistory = () => {
   useEffect(() => {
     listUserSessions("completed", "simulation")
       .then((data) => {
-        setSimulations(data);
+        setSimulations(data.slice(-10).reverse());
         setStatus("ok");
       })
       .catch(() => setStatus("error"));

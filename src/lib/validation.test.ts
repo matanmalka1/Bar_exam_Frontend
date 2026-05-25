@@ -5,7 +5,6 @@ import { parseApiResponse } from "./validation";
 
 const validSessionSummary = {
   id: 1,
-  user_id: 2,
   mode: "practice",
   status: "active",
   exam_date: null,
@@ -18,6 +17,7 @@ const validSessionSummary = {
   started_at: "2026-05-21T10:00:00Z",
   completed_at: null,
   created_at: "2026-05-21T10:00:00Z",
+  part_breakdown: null,
 };
 
 afterEach(() => {

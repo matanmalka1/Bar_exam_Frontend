@@ -26,7 +26,7 @@ export const QuestionOptionsSchema = z.object({
 });
 
 const DateTimeStringSchema = z.string().min(1);
-const ScoreSchema = z.string();
+const ScoreSchema = z.union([z.string(), z.number()]).transform(String);
 
 export const SessionPartBreakdownSchema = z.object({
   total: z.number().int(),
@@ -38,7 +38,6 @@ export const SessionPartBreakdownSchema = z.object({
 
 export const SessionSummarySchema = z.object({
   id: z.number().int(),
-  user_id: z.number().int(),
   mode: SessionModeSchema,
   status: SessionStatusSchema,
   exam_date: z.string().nullable(),
@@ -51,7 +50,7 @@ export const SessionSummarySchema = z.object({
   started_at: DateTimeStringSchema,
   completed_at: DateTimeStringSchema.nullable(),
   created_at: DateTimeStringSchema,
-  part_breakdown: z.record(z.string(), SessionPartBreakdownSchema).nullable().optional(),
+  part_breakdown: z.record(z.string(), SessionPartBreakdownSchema).nullable(),
 });
 
 export const SessionAnswerInlineSchema = z.object({

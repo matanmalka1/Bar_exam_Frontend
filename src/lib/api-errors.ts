@@ -10,6 +10,8 @@ const map422Detail = (detail: unknown): string | null => {
     return MSG.NEED_EXAM_DATE;
   if (lower.includes("exceed") || lower.includes("too many"))
     return MSG.COUNT_EXCEEDS;
+  if (lower.includes("no active mistakes")) return "אין טעויות פעילות לתרגול";
+  if (lower.includes("no bookmarked")) return "אין סימניות לתרגול";
   if (
     lower.includes("insufficient") ||
     lower.includes("not enough") ||
