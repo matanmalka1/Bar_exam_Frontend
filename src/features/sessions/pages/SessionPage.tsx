@@ -23,7 +23,7 @@ const AnswerFeedback = ({
   correctAnswer,
   scoringStatus,
 }: {
-  isCorrect: boolean;
+  isCorrect?: boolean | null;
   correctAnswer: string | null;
   scoringStatus?: string | null;
 }) => (

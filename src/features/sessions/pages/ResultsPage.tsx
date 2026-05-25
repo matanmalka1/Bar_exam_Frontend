@@ -41,6 +41,9 @@ const formatDate = (iso: string | null): string => {
 const isMistake = (q: SessionQuestion): boolean =>
   q.status !== "invalidated" && q.answer !== null && q.answer.is_correct === false;
 
+const isInvalidatedCredit = (q: SessionQuestion): boolean =>
+  q.status === "invalidated" && q.answer !== null;
+
 const StatItem = ({
   label,
   value,
@@ -190,6 +193,67 @@ const MistakeCard = ({ question }: { question: SessionQuestion }) => {
   );
 };
 
+const InvalidatedQuestionCard = ({ question }: { question: SessionQuestion }) => {
+  const [open, setOpen] = useState(false);
+  const selected = question.answer?.selected_answer ?? null;
+
+  return (
+    <Card className="space-y-4 border-amber-200 bg-amber-50/40">
+      <div className="flex items-center justify-between gap-3 border-b border-amber-200 pb-3">
+        <p className="text-xs font-semibold text-amber-900">
+          שאלה {question.number}
+        </p>
+
+        <p className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-900">
+          שאלה שנפסלה
+        </p>
+      </div>
+
+      <button
+        type="button"
+        className="w-full text-right"
+        onClick={() => setOpen((v) => !v)}
+      >
+        <p className="whitespace-pre-wrap text-sm leading-7 text-[var(--ink)]">
+          {question.body}
+        </p>
+      </button>
+
+      <p className="rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-900">
+        {selected ? `סומנה תשובה ${selected}. ` : ""}
+        השאלה נפסלה, ולכן ניתנה עליה נקודה מלאה.
+      </p>
+
+      <button
+        type="button"
+        className="inline-flex items-center gap-1 rounded-xl px-1 py-1 text-xs font-medium text-secondary transition hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-ink)]/30"
+        onClick={() => setOpen((v) => !v)}
+      >
+        <ChevronLeft
+          className={cn("h-4 w-4 transition-transform", open && "-rotate-90")}
+          strokeWidth={2.4}
+        />
+        {open ? "הסתר תשובות" : "הצג תשובות"}
+      </button>
+
+      {open && (
+        <div className="grid gap-2">
+          {OPTIONS.map((opt) => (
+            <OptionCard
+              key={opt}
+              mode="review"
+              label={opt}
+              text={question.options[opt]}
+              selected={selected === opt}
+              showSelectedBadge
+            />
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+};
+
 const ResultsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -225,6 +289,10 @@ const ResultsPage = () => {
     () => session?.questions.filter(isMistake) ?? [],
     [session],
   );
+  const invalidatedQuestions = useMemo<SessionQuestion[]>(
+    () => session?.questions.filter(isInvalidatedCredit) ?? [],
+    [session],
+  );
 
   const retry = () => {
     setStatus("loading");
@@ -250,7 +318,7 @@ const ResultsPage = () => {
   const answered = session.answered_count;
   const correct = session.correct_count ?? 0;
   const invalidatedCredits = session.questions.filter(
-    (question) => question.status === "invalidated",
+    isInvalidatedCredit,
   ).length;
 
   const scoreRaw = Number(session.score ?? correct);
@@ -298,6 +366,26 @@ const ResultsPage = () => {
             </div>
           )}
         </section>
+
+        {invalidatedQuestions.length > 0 && (
+          <section className="space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="font-display text-lg font-bold text-[var(--accent-ink)]">
+                שאלות שנפסלו
+              </h2>
+
+              <span className="rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-900">
+                {invalidatedQuestions.length} שאלות
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              {invalidatedQuestions.map((q) => (
+                <InvalidatedQuestionCard key={q.stable_id} question={q} />
+              ))}
+            </div>
+          </section>
+        )}
       </main>
 
       <FixedFooter>

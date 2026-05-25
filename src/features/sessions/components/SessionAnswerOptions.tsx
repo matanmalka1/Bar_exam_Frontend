@@ -17,7 +17,8 @@ type SessionAnswerOptionsProps = {
   currentAnswer?: SessionAnswerInline | null;
   practiceAnswer?: {
     selected_answer: AnswerOption;
-    is_correct: boolean;
+    is_correct?: boolean | null;
+    scoring_status?: string | null;
   } | null;
   correctAnswer?: AnswerOption | null;
   onSelect: (option: AnswerOption) => void;
@@ -38,6 +39,7 @@ const SessionAnswerOptions = ({
   const selectedAnswer = currentAnswer?.selected_answer ?? displaySelected;
   const submittedPracticeAnswer = practiceAnswer ?? null;
   const showCorrectness = mode === "practice" && answerSubmitted;
+  const isInvalidated = submittedPracticeAnswer?.scoring_status === "invalidated";
   const [eliminatedByQuestion, setEliminatedByQuestion] = useState<
     Record<string, AnswerOption[]>
   >({});
@@ -89,9 +91,13 @@ const SessionAnswerOptions = ({
       {OPTIONS.map((option) => {
         const selected = selectedAnswer === option;
         const isCorrect =
-          showCorrectness && correctAnswer !== null && option === correctAnswer;
+          showCorrectness &&
+          !isInvalidated &&
+          correctAnswer !== null &&
+          option === correctAnswer;
         const isWrong =
           showCorrectness &&
+          !isInvalidated &&
           submittedPracticeAnswer?.is_correct === false &&
           option === submittedPracticeAnswer.selected_answer;
 

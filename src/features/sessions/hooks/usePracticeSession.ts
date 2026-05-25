@@ -17,7 +17,7 @@ const SUBMIT_ERR = "לא ניתן לשמור תשובה. נסה שוב";
 const COMPLETE_ERR = "לא ניתן לסיים את התרגול כרגע";
 
 type PracticeAnswer = NonNullable<SessionQuestion["answer"]> & {
-  is_correct: boolean;
+  scoring_status: "correct" | "incorrect" | "invalidated";
 };
 
 const findFirstUnansweredIndex = (questions: SessionQuestion[]): number => {
@@ -28,7 +28,7 @@ const findFirstUnansweredIndex = (questions: SessionQuestion[]): number => {
 const isPracticeAnswer = (
   answer: SessionQuestion["answer"],
 ): answer is PracticeAnswer =>
-  answer !== null && typeof answer.is_correct === "boolean";
+  answer !== null && answer.scoring_status !== null && answer.scoring_status !== undefined;
 
 const isPracticeResult = (result: AnswerResult): result is AnswerPracticeOut =>
   "is_correct" in result;

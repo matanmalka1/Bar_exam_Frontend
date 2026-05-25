@@ -81,7 +81,7 @@ export const SessionDetailSchema = SessionSummarySchema.extend({
 export const AnswerPracticeOutSchema = z.object({
   stable_id: z.string(),
   selected_answer: AnswerOptionSchema,
-  is_correct: z.boolean(),
+  is_correct: z.boolean().nullable(),
   scoring_status: ScoringStatusSchema,
   correct_answer: AnswerOptionSchema.nullable(),
   reference: z.string().nullable(),
