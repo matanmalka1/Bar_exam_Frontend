@@ -97,7 +97,7 @@ const OptionCard = ({
             "surface-muted border-strong shadow-[var(--shadow-default)]",
           // correct revealed (practice/review)
           correct &&
-            "border-[var(--accent-ink)] bg-[var(--accent-ink)] text-white shadow-[var(--shadow-elevated)]",
+            "border-[var(--accent-ink)] bg-[var(--accent-ink)] text-[var(--on-accent)] shadow-[var(--shadow-elevated)]",
           // wrong selected (practice/review)
           wrong && "surface-muted border-2 border-strong",
           eliminated && !selected && !correct && !wrong && "opacity-55",
@@ -110,7 +110,7 @@ const OptionCard = ({
           <span
             className={cn(
               "absolute start-4 top-2 text-[10px] font-bold uppercase tracking-widest",
-              correct ? "text-white/70" : "text-secondary",
+              correct ? "text-[var(--on-accent)]/70" : "text-secondary",
             )}
           >
             {showCorrectText ? "תשובה נכונה" : null}
@@ -131,9 +131,9 @@ const OptionCard = ({
               !wrong &&
               !neutralSelected &&
               "border border-default text-secondary",
-            neutralSelected && "bg-[var(--accent-ink)] text-white",
-            correct && "bg-white text-[var(--accent-ink)]",
-            wrong && "border border-strong bg-white text-primary",
+            neutralSelected && "bg-[var(--accent-ink)] text-[var(--on-accent)]",
+            correct && "bg-[var(--paper-2)] text-[var(--accent-ink)]",
+            wrong && "border border-strong bg-[var(--paper-2)] text-primary",
           )}
           aria-hidden="true"
         >
@@ -143,7 +143,7 @@ const OptionCard = ({
         <span
           className={cn(
             "flex-1 text-base leading-relaxed",
-            correct ? "text-white" : "text-primary",
+            correct ? "text-[var(--on-accent)]" : "text-primary",
             eliminated && !selected && !correct && !wrong && "line-through",
           )}
         >
@@ -155,7 +155,7 @@ const OptionCard = ({
             className={cn(
               "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full",
               correct
-                ? "bg-white/15 text-white"
+                ? "bg-[var(--on-accent)]/15 text-[var(--on-accent)]"
                 : "border border-strong text-primary",
             )}
             aria-hidden="true"

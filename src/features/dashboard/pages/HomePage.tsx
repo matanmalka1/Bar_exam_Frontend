@@ -55,7 +55,7 @@ const PartSuccessBar = ({
         {formatPercent(rate)}
       </span>
     </div>
-    <div className="h-1.5 overflow-hidden rounded-full bg-black/[0.08]">
+    <div className="h-1.5 overflow-hidden rounded-full bg-[var(--border-subtle)]">
       <div
         className="h-full rounded-full bg-[var(--ink)] transition-all duration-500"
         style={{ width: `${Math.round(rate ?? 0)}%` }}

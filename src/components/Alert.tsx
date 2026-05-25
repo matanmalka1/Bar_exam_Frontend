@@ -21,9 +21,9 @@ const Alert = ({
   const base = "rounded-2xl px-4 py-3 text-sm font-semibold";
 
   const variantClass = {
-    error: "border-2 border-strong bg-white text-primary",
+    error: "border-2 border-strong bg-surface text-primary",
     info: "border border-default bg-[var(--surface-muted)] text-primary",
-    success: "bg-[var(--accent-ink)] text-white",
+    success: "bg-[var(--accent-ink)] text-[var(--on-accent)]",
   }[variant];
 
   return (

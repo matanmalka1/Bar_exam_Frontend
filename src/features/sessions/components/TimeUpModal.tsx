@@ -12,7 +12,7 @@ const TimeUpModal = ({ onConfirm }: Props) => (
       <button
         type="button"
         onClick={onConfirm}
-        className="mt-6 w-full rounded-2xl bg-[var(--accent-ink)] py-3 text-sm font-bold text-white transition active:opacity-80"
+        className="mt-6 w-full rounded-2xl bg-[var(--accent-ink)] py-3 text-sm font-bold text-[var(--on-accent)] transition active:opacity-80"
       >
         לתוצאות
       </button>

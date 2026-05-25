@@ -174,7 +174,7 @@ const AppHeader = ({
               </span>
             )}
           </div>
-          <div className="mt-2 h-[3px] w-full overflow-hidden rounded-full bg-black/10">
+          <div className="mt-2 h-[3px] w-full overflow-hidden rounded-full bg-[var(--border-subtle)]">
             <div
               className="h-full rounded-full bg-[var(--accent-ink)] transition-all duration-500 ease-out"
               style={{ width: `${progressPct}%` }}

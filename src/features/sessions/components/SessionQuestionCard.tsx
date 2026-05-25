@@ -28,7 +28,7 @@ const SessionQuestionCard = ({
   const invalidated = question.status === "invalidated";
   return (
     <article className="rounded-3xl border border-default bg-[var(--surface-muted)] p-5 shadow-[var(--shadow-default)]">
-      <div className="flex items-baseline justify-between gap-2 border-b border-black/10 pb-3">
+      <div className="flex items-baseline justify-between gap-2 border-b border-[var(--border-subtle)] pb-3">
         <div className="flex items-baseline gap-2">
           <span className="font-display text-[10px] uppercase tracking-[0.22em] text-secondary">
             שאלה

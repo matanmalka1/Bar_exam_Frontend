@@ -157,18 +157,18 @@ const SummaryCard = ({
 }: SummaryCardProps) => {
   const toneClass =
     tone === "accent"
-      ? "bg-[var(--accent)] text-white"
+      ? "bg-[var(--accent)] text-[var(--on-accent)]"
       : tone === "warning"
         ? "bg-[var(--amber-50)]"
         : "bg-surface";
-  const mutedClass = tone === "accent" ? "text-white/70" : "text-secondary";
+  const mutedClass = tone === "accent" ? "text-[var(--on-accent)]/70" : "text-secondary";
   const valueClass =
-    tone === "accent" ? "text-white" : "text-[var(--accent-ink)]";
+    tone === "accent" ? "text-[var(--on-accent)]" : "text-[var(--accent-ink)]";
   const iconClass =
     tone === "accent"
-      ? "border-white/15 bg-white/10 text-white"
+      ? "border-[var(--on-accent)]/15 bg-[var(--on-accent)]/10 text-[var(--on-accent)]"
       : tone === "warning"
-        ? "border-[var(--amber-300)] bg-white text-[var(--amber-800)]"
+        ? "border-[var(--amber-300)] bg-[var(--amber-50)] text-[var(--amber-800)]"
         : "border-default bg-surface-muted text-[var(--accent-ink)]";
 
   return (

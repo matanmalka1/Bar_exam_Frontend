@@ -34,7 +34,7 @@ const AuthTextField = ({
           aria-invalid={!!error || undefined}
           aria-describedby={error ? `${id}-error` : undefined}
           className={cn(
-            "h-14 w-full rounded-[1.75rem] border bg-white py-3 text-base text-[var(--ink)] shadow-sm outline-none transition duration-200 placeholder:text-black/40 focus:border-[var(--ink)] focus:ring-0 disabled:opacity-45",
+            "h-14 w-full rounded-[1.75rem] border bg-[var(--surface)] py-3 text-base text-[var(--ink)] shadow-sm outline-none transition duration-200 placeholder:text-[var(--text-tertiary)] focus:border-[var(--ink)] focus:ring-0 disabled:opacity-45",
             isLtr ? "pr-5 pl-12 text-left placeholder:text-right" : "pr-12 pl-12 text-right",
             error ? "border-[var(--border-strong)]" : "border-[var(--border-default)]",
             className,
@@ -43,7 +43,7 @@ const AuthTextField = ({
         />
         <span
           className={cn(
-            "pointer-events-none absolute inset-y-0 flex items-center text-black/35 transition-colors group-focus-within:text-[var(--ink)]",
+            "pointer-events-none absolute inset-y-0 flex items-center text-[var(--text-tertiary)] transition-colors group-focus-within:text-[var(--ink)]",
             isLtr ? "left-4" : "right-4",
           )}
         >

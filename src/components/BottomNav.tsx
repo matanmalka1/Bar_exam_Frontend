@@ -17,7 +17,7 @@ const ITEMS = [
 
 const BottomNav = () => (
   <nav
-    className="fixed inset-x-0 bottom-0 z-40 border-t border-default bg-white/85 shadow-[var(--shadow-nav-up)] backdrop-blur-md supports-[backdrop-filter]:bg-white/70"
+    className="fixed inset-x-0 bottom-0 z-40 border-t border-default bg-[var(--paper)]/85 shadow-[var(--shadow-nav-up)] backdrop-blur-md supports-[backdrop-filter]:bg-[var(--paper)]/70"
     aria-label="ניווט תחתון"
   >
     <ul className="grid grid-cols-4 px-1 pb-[calc(env(safe-area-inset-bottom)_+_0.25rem)] pt-1.5">
@@ -48,7 +48,7 @@ const BottomNav = () => (
                   <Icon
                     className={cn(
                       "size-5 transition-colors duration-200",
-                      isActive ? "text-white" : "text-current",
+                      isActive ? "text-[var(--on-accent)]" : "text-current",
                     )}
                     strokeWidth={isActive ? 2.2 : 1.8}
                     aria-hidden="true"

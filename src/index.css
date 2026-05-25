@@ -25,6 +25,9 @@
   --text-tertiary: rgba(0, 0, 0, 0.45);
   --border-subtle: rgba(0, 0, 0, 0.08);
 
+  /* colour of text/icons placed ON top of --accent-ink backgrounds */
+  --on-accent: #ffffff;
+
   --radius-sm: 0.5rem;
   --radius-md: 1rem;
   --radius-lg: 1.25rem;
@@ -56,6 +59,84 @@
   --amber-300: #fcd34d;
   --amber-800: #92400e;
   --amber-50: #fffbeb;
+}
+
+/* ─── Dark theme vars ─────────────────────────────────────────────────────── */
+:root[data-theme="dark"],
+:root[data-theme="system"] {
+  --color-beige: #1e1b16;
+  --color-beige-strong: #2a261f;
+  --surface: #111010;
+  --surface-muted: #1e1b16;
+  --text-primary: #f0ece4;
+  --text-secondary: rgba(240, 236, 228, 0.65);
+  --border-default: rgba(240, 236, 228, 0.14);
+  --border-strong: rgba(240, 236, 228, 0.7);
+  --shadow-default: 0 10px 30px rgba(0, 0, 0, 0.4);
+  --shadow-elevated: 0 18px 46px rgba(0, 0, 0, 0.55);
+  --shadow-nav-up: 0 -10px 30px rgba(0, 0, 0, 0.35);
+  --accent: #f0ece4;
+  --accent-soft: #2a261f;
+  --accent-ink: #f0ece4;
+  --paper: #1e1b16;
+  --paper-2: #111010;
+  --ink: #f0ece4;
+
+  --text-tertiary: rgba(240, 236, 228, 0.38);
+  --border-subtle: rgba(240, 236, 228, 0.07);
+
+  --color-pass: #4ade80;
+  --color-pass-bg: #052e16;
+  --color-pass-text: #86efac;
+  --color-fail: #f87171;
+  --color-fail-bg: #450a0a;
+  --color-fail-text: #fca5a5;
+  --color-warn: #fbbf24;
+
+  --on-accent: #111010;
+
+  --amber-300: #92400e;
+  --amber-800: #fde68a;
+  --amber-50: #1c1107;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-beige: #1e1b16;
+    --color-beige-strong: #2a261f;
+    --surface: #111010;
+    --surface-muted: #1e1b16;
+    --text-primary: #f0ece4;
+    --text-secondary: rgba(240, 236, 228, 0.65);
+    --border-default: rgba(240, 236, 228, 0.14);
+    --border-strong: rgba(240, 236, 228, 0.7);
+    --shadow-default: 0 10px 30px rgba(0, 0, 0, 0.4);
+    --shadow-elevated: 0 18px 46px rgba(0, 0, 0, 0.55);
+    --shadow-nav-up: 0 -10px 30px rgba(0, 0, 0, 0.35);
+    --accent: #f0ece4;
+    --accent-soft: #2a261f;
+    --accent-ink: #f0ece4;
+    --paper: #1e1b16;
+    --paper-2: #111010;
+    --ink: #f0ece4;
+
+    --text-tertiary: rgba(240, 236, 228, 0.38);
+    --border-subtle: rgba(240, 236, 228, 0.07);
+
+    --color-pass: #4ade80;
+    --color-pass-bg: #052e16;
+    --color-pass-text: #86efac;
+    --color-fail: #f87171;
+    --color-fail-bg: #450a0a;
+    --color-fail-text: #fca5a5;
+    --color-warn: #fbbf24;
+
+    --on-accent: #111010;
+
+    --amber-300: #92400e;
+    --amber-800: #fde68a;
+    --amber-50: #1c1107;
+  }
 }
 
 html,
@@ -200,18 +281,18 @@ body {
   }
 
   .button-primary {
-    background: var(--color-black);
-    color: var(--color-white);
-    border-color: var(--color-black);
+    background: var(--accent-ink);
+    color: var(--on-accent);
+    border-color: var(--accent-ink);
   }
 
   .button-primary:hover {
-    background: rgba(0, 0, 0, 0.82);
+    opacity: 0.88;
   }
 
   .button-secondary {
     background: var(--surface-muted);
-    color: var(--color-black);
+    color: var(--ink);
     border-color: var(--border-default);
   }
 
@@ -221,23 +302,23 @@ body {
 
   .button-ghost {
     background: transparent;
-    color: var(--color-black);
-    border-color: rgba(0, 0, 0, 0.2);
+    color: var(--ink);
+    border-color: var(--border-default);
   }
 
   .button-ghost:hover {
-    background: rgba(255, 255, 255, 0.7);
+    background: var(--surface-muted);
   }
 
   .badge-default {
     background: var(--surface);
-    color: var(--color-black);
+    color: var(--ink);
     border-color: var(--border-default);
   }
 
   .badge-strong {
     background: var(--surface-muted);
-    color: var(--color-black);
+    color: var(--ink);
     border-color: var(--border-strong);
   }
 
@@ -249,6 +330,6 @@ body {
   .focus-ring:focus-visible {
     box-shadow:
       0 0 0 2px var(--surface-muted),
-      0 0 0 4px var(--color-black);
+      0 0 0 4px var(--accent-ink);
   }
 }

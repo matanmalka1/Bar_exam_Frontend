@@ -41,7 +41,7 @@ const StepSection = ({ title, complete, children }: StepSectionProps) => (
         className={cn(
           "inline-flex h-6 w-6 items-center justify-center rounded-full transition",
           complete
-            ? "bg-[var(--accent-ink)] text-white"
+            ? "bg-[var(--accent-ink)] text-[var(--on-accent)]"
             : "border border-default text-transparent",
         )}
         aria-hidden="true"

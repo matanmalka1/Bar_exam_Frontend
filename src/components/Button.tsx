@@ -13,7 +13,7 @@ const VARIANT: Record<Variant, string> = {
   secondary: "button-secondary border",
   ghost: "button-ghost border border-transparent",
   danger:
-    "border border-[var(--color-fail)] bg-[var(--color-fail)] text-white shadow-sm hover:brightness-95",
+    "border border-[var(--color-fail)] bg-[var(--color-fail)] text-[var(--on-accent)] shadow-sm hover:brightness-95",
 };
 
 const Button = ({

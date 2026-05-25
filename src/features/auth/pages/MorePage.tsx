@@ -8,7 +8,11 @@ import {
   ChevronLeft,
   Trash2,
   KeyRound,
+  Moon,
+  Sun,
+  Monitor,
 } from "lucide-react";
+import { useTheme, type ThemePreference } from "../../../lib/useTheme";
 import AppHeader from "../../../components/AppHeader";
 import Card from "../../../components/Card";
 import ConfirmSheet from "../../../components/ConfirmSheet";
@@ -76,6 +80,44 @@ const ActionRow = ({
     <ChevronLeft className="h-4 w-4 shrink-0 text-secondary" />
   </button>
 );
+
+const THEME_OPTIONS: { value: ThemePreference; label: string; icon: typeof Sun }[] = [
+  { value: "light", label: "בהיר", icon: Sun },
+  { value: "dark", label: "כהה", icon: Moon },
+  { value: "system", label: "מערכת", icon: Monitor },
+];
+
+const ThemeRow = () => {
+  const { preference, setTheme } = useTheme();
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border border-default bg-[var(--surface-muted)] px-4 py-3">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface text-[var(--accent-ink)]">
+        {preference === "dark" ? <Moon className="h-5 w-5" /> : preference === "light" ? <Sun className="h-5 w-5" /> : <Monitor className="h-5 w-5" />}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-xs text-secondary">מצב תצוגה</p>
+        <div className="mt-2 flex gap-1.5">
+          {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setTheme(value)}
+              className={[
+                "flex flex-1 items-center justify-center gap-1.5 rounded-xl border px-2 py-1.5 text-xs font-semibold transition",
+                preference === value
+                  ? "border-[var(--accent-ink)] bg-[var(--accent-ink)] text-[var(--paper)]"
+                  : "border-default bg-surface text-secondary hover:text-primary",
+              ].join(" ")}
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const MorePage = () => {
   const navigate = useNavigate();
@@ -150,6 +192,7 @@ const MorePage = () => {
           <SectionTitle>אפליקציה</SectionTitle>
 
           <Card className="space-y-3">
+            <ThemeRow />
             <InfoRow
               icon={<Info className="h-5 w-5" />}
               label="אודות"
