@@ -26,7 +26,7 @@ const StreakDot = ({
     </div>
     <span
       className={cn(
-        "text-[9px] font-semibold uppercase tracking-[0.1em]",
+        "text-[11px] font-semibold uppercase tracking-[0.08em]",
         isToday ? "text-[var(--accent-ink)]" : "text-[var(--text-tertiary)]",
       )}
     >
@@ -62,7 +62,7 @@ const StreakCard = ({ streak }: StreakCardProps) => {
             strokeWidth={2.2}
             aria-hidden="true"
           />
-          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-secondary">
+          <span className="text-[12px] font-semibold uppercase tracking-[0.18em] text-secondary">
             רצף לימוד
           </span>
         </div>

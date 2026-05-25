@@ -181,7 +181,7 @@ const SimulationRow = ({ session, isLast }: SimulationRowProps) => {
               {formatExamLabel(session.exam_date)}
             </p>
 
-            <span className="rounded-full bg-[var(--color-beige-strong)] px-2 py-0.5 text-[10px] font-semibold text-[var(--color-black)]">
+            <span className="rounded-full bg-[var(--color-beige-strong)] px-2 py-0.5 text-[10px] font-semibold text-[var(--accent-ink)]">
               סימולציה
             </span>
           </div>
