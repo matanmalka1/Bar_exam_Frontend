@@ -115,7 +115,10 @@ export const useExamSession = ({
     ? `יש לענות על כל ${activeCount} השאלות הפעילות לפני סיום`
     : null;
 
-  const next = useCallback(() => navNext(questionsCount), [navNext, questionsCount]);
+  const next = useCallback(
+    () => navNext(questionsCount),
+    [navNext, questionsCount],
+  );
 
   const validate = useCallback(
     (data: SessionDetail, sid: string) => {

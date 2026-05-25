@@ -8,9 +8,7 @@ const PageShell = ({
   children: ReactNode;
   className?: string;
 }) => (
-  <div
-    className={cn("mx-auto w-full max-w-3xl px-4 pt-5 sm:px-6", className)}
-  >
+  <div className={cn("mx-auto w-full max-w-3xl px-4 pt-5 sm:px-6", className)}>
     {children}
   </div>
 );

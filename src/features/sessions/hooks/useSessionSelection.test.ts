@@ -155,7 +155,8 @@ describe("exam answer submission state", () => {
     });
 
     // exam answer response has no is_correct / scoring_status
-    const callResult = await submitAnswerMock.mock.results[0].value as AnswerExamOut;
+    const callResult = (await submitAnswerMock.mock.results[0]
+      .value) as AnswerExamOut;
     expect("is_correct" in callResult).toBe(false);
     expect("correct_answer" in callResult).toBe(false);
   });

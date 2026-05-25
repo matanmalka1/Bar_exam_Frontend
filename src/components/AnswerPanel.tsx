@@ -11,7 +11,12 @@ interface AnswerPanelProps {
   reference?: string | null;
 }
 
-const AnswerPanel = ({ id, options, correctAnswer, reference }: AnswerPanelProps) => (
+const AnswerPanel = ({
+  id,
+  options,
+  correctAnswer,
+  reference,
+}: AnswerPanelProps) => (
   <div id={id} className="space-y-3">
     <div className="grid gap-2">
       {OPTIONS.map((opt) => (

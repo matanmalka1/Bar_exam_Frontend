@@ -68,9 +68,7 @@ describe("SessionAnswerOptions", () => {
     await user.click(screen.getByRole("button", { name: "פסול תשובה ג" }));
     expect(screen.getByText("אפשרות שלישית")).toHaveClass("line-through");
 
-    await user.click(
-      screen.getByRole("button", { name: /אפשרות שלישית/ }),
-    );
+    await user.click(screen.getByRole("button", { name: /אפשרות שלישית/ }));
 
     expect(onSelect).toHaveBeenCalledWith("ג");
     expect(screen.getByText("אפשרות שלישית")).not.toHaveClass("line-through");

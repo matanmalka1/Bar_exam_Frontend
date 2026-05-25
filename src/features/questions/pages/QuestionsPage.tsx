@@ -320,7 +320,8 @@ const QuestionsPage = () => {
         {!selection && (
           <>
             <p className="rounded-2xl border border-default bg-[var(--surface-muted)] px-4 py-3 text-sm leading-6 text-secondary">
-              בחר מועד וחלק לצפייה בשאלות. ניתן לעבור בין מצב עיון רגיל לצפייה בתשובות.
+              בחר מועד וחלק לצפייה בשאלות. ניתן לעבור בין מצב עיון רגיל לצפייה
+              בתשובות.
             </p>
             <ExamPicker exams={exams} onSelect={selectExam} />
           </>
@@ -384,18 +385,20 @@ const QuestionsPage = () => {
           </section>
         )}
 
-        {selection && viewMode === "review" && reviewState.status === "ready" && (
-          <section className="grid gap-3">
-            {reviewState.questions.map((question) => (
-              <ReviewPreview
-                key={question.stable_id}
-                question={question}
-                open={expanded.has(question.stable_id)}
-                onToggle={() => toggle(question.stable_id)}
-              />
-            ))}
-          </section>
-        )}
+        {selection &&
+          viewMode === "review" &&
+          reviewState.status === "ready" && (
+            <section className="grid gap-3">
+              {reviewState.questions.map((question) => (
+                <ReviewPreview
+                  key={question.stable_id}
+                  question={question}
+                  open={expanded.has(question.stable_id)}
+                  onToggle={() => toggle(question.stable_id)}
+                />
+              ))}
+            </section>
+          )}
       </div>
     </PageShell>
   );

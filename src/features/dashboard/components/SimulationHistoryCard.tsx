@@ -73,7 +73,9 @@ const formatDuration = (
     : `${hours}:${String(minutes).padStart(2, "0")} שע׳`;
 };
 
-const parseScore = (value: string | number | null | undefined): number | null => {
+const parseScore = (
+  value: string | number | null | undefined,
+): number | null => {
   if (value === null || value === undefined) return null;
 
   const score = Number(value);
@@ -113,7 +115,9 @@ const ScoreBadge = ({
         </span>
 
         {score !== null && max !== null && (
-          <span className="pb-0.5 text-[11px] font-bold leading-none">/ {max}</span>
+          <span className="pb-0.5 text-[11px] font-bold leading-none">
+            / {max}
+          </span>
         )}
       </div>
     </div>
@@ -167,7 +171,9 @@ const SimulationRow = ({ session, isLast }: SimulationRowProps) => {
   const partBreakdown = session.part_breakdown;
 
   return (
-    <article className={`px-5 py-4 ${!isLast ? "border-b border-default" : ""}`}>
+    <article
+      className={`px-5 py-4 ${!isLast ? "border-b border-default" : ""}`}
+    >
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
@@ -185,8 +191,8 @@ const SimulationRow = ({ session, isLast }: SimulationRowProps) => {
           </p>
 
           <p className="mt-1 text-xs text-[var(--text-tertiary)]">
-            {formatShortDate(session.created_at)} · {session.total_questions} שאלות ·{" "}
-            {formatDuration(session.started_at, session.completed_at)}
+            {formatShortDate(session.created_at)} · {session.total_questions}{" "}
+            שאלות · {formatDuration(session.started_at, session.completed_at)}
           </p>
         </div>
 

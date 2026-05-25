@@ -35,8 +35,12 @@ const AuthTextField = ({
           aria-describedby={error ? `${id}-error` : undefined}
           className={cn(
             "h-14 w-full rounded-[1.75rem] border bg-[var(--surface)] py-3 text-base text-[var(--ink)] shadow-sm outline-none transition duration-200 placeholder:text-[var(--text-tertiary)] focus:border-[var(--ink)] focus:ring-0 disabled:opacity-45",
-            isLtr ? "pr-5 pl-12 text-left placeholder:text-right" : "pr-12 pl-12 text-right",
-            error ? "border-[var(--border-strong)]" : "border-[var(--border-default)]",
+            isLtr
+              ? "pr-5 pl-12 text-left placeholder:text-right"
+              : "pr-12 pl-12 text-right",
+            error
+              ? "border-[var(--border-strong)]"
+              : "border-[var(--border-default)]",
             className,
           )}
           {...inputProps}

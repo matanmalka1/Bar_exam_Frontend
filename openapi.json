@@ -51,9 +51,7 @@
     },
     "/api/v1/auth/register": {
       "post": {
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "summary": "Register",
         "operationId": "register_api_v1_auth_register_post",
         "requestBody": {
@@ -92,9 +90,7 @@
     },
     "/api/v1/auth/login": {
       "post": {
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "summary": "Login",
         "operationId": "login_api_v1_auth_login_post",
         "requestBody": {
@@ -133,9 +129,7 @@
     },
     "/api/v1/auth/refresh": {
       "post": {
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "summary": "Refresh",
         "operationId": "refresh_api_v1_auth_refresh_post",
         "parameters": [
@@ -182,9 +176,7 @@
     },
     "/api/v1/auth/logout": {
       "post": {
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "summary": "Logout",
         "operationId": "logout_api_v1_auth_logout_post",
         "parameters": [
@@ -224,9 +216,7 @@
     },
     "/api/v1/auth/me": {
       "get": {
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "summary": "Me",
         "operationId": "me_api_v1_auth_me_get",
         "responses": {
@@ -250,9 +240,7 @@
     },
     "/api/v1/auth/forgot-password": {
       "post": {
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "summary": "Forgot Password",
         "operationId": "forgot_password_api_v1_auth_forgot_password_post",
         "requestBody": {
@@ -291,9 +279,7 @@
     },
     "/api/v1/auth/reset-password": {
       "post": {
-        "tags": [
-          "auth"
-        ],
+        "tags": ["auth"],
         "summary": "Reset Password",
         "operationId": "reset_password_api_v1_auth_reset_password_post",
         "requestBody": {
@@ -372,10 +358,7 @@
             "in": "query",
             "required": true,
             "schema": {
-              "enum": [
-                "B",
-                "C"
-              ],
+              "enum": ["B", "C"],
               "type": "string",
               "title": "Part"
             }
@@ -429,10 +412,7 @@
             "in": "query",
             "required": true,
             "schema": {
-              "enum": [
-                "B",
-                "C"
-              ],
+              "enum": ["B", "C"],
               "type": "string",
               "title": "Part"
             }
@@ -779,11 +759,7 @@
             "schema": {
               "anyOf": [
                 {
-                  "enum": [
-                    "active",
-                    "completed",
-                    "abandoned"
-                  ],
+                  "enum": ["active", "completed", "abandoned"],
                   "type": "string"
                 },
                 {
@@ -984,11 +960,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "stable_id",
-          "selected_answer",
-          "answered_at"
-        ],
+        "required": ["stable_id", "selected_answer", "answered_at"],
         "title": "AnswerExamOut"
       },
       "AnswerPracticeOut": {
@@ -1058,10 +1030,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "stable_id",
-          "selected_answer"
-        ],
+        "required": ["stable_id", "selected_answer"],
         "title": "AnswerSubmitIn"
       },
       "AuthUserOut": {
@@ -1085,12 +1054,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "id",
-          "full_name",
-          "email",
-          "is_active"
-        ],
+        "required": ["id", "full_name", "email", "is_active"],
         "title": "AuthUserOut"
       },
       "BookmarkOut": {
@@ -1110,11 +1074,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "user_id",
-          "stable_id",
-          "created_at"
-        ],
+        "required": ["user_id", "stable_id", "created_at"],
         "title": "BookmarkOut"
       },
       "BookmarkRemovedOut": {
@@ -1125,9 +1085,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "removed"
-        ],
+        "required": ["removed"],
         "title": "BookmarkRemovedOut"
       },
       "BookmarkedQuestionOut": {
@@ -1291,9 +1249,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "email"
-        ],
+        "required": ["email"],
         "title": "ForgotPasswordRequest"
       },
       "ForgotPasswordResponse": {
@@ -1304,9 +1260,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "message"
-        ],
+        "required": ["message"],
         "title": "ForgotPasswordResponse"
       },
       "HTTPValidationError": {
@@ -1337,10 +1291,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "email",
-          "password"
-        ],
+        "required": ["email", "password"],
         "title": "LoginRequest"
       },
       "MistakeOut": {
@@ -1428,12 +1379,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "total",
-          "answered",
-          "correct",
-          "score_percent"
-        ],
+        "required": ["total", "answered", "correct", "score_percent"],
         "title": "PartBreakdown"
       },
       "PartStatsOut": {
@@ -1455,10 +1401,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "total_answered",
-          "success_rate"
-        ],
+        "required": ["total_answered", "success_rate"],
         "title": "PartStatsOut"
       },
       "QuestionOptions": {
@@ -1481,12 +1424,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "א",
-          "ב",
-          "ג",
-          "ד"
-        ],
+        "required": ["א", "ב", "ג", "ד"],
         "title": "QuestionOptions"
       },
       "QuestionPracticeOut": {
@@ -1647,9 +1585,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "access_token"
-        ],
+        "required": ["access_token"],
         "title": "RefreshResponse"
       },
       "RegisterRequest": {
@@ -1673,11 +1609,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "full_name",
-          "email",
-          "password"
-        ],
+        "required": ["full_name", "email", "password"],
         "title": "RegisterRequest"
       },
       "ResetPasswordRequest": {
@@ -1692,10 +1624,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "token",
-          "new_password"
-        ],
+        "required": ["token", "new_password"],
         "title": "ResetPasswordRequest"
       },
       "ResetPasswordResponse": {
@@ -1706,9 +1635,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "message"
-        ],
+        "required": ["message"],
         "title": "ResetPasswordResponse"
       },
       "SessionAnswerInline": {
@@ -1735,10 +1662,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "selected_answer",
-          "answered_at"
-        ],
+        "required": ["selected_answer", "answered_at"],
         "title": "SessionAnswerInline"
       },
       "SessionCompleteOut": {
@@ -1823,13 +1747,7 @@
         "properties": {
           "mode": {
             "type": "string",
-            "enum": [
-              "exam",
-              "simulation",
-              "practice",
-              "mistakes",
-              "bookmarks"
-            ],
+            "enum": ["exam", "simulation", "practice", "mistakes", "bookmarks"],
             "title": "Mode"
           },
           "exam_date": {
@@ -1848,10 +1766,7 @@
             "anyOf": [
               {
                 "type": "string",
-                "enum": [
-                  "B",
-                  "C"
-                ]
+                "enum": ["B", "C"]
               },
               {
                 "type": "null"
@@ -1879,9 +1794,7 @@
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "mode"
-        ],
+        "required": ["mode"],
         "title": "SessionCreateIn"
       },
       "SessionDetailOut": {
@@ -2262,10 +2175,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "access_token",
-          "user"
-        ],
+        "required": ["access_token", "user"],
         "title": "TokenResponse"
       },
       "ValidationError": {
@@ -2301,11 +2211,7 @@
           }
         },
         "type": "object",
-        "required": [
-          "loc",
-          "msg",
-          "type"
-        ],
+        "required": ["loc", "msg", "type"],
         "title": "ValidationError"
       }
     },

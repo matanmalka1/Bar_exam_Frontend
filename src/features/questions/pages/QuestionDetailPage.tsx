@@ -84,17 +84,16 @@ const ReviewBody = ({ question }: { question: ReviewQuestionDetail }) => {
             mode="review"
             label={option}
             text={question.options[option]}
-            isCorrect={!isInvalidated && revealed && question.correct_answer === option}
+            isCorrect={
+              !isInvalidated && revealed && question.correct_answer === option
+            }
             showCorrectBadge={!isInvalidated && revealed}
           />
         ))}
       </div>
 
       {!isInvalidated && !revealed && (
-        <Button
-          onClick={() => setRevealed(true)}
-          className="w-full"
-        >
+        <Button onClick={() => setRevealed(true)} className="w-full">
           <Eye className="h-4 w-4" strokeWidth={2} />
           הצג תשובה נכונה
         </Button>
@@ -133,7 +132,6 @@ const QuestionDetailPage = ({ mode = "practice" }: QuestionDetailPageProps) => {
         <AppHeader
           title={title}
           back={{}}
-
           actions={
             status === "ready" && question ? (
               mode === "review" ? (
@@ -170,9 +168,10 @@ const QuestionDetailPage = ({ mode = "practice" }: QuestionDetailPageProps) => {
           <BrowseBody question={question as PracticeQuestion} />
         )}
 
-        {status === "ready" && question && mode === "review" && hasReviewAnswer(question) && (
-          <ReviewBody question={question} />
-        )}
+        {status === "ready" &&
+          question &&
+          mode === "review" &&
+          hasReviewAnswer(question) && <ReviewBody question={question} />}
       </div>
     </PageShell>
   );

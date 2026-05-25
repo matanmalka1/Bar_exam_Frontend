@@ -70,7 +70,9 @@ const ActionRow = ({
       </span>
 
       <span>
-        <span className="block text-sm font-semibold text-primary">{title}</span>
+        <span className="block text-sm font-semibold text-primary">
+          {title}
+        </span>
         <span className="mt-0.5 block text-xs text-secondary">
           {description}
         </span>
@@ -81,7 +83,11 @@ const ActionRow = ({
   </button>
 );
 
-const THEME_OPTIONS: { value: ThemePreference; label: string; icon: typeof Sun }[] = [
+const THEME_OPTIONS: {
+  value: ThemePreference;
+  label: string;
+  icon: typeof Sun;
+}[] = [
   { value: "light", label: "בהיר", icon: Sun },
   { value: "dark", label: "כהה", icon: Moon },
   { value: "system", label: "מערכת", icon: Monitor },
@@ -92,7 +98,13 @@ const ThemeRow = () => {
   return (
     <div className="flex items-center gap-3 rounded-2xl border border-default bg-[var(--surface-muted)] px-4 py-3">
       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface text-[var(--accent-ink)]">
-        {preference === "dark" ? <Moon className="h-5 w-5" /> : preference === "light" ? <Sun className="h-5 w-5" /> : <Monitor className="h-5 w-5" />}
+        {preference === "dark" ? (
+          <Moon className="h-5 w-5" />
+        ) : preference === "light" ? (
+          <Sun className="h-5 w-5" />
+        ) : (
+          <Monitor className="h-5 w-5" />
+        )}
       </span>
       <div className="min-w-0 flex-1">
         <p className="text-xs text-secondary">מצב תצוגה</p>

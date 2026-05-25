@@ -39,5 +39,7 @@ export const ResultsPage = lazy(
 export const SessionPage = lazy(
   () => import("../features/sessions/pages/SessionPage"),
 );
-export const StatsPage = lazy(() => import("../features/stats/pages/StatsPage"));
+export const StatsPage = lazy(
+  () => import("../features/stats/pages/StatsPage"),
+);
 export const TermsPage = lazy(() => import("../features/auth/TermsPage"));

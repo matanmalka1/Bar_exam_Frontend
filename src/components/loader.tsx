@@ -136,7 +136,9 @@ const AppLoader = ({
           </div>
 
           <div className="text-center">
-            <p className="text-sm font-semibold text-[var(--text-primary)]">{label}</p>
+            <p className="text-sm font-semibold text-[var(--text-primary)]">
+              {label}
+            </p>
             <p className="mt-1 text-xs text-[var(--text-secondary)]">
               מסדרים את הנתונים בצורה נקייה
             </p>

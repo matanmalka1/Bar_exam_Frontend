@@ -40,7 +40,10 @@ const clearSeconds = (key: string) => {
   }
 };
 
-export const useCountdownTimer = (sessionId: string | number, sessionCompleted = false) => {
+export const useCountdownTimer = (
+  sessionId: string | number,
+  sessionCompleted = false,
+) => {
   const key = storageKey(sessionId, "countdown");
   const [remaining, setRemaining] = useState(() =>
     loadSeconds(key, EXAM_SECONDS),

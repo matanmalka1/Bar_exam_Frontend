@@ -77,22 +77,26 @@ export const SessionDetailSchema = SessionSummarySchema.extend({
   questions: z.array(SessionQuestionSchema),
 });
 
-export const AnswerPracticeOutSchema = z.object({
-  stable_id: z.string(),
-  selected_answer: AnswerOptionSchema,
-  is_correct: z.boolean().nullable(),
-  scoring_status: ScoringStatusSchema,
-  correct_answer: AnswerOptionSchema.nullable(),
-  reference: z.string().nullable(),
-  answered_at: DateTimeStringSchema,
-}).strict();
+export const AnswerPracticeOutSchema = z
+  .object({
+    stable_id: z.string(),
+    selected_answer: AnswerOptionSchema,
+    is_correct: z.boolean().nullable(),
+    scoring_status: ScoringStatusSchema,
+    correct_answer: AnswerOptionSchema.nullable(),
+    reference: z.string().nullable(),
+    answered_at: DateTimeStringSchema,
+  })
+  .strict();
 
-export const AnswerExamOutSchema = z.object({
-  stable_id: z.string(),
-  selected_answer: AnswerOptionSchema,
-  scoring_status: ScoringStatusSchema.nullable().optional(),
-  answered_at: DateTimeStringSchema,
-}).strict();
+export const AnswerExamOutSchema = z
+  .object({
+    stable_id: z.string(),
+    selected_answer: AnswerOptionSchema,
+    scoring_status: ScoringStatusSchema.nullable().optional(),
+    answered_at: DateTimeStringSchema,
+  })
+  .strict();
 
 export const AnswerResultSchema = z.union([
   AnswerExamOutSchema,

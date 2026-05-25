@@ -39,7 +39,8 @@ const SessionAnswerOptions = ({
   const selectedAnswer = currentAnswer?.selected_answer ?? displaySelected;
   const submittedPracticeAnswer = practiceAnswer ?? null;
   const showCorrectness = mode === "practice" && answerSubmitted;
-  const isInvalidated = submittedPracticeAnswer?.scoring_status === "invalidated";
+  const isInvalidated =
+    submittedPracticeAnswer?.scoring_status === "invalidated";
   const [eliminatedByQuestion, setEliminatedByQuestion] = useState<
     Record<string, AnswerOption[]>
   >({});

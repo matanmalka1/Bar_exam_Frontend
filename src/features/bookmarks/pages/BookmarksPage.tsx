@@ -29,9 +29,7 @@ const PracticeBookmarksCard = ({
         <p className="font-display font-bold text-[var(--accent-ink)]">
           תרגול סימניות
         </p>
-        <p className="mt-1 text-sm text-secondary">
-          צור סשן מכל השאלות ששמרת.
-        </p>
+        <p className="mt-1 text-sm text-secondary">צור סשן מכל השאלות ששמרת.</p>
       </div>
 
       <Button disabled={starting} onClick={onStart}>

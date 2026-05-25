@@ -48,7 +48,10 @@ const LoginPage = () => {
       return false;
     }
 
-    const result = LoginRequestSchema.safeParse({ email: trimmedEmail, password });
+    const result = LoginRequestSchema.safeParse({
+      email: trimmedEmail,
+      password,
+    });
 
     if (result.success) {
       setFieldErrors({});
@@ -58,7 +61,9 @@ const LoginPage = () => {
     result.error.issues.forEach((issue) => {
       const field = issue.path[0];
       if (field === "email" && !nextFieldErrors.email)
-        nextFieldErrors.email = trimmedEmail ? issue.message : "יש להזין אימייל";
+        nextFieldErrors.email = trimmedEmail
+          ? issue.message
+          : "יש להזין אימייל";
       if (field === "password" && !nextFieldErrors.password)
         nextFieldErrors.password = password ? issue.message : "יש להזין סיסמה";
     });
@@ -78,9 +83,7 @@ const LoginPage = () => {
       dismissToasts();
       navigate("/", { replace: true });
     } catch (err) {
-      const statusCode = isAxiosError(err)
-        ? err.response?.status
-        : undefined;
+      const statusCode = isAxiosError(err) ? err.response?.status : undefined;
       if (statusCode === 401 || statusCode === 403) {
         setSuggestRegister(true);
         setFormError("פרטי ההתחברות שגויים");
@@ -123,93 +126,95 @@ const LoginPage = () => {
         </footer>
       }
     >
-        <form
-          noValidate
-          onSubmit={onSubmit}
-          className="flex flex-grow flex-col gap-4"
-        >
-          {sessionExpired && (
-            <Alert variant="info">ההתחברות פגה. אנא התחבר מחדש.</Alert>
-          )}
+      <form
+        noValidate
+        onSubmit={onSubmit}
+        className="flex flex-grow flex-col gap-4"
+      >
+        {sessionExpired && (
+          <Alert variant="info">ההתחברות פגה. אנא התחבר מחדש.</Alert>
+        )}
 
-          <AuthTextField
-            id="login-email"
-            label="אימייל"
-            icon={<Mail className="h-5 w-5" aria-hidden="true" />}
-            type="email"
-            autoComplete="email"
-            inputMode="email"
-            dir="ltr"
-            required
-            value={email}
-            onChange={(e) => updateEmail(e.target.value)}
-            disabled={submitting}
-            placeholder="your@email.com"
-            error={fieldErrors.email}
-          />
+        <AuthTextField
+          id="login-email"
+          label="אימייל"
+          icon={<Mail className="h-5 w-5" aria-hidden="true" />}
+          type="email"
+          autoComplete="email"
+          inputMode="email"
+          dir="ltr"
+          required
+          value={email}
+          onChange={(e) => updateEmail(e.target.value)}
+          disabled={submitting}
+          placeholder="your@email.com"
+          error={fieldErrors.email}
+        />
 
-          <AuthTextField
-            id="login-password"
-            label="סיסמה"
-            icon={<Lock className="h-5 w-5" aria-hidden="true" />}
-            type={showPassword ? "text" : "password"}
-            autoComplete="current-password"
-            required
-            value={password}
-            onChange={(e) => updatePassword(e.target.value)}
-            disabled={submitting}
-            placeholder="••••••••"
-            error={fieldErrors.password}
-            endSlot={
-              <PasswordToggle
-                visible={showPassword}
-                onToggle={() => setShowPassword((v) => !v)}
-                disabled={submitting}
-              />
-            }
-          />
-
-          <div className="-mt-1 flex justify-start">
-            <Link
-              to="/forgot-password"
-              className="text-xs font-semibold text-secondary transition hover:text-[var(--ink)]"
-            >
-              שכחת סיסמה?
-            </Link>
-          </div>
-
-          {formError && (
-            <Alert variant="error" className="bg-white/80">
-              {formError}
-            </Alert>
-          )}
-
-          <div className="mt-6 flex flex-col gap-4">
-            <Button
-              type="submit"
-              fullWidth
+        <AuthTextField
+          id="login-password"
+          label="סיסמה"
+          icon={<Lock className="h-5 w-5" aria-hidden="true" />}
+          type={showPassword ? "text" : "password"}
+          autoComplete="current-password"
+          required
+          value={password}
+          onChange={(e) => updatePassword(e.target.value)}
+          disabled={submitting}
+          placeholder="••••••••"
+          error={fieldErrors.password}
+          endSlot={
+            <PasswordToggle
+              visible={showPassword}
+              onToggle={() => setShowPassword((v) => !v)}
               disabled={submitting}
-              className="h-14 rounded-2xl bg-black text-base font-bold text-white shadow-sm active:scale-95"
-            >
-              {submitting ? (
-                <AppLoader variant="button" label="מתחבר..." />
-              ) : (
-                "התחברות"
-              )}
-            </Button>
+            />
+          }
+        />
 
-            <Link
-              to="/register"
-              className={`flex h-14 w-full items-center justify-center rounded-2xl border text-sm font-semibold transition active:scale-95 ${
-                suggestRegister
-                  ? "border-black bg-black/5 text-[var(--ink)] ring-2 ring-black/20"
-                  : "border-[var(--ink)]/10 bg-transparent text-[var(--ink)] hover:bg-[var(--ink)]/5"
-              }`}
-            >
-              {suggestRegister ? "עדיין לא רשום? לחץ כאן להרשמה" : "עדיין אין לך חשבון? הרשמה"}
-            </Link>
-          </div>
-        </form>
+        <div className="-mt-1 flex justify-start">
+          <Link
+            to="/forgot-password"
+            className="text-xs font-semibold text-secondary transition hover:text-[var(--ink)]"
+          >
+            שכחת סיסמה?
+          </Link>
+        </div>
+
+        {formError && (
+          <Alert variant="error" className="bg-white/80">
+            {formError}
+          </Alert>
+        )}
+
+        <div className="mt-6 flex flex-col gap-4">
+          <Button
+            type="submit"
+            fullWidth
+            disabled={submitting}
+            className="h-14 rounded-2xl bg-black text-base font-bold text-white shadow-sm active:scale-95"
+          >
+            {submitting ? (
+              <AppLoader variant="button" label="מתחבר..." />
+            ) : (
+              "התחברות"
+            )}
+          </Button>
+
+          <Link
+            to="/register"
+            className={`flex h-14 w-full items-center justify-center rounded-2xl border text-sm font-semibold transition active:scale-95 ${
+              suggestRegister
+                ? "border-black bg-black/5 text-[var(--ink)] ring-2 ring-black/20"
+                : "border-[var(--ink)]/10 bg-transparent text-[var(--ink)] hover:bg-[var(--ink)]/5"
+            }`}
+          >
+            {suggestRegister
+              ? "עדיין לא רשום? לחץ כאן להרשמה"
+              : "עדיין אין לך חשבון? הרשמה"}
+          </Link>
+        </div>
+      </form>
     </AuthPageShell>
   );
 };

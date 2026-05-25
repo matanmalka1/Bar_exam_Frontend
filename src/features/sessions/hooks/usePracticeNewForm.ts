@@ -47,7 +47,8 @@ export const usePracticeNewForm = (
   const dateSelected = allDates || examDate !== null;
 
   const canSubmit = useMemo(() => {
-    if (flow === "exam") return part !== null && examDate !== null && !submitting;
+    if (flow === "exam")
+      return part !== null && examDate !== null && !submitting;
     return part !== null && dateSelected && count !== null && !submitting;
   }, [count, dateSelected, examDate, flow, part, submitting]);
 

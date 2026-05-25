@@ -1,14 +1,25 @@
 import type { SessionQuestion } from "../types";
 
 const HEBREW_MONTHS: Record<string, string> = {
-  "01": "ינואר", "02": "פברואר", "03": "מרץ", "04": "אפריל",
-  "05": "מאי", "06": "יוני", "07": "יולי", "08": "אוגוסט",
-  "09": "ספטמבר", "10": "אוקטובר", "11": "נובמבר", "12": "דצמבר",
+  "01": "ינואר",
+  "02": "פברואר",
+  "03": "מרץ",
+  "04": "אפריל",
+  "05": "מאי",
+  "06": "יוני",
+  "07": "יולי",
+  "08": "אוגוסט",
+  "09": "ספטמבר",
+  "10": "אוקטובר",
+  "11": "נובמבר",
+  "12": "דצמבר",
 };
 
 const PART_LABEL: Record<string, string> = { B: "דין דיוני", C: "דין מהותי" };
 
-const parseStableId = (stableId: string): { date: string; part: string } | null => {
+const parseStableId = (
+  stableId: string,
+): { date: string; part: string } | null => {
   const m = stableId.match(/^(\d{4})-(0[1-9]|1[0-2])_([BC])_/);
   if (!m) return null;
   const month = HEBREW_MONTHS[m[2]] ?? m[2];

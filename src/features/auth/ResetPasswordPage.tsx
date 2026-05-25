@@ -118,7 +118,11 @@ const ResetPasswordPage = () => {
           </Button>
         </div>
       ) : (
-        <form noValidate onSubmit={onSubmit} className="flex flex-grow flex-col gap-4">
+        <form
+          noValidate
+          onSubmit={onSubmit}
+          className="flex flex-grow flex-col gap-4"
+        >
           <AuthTextField
             id="reset-new-password"
             label="סיסמה חדשה"

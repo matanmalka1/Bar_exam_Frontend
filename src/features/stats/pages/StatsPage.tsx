@@ -161,7 +161,8 @@ const SummaryCard = ({
       : tone === "warning"
         ? "bg-[var(--amber-50)]"
         : "bg-surface";
-  const mutedClass = tone === "accent" ? "text-[var(--on-accent)]/70" : "text-secondary";
+  const mutedClass =
+    tone === "accent" ? "text-[var(--on-accent)]/70" : "text-secondary";
   const valueClass =
     tone === "accent" ? "text-[var(--on-accent)]" : "text-[var(--accent-ink)]";
   const iconClass =

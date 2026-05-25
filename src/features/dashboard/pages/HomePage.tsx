@@ -69,7 +69,13 @@ const PartSuccessBar = ({
   </div>
 );
 
-const SessionCountChip = ({ label, value }: { label: string; value: number }) => (
+const SessionCountChip = ({
+  label,
+  value,
+}: {
+  label: string;
+  value: number;
+}) => (
   <div className="rounded-[20px] border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-3.5 py-3 text-center">
     <div className="font-display tabular-nums text-2xl font-black leading-none text-[var(--accent-ink)]">
       {value}
@@ -89,7 +95,10 @@ const HomeProgressCard = ({
   mistakesCount: number;
   onMistakesClick: () => void;
 }) => {
-  const correctAnswers = Math.max(0, stats.total_answered - stats.incorrect_answers);
+  const correctAnswers = Math.max(
+    0,
+    stats.total_answered - stats.incorrect_answers,
+  );
 
   return (
     <section
@@ -148,7 +157,10 @@ const HomeProgressCard = ({
             color: "var(--amber-800)",
           }}
         >
-          <CircleAlert className="h-[18px] w-[18px] shrink-0" strokeWidth={2.2} />
+          <CircleAlert
+            className="h-[18px] w-[18px] shrink-0"
+            strokeWidth={2.2}
+          />
           <span className="flex-1">חזרה על {mistakesCount} טעויות פתוחות</span>
         </button>
       )}
@@ -220,7 +232,6 @@ const HomePage = () => {
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 pb-12 pt-4 sm:px-6">
-
       {/* Date eyebrow */}
       <div className="flex items-center justify-between pb-0 pt-2">
         <span className="text-[11px] uppercase tracking-[0.22em] text-secondary">
@@ -295,7 +306,10 @@ const HomePage = () => {
             color: "var(--amber-800)",
           }}
         >
-          <CircleAlert className="h-[18px] w-[18px] shrink-0" strokeWidth={2.2} />
+          <CircleAlert
+            className="h-[18px] w-[18px] shrink-0"
+            strokeWidth={2.2}
+          />
           <span className="flex-1">חזרה על {mistakesCount} טעויות פתוחות</span>
         </button>
       )}
@@ -327,9 +341,15 @@ const HomePage = () => {
             סשנים שהושלמו
           </p>
           <div className="grid grid-cols-3 gap-2">
-            <SessionCountChip label="תרגולים" value={stats.practices_completed} />
+            <SessionCountChip
+              label="תרגולים"
+              value={stats.practices_completed}
+            />
             <SessionCountChip label="מבחנים" value={stats.exams_completed} />
-            <SessionCountChip label="סימולציות" value={stats.simulations_completed} />
+            <SessionCountChip
+              label="סימולציות"
+              value={stats.simulations_completed}
+            />
           </div>
         </section>
       )}

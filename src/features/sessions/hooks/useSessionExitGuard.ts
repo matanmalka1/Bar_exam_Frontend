@@ -13,7 +13,8 @@ type UseSessionExitGuardOptions = {
   onDiscard?: () => void;
 };
 
-const sessionPath = (sessionId: string, suffix = "") => `/session/${sessionId}${suffix}`;
+const sessionPath = (sessionId: string, suffix = "") =>
+  `/session/${sessionId}${suffix}`;
 
 const isSameSessionPath = (pathname: string, sessionId: string): boolean =>
   pathname === sessionPath(sessionId) ||
@@ -128,13 +129,7 @@ export const useSessionExitGuard = ({
     }, 0);
 
     return () => window.clearTimeout(timer);
-  }, [
-    answeredCount,
-    blocker.state,
-    discardAndProceed,
-    discarding,
-    promptOpen,
-  ]);
+  }, [answeredCount, blocker.state, discardAndProceed, discarding, promptOpen]);
 
   useEffect(() => {
     if (!enabled || !sessionId) return;

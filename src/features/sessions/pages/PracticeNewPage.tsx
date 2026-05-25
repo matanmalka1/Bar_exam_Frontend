@@ -64,9 +64,15 @@ const PartChips = ({
   onSelect: (p: PartChoice) => void;
 }) => (
   <div className="flex flex-wrap gap-2.5">
-    <Chip selected={part === "B"} onClick={() => onSelect("B")}>דין דיוני</Chip>
-    <Chip selected={part === "C"} onClick={() => onSelect("C")}>דין מהותי</Chip>
-    <Chip selected={part === "both"} onClick={() => onSelect("both")}>שני החלקים יחד</Chip>
+    <Chip selected={part === "B"} onClick={() => onSelect("B")}>
+      דין דיוני
+    </Chip>
+    <Chip selected={part === "C"} onClick={() => onSelect("C")}>
+      דין מהותי
+    </Chip>
+    <Chip selected={part === "both"} onClick={() => onSelect("both")}>
+      שני החלקים יחד
+    </Chip>
   </div>
 );
 
@@ -140,7 +146,6 @@ const PracticeNewPage = () => {
           back={{ label: "ביטול", onClick: goBack }}
           eyebrow="תרגול חדש"
           title="בחינת מועד"
-
         />
 
         <IntroBox>

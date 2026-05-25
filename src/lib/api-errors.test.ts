@@ -6,7 +6,13 @@ const make422 = (detail: string) =>
   Object.assign(new axios.AxiosError("unprocessable"), {
     response: {
       status: 422,
-      data: { error: { code: "unprocessable_entity", message: detail, details: { detail } } },
+      data: {
+        error: {
+          code: "unprocessable_entity",
+          message: detail,
+          details: { detail },
+        },
+      },
     },
   });
 

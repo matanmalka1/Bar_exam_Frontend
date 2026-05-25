@@ -60,7 +60,6 @@ const AnswerFeedback = ({
   </div>
 );
 
-
 const SessionPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -225,7 +224,11 @@ const SessionPage = () => {
         <FixedFooter>
           {!answerSubmitted && (
             <>
-              <Button fullWidth disabled={submitDisabled} onClick={handleSubmit}>
+              <Button
+                fullWidth
+                disabled={submitDisabled}
+                onClick={handleSubmit}
+              >
                 {submitting ? (
                   <AppLoader variant="button" label="שומר..." />
                 ) : (

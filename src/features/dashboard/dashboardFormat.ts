@@ -36,9 +36,7 @@ export const greetingForHour = (h: number): string => {
   return "לילה טוב";
 };
 
-const toNumber = (
-  raw: number | string | null | undefined,
-): number | null => {
+const toNumber = (raw: number | string | null | undefined): number | null => {
   if (raw === null || raw === undefined) return null;
   const n = typeof raw === "string" ? Number(raw) : raw;
   return Number.isNaN(n) ? null : n;

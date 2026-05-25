@@ -5,7 +5,9 @@ import { useSessionBookmarks } from "./useSessionBookmarks";
 
 type Status = "loading" | "ready" | "error";
 
-export const findFirstUnansweredIndex = (questions: SessionQuestion[]): number => {
+export const findFirstUnansweredIndex = (
+  questions: SessionQuestion[],
+): number => {
   const index = questions.findIndex((q) => q.answer === null);
   return index === -1 ? Math.max(questions.length - 1, 0) : index;
 };
@@ -77,5 +79,13 @@ export const useSessionLoader = ({
     setReloadKey((k) => k + 1);
   }, []);
 
-  return { status, session, reloadKey, bookmarkBusy, bookmarkIds, loadBookmarks, retry };
+  return {
+    status,
+    session,
+    reloadKey,
+    bookmarkBusy,
+    bookmarkIds,
+    loadBookmarks,
+    retry,
+  };
 };

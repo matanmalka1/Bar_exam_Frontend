@@ -13,11 +13,7 @@ import AppLoader from "../../../components/loader";
 import { cn } from "../../../lib/cn";
 import { notifyError } from "../../../lib/toast";
 import { getPracticeSession, createMistakesSession } from "../api";
-import type {
-  AnswerOption,
-  SessionDetail,
-  SessionQuestion,
-} from "../types";
+import type { AnswerOption, SessionDetail, SessionQuestion } from "../types";
 import { isExamLike } from "../types";
 
 type Status = "loading" | "ready" | "error";
@@ -40,18 +36,14 @@ const formatDate = (iso: string | null): string => {
 };
 
 const isMistake = (q: SessionQuestion): boolean =>
-  q.status !== "invalidated" && q.answer !== null && q.answer.is_correct === false;
+  q.status !== "invalidated" &&
+  q.answer !== null &&
+  q.answer.is_correct === false;
 
 const isInvalidatedCredit = (q: SessionQuestion): boolean =>
   q.status === "invalidated" && q.answer !== null;
 
-const StatItem = ({
-  label,
-  value,
-}: {
-  label: string;
-  value: ReactNode;
-}) => (
+const StatItem = ({ label, value }: { label: string; value: ReactNode }) => (
   <div className="rounded-2xl border border-default bg-surface px-3 py-3">
     <p className="text-xs text-secondary">{label}</p>
     <p className="mt-1 tabular-nums font-semibold text-[var(--accent-ink)]">
@@ -96,9 +88,17 @@ const ScoreCard = ({
         {examMode && (
           <p
             className="mt-2 inline-block rounded-full px-3 py-1 text-xs font-semibold"
-            style={passed
-              ? { background: "var(--color-pass-bg)", color: "var(--color-pass-text)" }
-              : { background: "var(--color-fail-bg)", color: "var(--color-fail-text)" }}
+            style={
+              passed
+                ? {
+                    background: "var(--color-pass-bg)",
+                    color: "var(--color-pass-text)",
+                  }
+                : {
+                    background: "var(--color-fail-bg)",
+                    color: "var(--color-fail-text)",
+                  }
+            }
           >
             {passed ? "עבר ✓" : "לא עבר ✗"} (מעבר: {PASSING_SCORE})
           </p>
@@ -319,9 +319,8 @@ const ResultsPage = () => {
   const total = session.total_questions;
   const answered = session.answered_count;
   const correct = session.correct_count ?? 0;
-  const invalidatedCredits = session.questions.filter(
-    isInvalidatedCredit,
-  ).length;
+  const invalidatedCredits =
+    session.questions.filter(isInvalidatedCredit).length;
 
   const scoreRaw = Number(session.score ?? correct);
   const score = Number.isFinite(scoreRaw) ? Math.round(scoreRaw) : 0;
@@ -329,11 +328,7 @@ const ResultsPage = () => {
 
   return (
     <PageShell className="pb-28">
-      <AppHeader
-        back={{ onClick: () => navigate("/") }}
-        title="תוצאות"
-
-      />
+      <AppHeader back={{ onClick: () => navigate("/") }} title="תוצאות" />
 
       <main className="mt-4 space-y-5">
         <ScoreCard
@@ -367,7 +362,11 @@ const ResultsPage = () => {
           ) : (
             <div className="space-y-3">
               {mistakes.map((q) => (
-                <QuestionResultCard key={q.stable_id} question={q} variant="mistake" />
+                <QuestionResultCard
+                  key={q.stable_id}
+                  question={q}
+                  variant="mistake"
+                />
               ))}
             </div>
           )}
@@ -387,7 +386,11 @@ const ResultsPage = () => {
 
             <div className="space-y-3">
               {invalidatedQuestions.map((q) => (
-                <QuestionResultCard key={q.stable_id} question={q} variant="invalidated" />
+                <QuestionResultCard
+                  key={q.stable_id}
+                  question={q}
+                  variant="invalidated"
+                />
               ))}
             </div>
           </section>
@@ -396,7 +399,11 @@ const ResultsPage = () => {
 
       <FixedFooter>
         {mistakes.length > 0 && (
-          <Button fullWidth disabled={startingMistakes} onClick={() => void handlePracticeMistakes()}>
+          <Button
+            fullWidth
+            disabled={startingMistakes}
+            onClick={() => void handlePracticeMistakes()}
+          >
             {startingMistakes ? (
               <AppLoader variant="button" label="פותח..." />
             ) : (
@@ -408,7 +415,11 @@ const ResultsPage = () => {
           <Button variant="secondary" fullWidth onClick={() => navigate("/")}>
             חזרה לבית
           </Button>
-          <Button variant="secondary" fullWidth onClick={() => navigate("/practice/new")}>
+          <Button
+            variant="secondary"
+            fullWidth
+            onClick={() => navigate("/practice/new")}
+          >
             תרגול חדש
           </Button>
         </div>

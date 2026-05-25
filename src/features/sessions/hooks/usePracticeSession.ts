@@ -92,8 +92,7 @@ export const usePracticeSession = ({
     [session, currentIndex],
   );
 
-  const answeredCount =
-    session?.questions.filter((q) => q.answer).length ?? 0;
+  const answeredCount = session?.questions.filter((q) => q.answer).length ?? 0;
   const allAnswered = questionsCount > 0 && answeredCount >= questionsCount;
   const answered = current?.answer ?? null;
   const answerSubmitted = answered !== null;
@@ -116,7 +115,10 @@ export const usePracticeSession = ({
     return "תרגול חופשי";
   })();
 
-  const next = useCallback(() => navNext(questionsCount), [navNext, questionsCount]);
+  const next = useCallback(
+    () => navNext(questionsCount),
+    [navNext, questionsCount],
+  );
 
   const selectAnswer = useCallback(
     (option: AnswerOption) => {

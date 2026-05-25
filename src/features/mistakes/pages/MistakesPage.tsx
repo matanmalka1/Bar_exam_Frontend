@@ -38,7 +38,9 @@ const MistakeItem = ({
     <Card className="space-y-3">
       <QuestionMeta
         number={question.number}
-        examDate={question.exam_date ? formatExamDate(question.exam_date) : null}
+        examDate={
+          question.exam_date ? formatExamDate(question.exam_date) : null
+        }
         part={question.part}
         wrongCount={question.times_wrong}
         totalAnswered={question.times_answered}

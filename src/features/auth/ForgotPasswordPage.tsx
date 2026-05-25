@@ -68,7 +68,11 @@ const ForgotPasswordPage = () => {
           אפשר לבדוק את תיבת האימייל ולהמשיך לפי ההוראות שנשלחו.
         </div>
       ) : (
-        <form noValidate onSubmit={onSubmit} className="flex flex-grow flex-col gap-4">
+        <form
+          noValidate
+          onSubmit={onSubmit}
+          className="flex flex-grow flex-col gap-4"
+        >
           <AuthTextField
             id="forgot-email"
             label="אימייל"

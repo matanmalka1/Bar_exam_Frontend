@@ -176,177 +176,177 @@ const RegisterPage = () => {
         </p>
       }
     >
-        <form
-          noValidate
-          onSubmit={onSubmit}
-          className="flex flex-1 flex-col gap-4"
-        >
-          <AuthTextField
-            id="reg-name"
-            label="שם מלא"
-            icon={<User className="h-5 w-5" aria-hidden="true" />}
-            type="text"
-            autoComplete="name"
-            required
-            value={fullName}
-            onChange={(e) => {
-              setFullName(e.target.value);
-              setFormError(null);
-              setFieldErrors((current) => ({
-                ...current,
-                fullName: undefined,
-              }));
-            }}
-            disabled={submitting}
-            placeholder="ישראל ישראלי"
-            error={fieldErrors.fullName}
-          />
+      <form
+        noValidate
+        onSubmit={onSubmit}
+        className="flex flex-1 flex-col gap-4"
+      >
+        <AuthTextField
+          id="reg-name"
+          label="שם מלא"
+          icon={<User className="h-5 w-5" aria-hidden="true" />}
+          type="text"
+          autoComplete="name"
+          required
+          value={fullName}
+          onChange={(e) => {
+            setFullName(e.target.value);
+            setFormError(null);
+            setFieldErrors((current) => ({
+              ...current,
+              fullName: undefined,
+            }));
+          }}
+          disabled={submitting}
+          placeholder="ישראל ישראלי"
+          error={fieldErrors.fullName}
+        />
 
-          <AuthTextField
-            id="reg-email"
-            label="אימייל"
-            icon={<Mail className="h-5 w-5" aria-hidden="true" />}
-            type="email"
-            autoComplete="email"
-            inputMode="email"
-            dir="ltr"
-            required
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              setFormError(null);
-              setFieldErrors((current) => ({
-                ...current,
-                email: undefined,
-              }));
-            }}
-            disabled={submitting}
-            placeholder="name@example.com"
-            className="text-right placeholder:text-right"
-            error={fieldErrors.email}
-          />
+        <AuthTextField
+          id="reg-email"
+          label="אימייל"
+          icon={<Mail className="h-5 w-5" aria-hidden="true" />}
+          type="email"
+          autoComplete="email"
+          inputMode="email"
+          dir="ltr"
+          required
+          value={email}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            setFormError(null);
+            setFieldErrors((current) => ({
+              ...current,
+              email: undefined,
+            }));
+          }}
+          disabled={submitting}
+          placeholder="name@example.com"
+          className="text-right placeholder:text-right"
+          error={fieldErrors.email}
+        />
 
-          <AuthTextField
-            id="reg-password"
-            label="סיסמה"
-            icon={<Lock className="h-5 w-5" aria-hidden="true" />}
-            type={showPassword ? "text" : "password"}
-            autoComplete="new-password"
-            required
-            minLength={8}
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              setFormError(null);
-              setFieldErrors((current) => ({
-                ...current,
-                password: undefined,
-              }));
-            }}
-            disabled={submitting}
-            placeholder="••••••••"
-            error={fieldErrors.password}
-            endSlot={
-              <PasswordToggle
-                visible={showPassword}
-                onToggle={() => setShowPassword((v) => !v)}
-                disabled={submitting}
-              />
-            }
-          />
-
-          <AuthTextField
-            id="reg-confirm"
-            label="אימות סיסמה"
-            icon={<ShieldCheck className="h-5 w-5" aria-hidden="true" />}
-            type={showConfirmPassword ? "text" : "password"}
-            autoComplete="new-password"
-            required
-            minLength={8}
-            value={confirm}
-            onChange={(e) => {
-              setConfirm(e.target.value);
-              setFormError(null);
-              setFieldErrors((current) => ({
-                ...current,
-                confirm: undefined,
-              }));
-            }}
-            disabled={submitting}
-            placeholder="••••••••"
-            error={fieldErrors.confirm}
-            endSlot={
-              <PasswordToggle
-                visible={showConfirmPassword}
-                onToggle={() => setShowConfirmPassword((v) => !v)}
-                disabled={submitting}
-              />
-            }
-          />
-
-          <div className="mt-2 flex items-start gap-2 pe-1">
-            <input
-              id="reg-terms"
-              type="checkbox"
-              required
-              checked={acceptedTerms}
-              onChange={(e) => {
-                setAcceptedTerms(e.target.checked);
-                setFormError(null);
-                setFieldErrors((current) => ({
-                  ...current,
-                  terms: undefined,
-                }));
-              }}
+        <AuthTextField
+          id="reg-password"
+          label="סיסמה"
+          icon={<Lock className="h-5 w-5" aria-hidden="true" />}
+          type={showPassword ? "text" : "password"}
+          autoComplete="new-password"
+          required
+          minLength={8}
+          value={password}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            setFormError(null);
+            setFieldErrors((current) => ({
+              ...current,
+              password: undefined,
+            }));
+          }}
+          disabled={submitting}
+          placeholder="••••••••"
+          error={fieldErrors.password}
+          endSlot={
+            <PasswordToggle
+              visible={showPassword}
+              onToggle={() => setShowPassword((v) => !v)}
               disabled={submitting}
-              className="mt-1 h-4 w-4 rounded border-[var(--border-default)] text-[var(--ink)] focus:ring-[var(--ink)] disabled:opacity-45"
-              aria-invalid={!!fieldErrors.terms || undefined}
-              aria-describedby={fieldErrors.terms ? "reg-terms-error" : undefined}
             />
-            <label htmlFor="reg-terms" className="text-sm text-secondary">
-              אני מסכים{" "}
-              <Link
-                to="/terms"
-                state={{ registerDraft }}
-                className="font-bold text-[var(--ink)] underline underline-offset-4"
-              >
-                לתנאי השימוש
-              </Link>{" "}
-              ולמדיניות הפרטיות של המערכת.
-            </label>
-          </div>
+          }
+        />
 
-          {fieldErrors.terms && (
-            <p
-              id="reg-terms-error"
-              className="-mt-2 pe-1 text-xs font-semibold text-primary"
-            >
-              {fieldErrors.terms}
-            </p>
-          )}
+        <AuthTextField
+          id="reg-confirm"
+          label="אימות סיסמה"
+          icon={<ShieldCheck className="h-5 w-5" aria-hidden="true" />}
+          type={showConfirmPassword ? "text" : "password"}
+          autoComplete="new-password"
+          required
+          minLength={8}
+          value={confirm}
+          onChange={(e) => {
+            setConfirm(e.target.value);
+            setFormError(null);
+            setFieldErrors((current) => ({
+              ...current,
+              confirm: undefined,
+            }));
+          }}
+          disabled={submitting}
+          placeholder="••••••••"
+          error={fieldErrors.confirm}
+          endSlot={
+            <PasswordToggle
+              visible={showConfirmPassword}
+              onToggle={() => setShowConfirmPassword((v) => !v)}
+              disabled={submitting}
+            />
+          }
+        />
 
-          {formError && (
-            <Alert variant="error" className="bg-white/80">
-              {formError}
-            </Alert>
-          )}
-
-          <Button
-            type="submit"
-            fullWidth
+        <div className="mt-2 flex items-start gap-2 pe-1">
+          <input
+            id="reg-terms"
+            type="checkbox"
+            required
+            checked={acceptedTerms}
+            onChange={(e) => {
+              setAcceptedTerms(e.target.checked);
+              setFormError(null);
+              setFieldErrors((current) => ({
+                ...current,
+                terms: undefined,
+              }));
+            }}
             disabled={submitting}
-            className="mt-6 h-14 rounded-2xl bg-black text-lg font-bold text-white shadow-sm active:scale-95"
+            className="mt-1 h-4 w-4 rounded border-[var(--border-default)] text-[var(--ink)] focus:ring-[var(--ink)] disabled:opacity-45"
+            aria-invalid={!!fieldErrors.terms || undefined}
+            aria-describedby={fieldErrors.terms ? "reg-terms-error" : undefined}
+          />
+          <label htmlFor="reg-terms" className="text-sm text-secondary">
+            אני מסכים{" "}
+            <Link
+              to="/terms"
+              state={{ registerDraft }}
+              className="font-bold text-[var(--ink)] underline underline-offset-4"
+            >
+              לתנאי השימוש
+            </Link>{" "}
+            ולמדיניות הפרטיות של המערכת.
+          </label>
+        </div>
+
+        {fieldErrors.terms && (
+          <p
+            id="reg-terms-error"
+            className="-mt-2 pe-1 text-xs font-semibold text-primary"
           >
-            {submitting ? (
-              <AppLoader variant="button" label="נרשם..." />
-            ) : (
-              <>
-                הרשמה
-                <ArrowLeft className="h-5 w-5" aria-hidden="true" />
-              </>
-            )}
-          </Button>
-        </form>
+            {fieldErrors.terms}
+          </p>
+        )}
+
+        {formError && (
+          <Alert variant="error" className="bg-white/80">
+            {formError}
+          </Alert>
+        )}
+
+        <Button
+          type="submit"
+          fullWidth
+          disabled={submitting}
+          className="mt-6 h-14 rounded-2xl bg-black text-lg font-bold text-white shadow-sm active:scale-95"
+        >
+          {submitting ? (
+            <AppLoader variant="button" label="נרשם..." />
+          ) : (
+            <>
+              הרשמה
+              <ArrowLeft className="h-5 w-5" aria-hidden="true" />
+            </>
+          )}
+        </Button>
+      </form>
     </AuthPageShell>
   );
 };
