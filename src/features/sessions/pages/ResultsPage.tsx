@@ -334,7 +334,11 @@ const ResultsPage = () => {
 
   return (
     <PageShell className="pb-28">
-      <AppHeader back={{ onClick: () => navigate("/") }} title="תוצאות" />
+      <AppHeader
+        back={{ onClick: () => navigate("/") }}
+        title="תוצאות"
+        breadcrumbs={[{ label: "בית", to: "/" }, { label: "תוצאות" }]}
+      />
 
       <main className="mt-4 space-y-5">
         <ScoreCard

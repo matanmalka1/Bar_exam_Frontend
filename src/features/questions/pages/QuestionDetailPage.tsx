@@ -1,0 +1,127 @@
+import { Link, useParams } from "react-router-dom";
+import { ChevronLeft } from "lucide-react";
+import AppHeader from "../../../components/AppHeader";
+import AppLoader from "../../../components/loader";
+import Button from "../../../components/Button";
+import Card from "../../../components/Card";
+import ErrorState from "../../../components/ErrorState";
+import OptionCard from "../../../components/OptionCard";
+import PageShell from "../../../components/PageShell";
+import QuestionMeta from "../../../components/QuestionMeta";
+import ReferenceBox from "../../../components/ReferenceBox";
+import type { AnswerOption } from "../../sessions/types";
+import { useQuestionDetail } from "../hooks/useQuestionDetail";
+import type { PracticeQuestion, ReviewQuestionDetail } from "../types";
+
+const OPTIONS: AnswerOption[] = ["א", "ב", "ג", "ד"];
+
+const hasReviewAnswer = (
+  question: PracticeQuestion | ReviewQuestionDetail,
+): question is ReviewQuestionDetail => "correct_answer" in question;
+
+type QuestionDetailPageProps = {
+  mode?: "practice" | "review";
+};
+
+const QuestionBody = ({
+  question,
+}: {
+  question: PracticeQuestion | ReviewQuestionDetail;
+}) => (
+  <Card className="space-y-4">
+    <QuestionMeta
+      number={question.number}
+      examDate={question.exam_date}
+      part={question.part}
+    />
+
+    {question.invalidation_note && (
+      <p className="rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-700">
+        {question.invalidation_note}
+      </p>
+    )}
+
+    <p className="whitespace-pre-wrap text-[17px] leading-[1.85] text-primary">
+      {question.body}
+    </p>
+
+    <div className="grid gap-2">
+      {OPTIONS.map((option) => (
+        <OptionCard
+          key={option}
+          mode="review"
+          label={option}
+          text={question.options[option]}
+          isCorrect={
+            hasReviewAnswer(question) && question.correct_answer === option
+          }
+          showCorrectBadge={hasReviewAnswer(question)}
+        />
+      ))}
+    </div>
+
+    {hasReviewAnswer(question) && question.reference.trim() && (
+      <ReferenceBox reference={question.reference} />
+    )}
+  </Card>
+);
+
+const QuestionDetailPage = ({ mode = "practice" }: QuestionDetailPageProps) => {
+  const { stableId } = useParams();
+  const { status, question, retry } = useQuestionDetail(stableId, mode);
+  const title =
+    status === "ready" && question
+      ? `שאלה ${question.number}`
+      : mode === "review"
+        ? "עיון בשאלה"
+        : "שאלה";
+
+  return (
+    <PageShell className="pb-8">
+      <div className="space-y-4">
+        <AppHeader
+          title={title}
+          back={{}}
+          breadcrumbs={[
+            { label: "מאגר שאלות", to: "/questions" },
+            { label: title },
+          ]}
+          actions={
+            status === "ready" && question ? (
+              mode === "review" ? (
+                <Link
+                  to={`/questions/${question.stable_id}`}
+                  className="focus-ring inline-flex items-center gap-1 rounded-xl px-2 py-1.5 text-xs font-medium text-secondary transition hover:text-primary"
+                >
+                  ללא תשובה
+                  <ChevronLeft className="h-4 w-4" strokeWidth={2.3} />
+                </Link>
+              ) : (
+                <Link
+                  to={`/questions/${question.stable_id}/review`}
+                  className="focus-ring inline-flex items-center gap-1 rounded-xl px-2 py-1.5 text-xs font-medium text-secondary transition hover:text-primary"
+                >
+                  הצג תשובה
+                  <ChevronLeft className="h-4 w-4" strokeWidth={2.3} />
+                </Link>
+              )
+            ) : undefined
+          }
+        />
+
+        {status === "loading" && <AppLoader variant="list" rows={3} />}
+
+        {status === "error" && (
+          <ErrorState
+            message="לא ניתן לטעון את השאלה"
+            action={<Button onClick={retry}>נסה שוב</Button>}
+          />
+        )}
+
+        {status === "ready" && question && <QuestionBody question={question} />}
+      </div>
+    </PageShell>
+  );
+};
+
+export default QuestionDetailPage;

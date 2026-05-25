@@ -1,0 +1,195 @@
+/* Local helpers for the redesign exploration. The bulk of the visual
+   language is in ../colors_and_type.css. */
+
+* { box-sizing: border-box; }
+
+.phone {
+  width: 100%;
+  height: 100%;
+  background: var(--paper);
+  position: relative;
+  overflow: hidden;
+  font-family: var(--font-body);
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Slight cream→white wash, matching the body bg rule in the design system. */
+.phone.cream {
+  background: linear-gradient(180deg, var(--surface-muted) 0%, var(--surface) 100%);
+}
+
+.scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.scroll::-webkit-scrollbar { display: none; }
+
+/* Status bar / time strip — purely decorative on these mocks. */
+.status-bar {
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  font: 600 13px var(--font-body);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+
+/* Bottom nav, hairline frosted glass */
+.bottom-nav {
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.86);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border-default);
+  padding: 6px 4px calc(env(safe-area-inset-bottom, 0px) + 8px);
+  box-shadow: var(--shadow-nav-up);
+}
+.bottom-nav ul {
+  list-style: none; padding: 0; margin: 0;
+  display: grid; grid-template-columns: repeat(5, 1fr);
+}
+.bottom-nav li { display: flex; }
+.bottom-nav button {
+  background: transparent; border: 0; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 6px 0; width: 100%;
+  color: var(--text-secondary);
+  font: 500 11px var(--font-body);
+}
+.bottom-nav .pill {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 48px; height: 32px; border-radius: 9999px;
+  transition: background var(--duration-base) var(--ease-out);
+}
+.bottom-nav .active .pill { background: var(--ink); }
+.bottom-nav .active .label { color: var(--ink); font-weight: 700; }
+
+/* Shared eyebrow shim (the global .eyebrow is in colors_and_type.css) */
+.eyebrow-tight { letter-spacing: 0.18em; }
+
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* Pill chip helper for compact stat badges */
+.chip-mono {
+  display: inline-flex; align-items: center; gap: 6px;
+  font: 700 11px var(--font-body);
+  font-variant-numeric: tabular-nums;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background: var(--surface);
+  border: 1px solid var(--border-default);
+  color: var(--ink);
+}
+
+/* Primary button reused across artboards */
+.btn-primary {
+  width: 100%;
+  min-height: 56px;
+  border-radius: var(--radius-2xl);
+  background: var(--ink);
+  color: var(--color-white);
+  border: 1px solid var(--ink);
+  font: 700 17px var(--font-body);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: var(--shadow-default);
+}
+
+.btn-ghost {
+  width: 100%;
+  min-height: 52px;
+  border-radius: var(--radius-2xl);
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--border-default);
+  font: 600 15px var(--font-body);
+  cursor: pointer;
+}
+
+/* Section title divider used on home */
+.section-divider {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-default);
+  padding-bottom: 10px;
+}
+.section-divider h2 {
+  font: 700 18px var(--font-display);
+  color: var(--ink);
+  margin: 0;
+}
+
+/* Route row — used in all three home variations */
+.route-row {
+  display: flex; align-items: center; gap: 14px;
+  width: 100%; background: transparent; border: 0;
+  padding: 16px 0;
+  text-align: right; cursor: pointer;
+}
+.route-row + .route-row { border-top: 1px solid rgba(0,0,0,0.10); }
+.route-row .idx {
+  width: 22px;
+  font: 900 12px var(--font-display);
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+  text-align: center;
+}
+.route-row .icon-wrap {
+  width: 48px; height: 48px; border-radius: 9999px;
+  border: 1px solid var(--border-default);
+  background: var(--surface);
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.route-row .body { flex: 1; min-width: 0; }
+.route-row .title {
+  display: block;
+  font: 700 18px/1.2 var(--font-display);
+  color: var(--ink);
+}
+.route-row .hint {
+  display: block;
+  font: 500 13px/1.4 var(--font-body);
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+.route-row .end-count {
+  font: 900 16px var(--font-display);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+
+/* Amber band — the only "color" in the system */
+.amber-band {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border-radius: var(--radius-2xl);
+  background: var(--amber-50);
+  border: 1px solid var(--amber-300);
+  color: var(--amber-900);
+  padding: 14px 16px;
+  font: 700 14px var(--font-body);
+  text-align: right;
+  cursor: pointer;
+}
+.amber-band .count {
+  margin-inline-start: auto;
+  font: 900 22px var(--font-display);
+  font-variant-numeric: tabular-nums;
+  color: var(--amber-900);
+}
+
+/* Body of artboard scrolls cleanly with rounded clipping handled by DC */
