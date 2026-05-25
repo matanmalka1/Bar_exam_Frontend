@@ -86,18 +86,18 @@ export const AnswerPracticeOutSchema = z.object({
   correct_answer: AnswerOptionSchema.nullable(),
   reference: z.string().nullable(),
   answered_at: DateTimeStringSchema,
-});
+}).strict();
 
 export const AnswerExamOutSchema = z.object({
   stable_id: z.string(),
   selected_answer: AnswerOptionSchema,
   scoring_status: ScoringStatusSchema.nullable().optional(),
   answered_at: DateTimeStringSchema,
-});
+}).strict();
 
 export const AnswerResultSchema = z.union([
-  AnswerPracticeOutSchema,
   AnswerExamOutSchema,
+  AnswerPracticeOutSchema,
 ]);
 
 export const PartBreakdownSchema = SessionPartBreakdownSchema;
