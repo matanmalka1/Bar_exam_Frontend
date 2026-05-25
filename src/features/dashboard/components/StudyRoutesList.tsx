@@ -3,6 +3,7 @@ import {
   CalendarDays,
   CircleAlert,
   ClipboardList,
+  Library,
   PencilLine,
 } from "lucide-react";
 import RouteRow from "./RouteRow";
@@ -14,6 +15,7 @@ type StudyRoutesListProps = {
   onStartPractice: () => void;
   onStartExam: () => void;
   onStartSimulation: () => void;
+  onOpenQuestions: () => void;
   onOpenMistakes: () => void;
   onOpenBookmarks: () => void;
 };
@@ -25,6 +27,7 @@ const StudyRoutesList = ({
   onStartPractice,
   onStartExam,
   onStartSimulation,
+  onOpenQuestions,
   onOpenMistakes,
   onOpenBookmarks,
 }: StudyRoutesListProps) => (
@@ -63,6 +66,14 @@ const StudyRoutesList = ({
           onClick={onStartSimulation}
           disabled={startingSimulation}
           loading={startingSimulation}
+        />
+      </li>
+      <li>
+        <RouteRow
+          icon={Library}
+          title="מאגר שאלות"
+          hint="צפייה בשאלות לפי מועד וחלק"
+          onClick={onOpenQuestions}
         />
       </li>
       <li>

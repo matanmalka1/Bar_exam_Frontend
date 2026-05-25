@@ -24,14 +24,13 @@ const ROUTES = {
   practiceNew: "/practice/new",
   mistakes: "/mistakes",
   bookmarks: "/bookmarks",
+  questions: "/questions",
   session: (id: number) => `/session/${id}`,
   exam: (id: number) => `/session/${id}/exam`,
 } as const;
 
 const resumePath = (s: SessionSummary): string =>
-  isExamLike(s.mode)
-    ? ROUTES.exam(s.id)
-    : ROUTES.session(s.id);
+  isExamLike(s.mode) ? ROUTES.exam(s.id) : ROUTES.session(s.id);
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -71,10 +70,9 @@ const HomePage = () => {
   const totalAnswered = stats?.total_answered ?? 0;
   const primarySession = activeSessions[0];
 
-  const tagline =
-    primarySession
-      ? "יש לך תרגול פתוח שמחכה להמשך."
-      : !stats || totalAnswered === 0
+  const tagline = primarySession
+    ? "יש לך תרגול פתוח שמחכה להמשך."
+    : !stats || totalAnswered === 0
       ? "בחר חלק וצא לדרך."
       : mistakesCount > 0
         ? `יש לך ${mistakesCount} טעויות פתוחות לחזרה.`
@@ -161,7 +159,10 @@ const HomePage = () => {
         </div>
 
         <div className="mt-7">
-          <HomeStatsHero stats={stats} hasActiveSession={Boolean(primarySession)} />
+          <HomeStatsHero
+            stats={stats}
+            hasActiveSession={Boolean(primarySession)}
+          />
         </div>
       </section>
 
@@ -172,6 +173,7 @@ const HomePage = () => {
         onStartPractice={() => navigate(ROUTES.practiceNew)}
         onStartExam={() => navigate(`${ROUTES.practiceNew}?flow=exam`)}
         onStartSimulation={handleStartSimulation}
+        onOpenQuestions={() => navigate(ROUTES.questions)}
         onOpenMistakes={() => navigate(ROUTES.mistakes)}
         onOpenBookmarks={() => navigate(ROUTES.bookmarks)}
       />

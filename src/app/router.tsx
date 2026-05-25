@@ -10,6 +10,8 @@ import BookmarksPage from "../features/bookmarks/pages/BookmarksPage";
 import MorePage from "../features/auth/pages/MorePage";
 import StatsPage from "../features/stats/pages/StatsPage";
 import ReviewPage from "../features/review/pages/ReviewPage";
+import QuestionsPage from "../features/questions/pages/QuestionsPage";
+import QuestionDetailPage from "../features/questions/pages/QuestionDetailPage";
 import NotFoundPage from "./NotFoundPage";
 import ForgotPasswordPage from "../features/auth/ForgotPasswordPage";
 import LoginPage from "../features/auth/LoginPage";
@@ -41,6 +43,12 @@ export const router = createBrowserRouter([
           { path: "/bookmarks", element: <BookmarksPage /> },
           { path: "/stats", element: <StatsPage /> },
           { path: "/review", element: <ReviewPage /> },
+          { path: "/questions", element: <QuestionsPage /> },
+          { path: "/questions/:stableId", element: <QuestionDetailPage /> },
+          {
+            path: "/questions/:stableId/review",
+            element: <QuestionDetailPage mode="review" />,
+          },
           { path: "/more", element: <MorePage /> },
           { path: "*", element: <NotFoundPage /> },
         ],

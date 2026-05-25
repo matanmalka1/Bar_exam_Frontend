@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import AppHeader from "../../../components/AppHeader";
 import Button from "../../../components/Button";
@@ -127,6 +128,14 @@ const ReviewItem = ({
         {open ? "הסתר תשובה" : "הצג תשובה"}
       </button>
 
+      <Link
+        to={`/questions/${question.stable_id}/review`}
+        className="focus-ring inline-flex items-center gap-1 rounded-xl px-1 py-1 text-xs font-medium text-secondary transition hover:text-primary"
+      >
+        פתח שאלה
+        <ChevronLeft className="h-4 w-4" strokeWidth={2.4} />
+      </Link>
+
       {open && (
         <div id={panelId} className="space-y-3">
           <div className="grid gap-2">
@@ -153,15 +162,17 @@ const ReviewPage = () => {
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   const { status: examsStatus, exams, retry: retryExams } = useExamsList();
-  const { status: reviewStatus, questions, retry: retryReview } = useReview(
-    selection?.examDate ?? null,
-    selection?.part ?? null,
-  );
+  const {
+    status: reviewStatus,
+    questions,
+    retry: retryReview,
+  } = useReview(selection?.examDate ?? null, selection?.part ?? null);
 
   const toggle = (id: string) => {
     setExpanded((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   };
