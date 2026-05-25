@@ -12,6 +12,7 @@ type Status = "loading" | "ready";
 interface HomeOverview {
   status: Status;
   activeSessions: SessionSummary[];
+  allSessions: SessionSummary[];
   stats: StatsOverview | null;
   bookmarks: BookmarkedQuestion[];
   sessionsUnavailable: boolean;
@@ -25,6 +26,7 @@ const getActiveSessions = (sessions: SessionSummary[]): SessionSummary[] =>
 export const useHomeOverview = (): HomeOverview => {
   const [status, setStatus] = useState<Status>("loading");
   const [activeSessions, setActiveSessions] = useState<SessionSummary[]>([]);
+  const [allSessions, setAllSessions] = useState<SessionSummary[]>([]);
   const [stats, setStats] = useState<StatsOverview | null>(null);
   const [statsUnavailable, setStatsUnavailable] = useState(false);
   const [bookmarks, setBookmarks] = useState<BookmarkedQuestion[]>([]);
@@ -43,9 +45,11 @@ export const useHomeOverview = (): HomeOverview => {
 
       if (sessionsResult.status === "fulfilled") {
         setActiveSessions(getActiveSessions(sessionsResult.value));
+        setAllSessions(sessionsResult.value);
         setSessionsUnavailable(false);
       } else {
         setActiveSessions([]);
+        setAllSessions([]);
         setSessionsUnavailable(true);
       }
 
@@ -76,6 +80,7 @@ export const useHomeOverview = (): HomeOverview => {
   return {
     status,
     activeSessions,
+    allSessions,
     stats,
     bookmarks,
     sessionsUnavailable,

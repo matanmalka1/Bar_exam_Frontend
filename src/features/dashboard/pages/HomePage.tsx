@@ -21,6 +21,8 @@ import {
 import { useSimulationHistory } from "../hooks/useSimulationHistory";
 import type { StatsOverview } from "../../stats/types";
 import { formatStudyTime } from "../../../lib/time-format";
+import { computeStreak } from "../computeStreak";
+import StreakCard from "../components/StreakCard";
 
 const NETWORK_ERR = "החיבור נכשל. נסה שוב";
 const SIM_422 = "אין מספיק שאלות זמינות למבחן";
@@ -162,6 +164,7 @@ const HomePage = () => {
   const {
     status,
     activeSessions,
+    allSessions,
     stats,
     bookmarks,
     sessionsUnavailable,
@@ -193,6 +196,7 @@ const HomePage = () => {
   const mistakesCount = stats?.active_mistakes_count ?? 0;
   const totalAnswered = stats?.total_answered ?? 0;
   const primarySession = activeSessions[0];
+  const streak = computeStreak(allSessions);
 
   const tagline = primarySession
     ? "יש לך תרגול פתוח שמחכה להמשך."
@@ -294,6 +298,13 @@ const HomePage = () => {
           <CircleAlert className="h-[18px] w-[18px] shrink-0" strokeWidth={2.2} />
           <span className="flex-1">חזרה על {mistakesCount} טעויות פתוחות</span>
         </button>
+      )}
+
+      {/* Streak card */}
+      {!sessionsUnavailable && (
+        <div className="mt-5">
+          <StreakCard streak={streak} />
+        </div>
       )}
 
       {/* Study routes */}
