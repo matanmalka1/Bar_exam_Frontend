@@ -47,12 +47,15 @@ export const usePracticeNewForm = (
   const dateSelected = allDates || examDate !== null;
 
   const canSubmit = useMemo(() => {
-    if (flow === "exam") return examDate !== null && !submitting;
+    if (flow === "exam") return part !== null && examDate !== null && !submitting;
     return part !== null && dateSelected && count !== null && !submitting;
   }, [count, dateSelected, examDate, flow, part, submitting]);
 
   const disabledReason = useMemo(() => {
-    if (flow === "exam") return examDate ? null : "בחר מועד בחינה";
+    if (flow === "exam") {
+      if (part === null) return "בחר חלק";
+      return examDate ? null : "בחר מועד בחינה";
+    }
     if (part === null) return "בחר חלק";
     if (!dateSelected) return "בחר מועד";
     if (count === null) return "בחר מספר שאלות";
@@ -69,11 +72,21 @@ export const usePracticeNewForm = (
     setExamDate(date);
   };
 
+  const selectPart = (nextPart: PartChoice) => {
+    setPart(nextPart);
+    if (flow === "exam") {
+      setExamDate(null);
+    }
+  };
+
   const startExam = async () => {
-    if (!examDate) return;
+    if (!canSubmit || !examDate || part === null) return;
     setSubmitting(true);
     try {
-      const session = await createExamSession(examDate);
+      const session = await createExamSession(
+        examDate,
+        partToApi(part) ?? undefined,
+      );
       navigate(`/session/${session.id}/exam`);
     } catch (err) {
       notifyError(extractApiError(err, NETWORK_ERR));
@@ -120,7 +133,7 @@ export const usePracticeNewForm = (
     canSubmit,
     disabledReason,
     dateSelected,
-    setPart,
+    setPart: selectPart,
     setCount,
     selectAllDates,
     selectExamDate,

@@ -73,6 +73,18 @@ const StepSection = ({
   </section>
 );
 
+type PartChoice = "B" | "C" | "both";
+
+const examQuestionCount = (
+  exams: { exam_date: string; part: "B" | "C"; question_count: number }[],
+  examDate: string,
+  part: PartChoice,
+) =>
+  exams
+    .filter((exam) => exam.exam_date === examDate)
+    .filter((exam) => (part === "both" ? true : exam.part === part))
+    .reduce((total, exam) => total + exam.question_count, 0);
+
 const PracticeNewPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -117,51 +129,78 @@ const PracticeNewPage = () => {
   }
 
   if (flow === "exam") {
+    const examDateOptions =
+      part === null
+        ? []
+        : groups
+            .map((group) => ({
+              ...group,
+              total: examQuestionCount(exams, group.exam_date, part),
+            }))
+            .filter((group) => group.total > 0);
+
     return (
       <PageShell className="pb-32">
         <AppHeader
           back={{ label: "ביטול", onClick: goBack }}
           eyebrow="תרגול חדש"
-          title="בחינת מועד מלאה"
+          title="בחינת מועד"
         />
 
         <IntroBox>
-          בחר מועד בחינה. כל השאלות מאותו מועד יוצגו בסדר המקורי, ללא משוב
-          מיידי.
+          בחר חלק ומועד בחינה. השאלות מאותו מועד יוצגו ללא משוב מיידי.
         </IntroBox>
 
-        <StepSection index="01" title="בחר מועד" complete={examDate !== null}>
-          {groups.length === 0 ? (
-            <p className="rounded-2xl border border-default bg-[var(--surface-muted)] p-4 text-sm text-secondary">
-              אין מועדים זמינים
-            </p>
-          ) : (
-            <div className="grid gap-2.5">
-              {groups.map((g) => {
-                const selected = examDate === g.exam_date;
+        <StepSection index="01" title="חלק" complete={part !== null}>
+          <div className="flex flex-wrap gap-2.5">
+            <Chip selected={part === "B"} onClick={() => setPart("B")}>
+              דין דיוני
+            </Chip>
 
-                return (
-                  <ActionCard
-                    key={g.exam_date}
-                    onClick={() => selectExamDate(g.exam_date)}
-                    aria-pressed={selected}
-                    selected={selected}
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="font-display text-base font-bold text-[var(--accent-ink)]">
-                        {g.label}
-                      </span>
+            <Chip selected={part === "C"} onClick={() => setPart("C")}>
+              דין מהותי
+            </Chip>
 
-                      <span className="text-sm tabular-nums text-secondary">
-                        {g.total} שאלות
-                      </span>
-                    </div>
-                  </ActionCard>
-                );
-              })}
-            </div>
-          )}
+            <Chip selected={part === "both"} onClick={() => setPart("both")}>
+              שני החלקים יחד
+            </Chip>
+          </div>
         </StepSection>
+
+        {part !== null && (
+          <StepSection index="02" title="בחר מועד" complete={examDate !== null}>
+            {examDateOptions.length === 0 ? (
+              <p className="rounded-2xl border border-default bg-[var(--surface-muted)] p-4 text-sm text-secondary">
+                אין מועדים זמינים
+              </p>
+            ) : (
+              <div className="grid gap-2.5">
+                {examDateOptions.map((g) => {
+                  const selected = examDate === g.exam_date;
+
+                  return (
+                    <ActionCard
+                      key={g.exam_date}
+                      onClick={() => selectExamDate(g.exam_date)}
+                      aria-pressed={selected}
+                      selected={selected}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="font-display text-base font-bold text-[var(--accent-ink)]">
+                          {g.label}
+                        </span>
+
+                        <span className="text-sm tabular-nums text-secondary">
+                          {g.total} שאלות
+                        </span>
+                      </div>
+                    </ActionCard>
+                  );
+                })}
+              </div>
+            )}
+          </StepSection>
+        )}
 
         <FixedFooter>
           <Button fullWidth disabled={!canSubmit} onClick={startExam}>

@@ -136,22 +136,9 @@ const HomePage = () => {
               )}
             </>
           ) : (
-            <div className="flex flex-col gap-2 sm:flex-row">
+            <div>
               <Button fullWidth onClick={() => navigate(ROUTES.practiceNew)}>
                 התחל תרגול
-              </Button>
-
-              <Button
-                variant="secondary"
-                onClick={handleStartSimulation}
-                disabled={startingSim}
-                className="sm:w-auto sm:min-w-[140px]"
-              >
-                {startingSim ? (
-                  <AppLoader variant="button" label="מתחיל" />
-                ) : (
-                  "מבחן מלא"
-                )}
               </Button>
             </div>
           )}
@@ -183,6 +170,7 @@ const HomePage = () => {
         bookmarksHint={bookmarksHint}
         startingSimulation={startingSim}
         onStartPractice={() => navigate(ROUTES.practiceNew)}
+        onStartExam={() => navigate(`${ROUTES.practiceNew}?flow=exam`)}
         onStartSimulation={handleStartSimulation}
         onOpenMistakes={() => navigate(ROUTES.mistakes)}
         onOpenBookmarks={() => navigate(ROUTES.bookmarks)}

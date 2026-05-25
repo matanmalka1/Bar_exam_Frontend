@@ -1,4 +1,10 @@
-import { Bookmark, CircleAlert, ClipboardList, PencilLine } from "lucide-react";
+import {
+  Bookmark,
+  CalendarDays,
+  CircleAlert,
+  ClipboardList,
+  PencilLine,
+} from "lucide-react";
 import RouteRow from "./RouteRow";
 
 type StudyRoutesListProps = {
@@ -6,6 +12,7 @@ type StudyRoutesListProps = {
   bookmarksHint: string;
   startingSimulation: boolean;
   onStartPractice: () => void;
+  onStartExam: () => void;
   onStartSimulation: () => void;
   onOpenMistakes: () => void;
   onOpenBookmarks: () => void;
@@ -16,6 +23,7 @@ const StudyRoutesList = ({
   bookmarksHint,
   startingSimulation,
   onStartPractice,
+  onStartExam,
   onStartSimulation,
   onOpenMistakes,
   onOpenBookmarks,
@@ -43,8 +51,17 @@ const StudyRoutesList = ({
       <li>
         <RouteRow
           index="02"
+          icon={CalendarDays}
+          title="בחינת מועד"
+          hint="בחר מועד בחינה רשמי"
+          onClick={onStartExam}
+        />
+      </li>
+      <li>
+        <RouteRow
+          index="03"
           icon={ClipboardList}
-          title="סימולציה"
+          title="סימולציה מלאה"
           hint="80 שאלות אקראיות מכל המאגר"
           onClick={onStartSimulation}
           disabled={startingSimulation}
@@ -53,7 +70,7 @@ const StudyRoutesList = ({
       </li>
       <li>
         <RouteRow
-          index="03"
+          index="04"
           icon={CircleAlert}
           title="חזרה על טעויות"
           hint={mistakesHint}
@@ -62,7 +79,7 @@ const StudyRoutesList = ({
       </li>
       <li>
         <RouteRow
-          index="04"
+          index="05"
           icon={Bookmark}
           title="שאלות שסומנו"
           hint={bookmarksHint}

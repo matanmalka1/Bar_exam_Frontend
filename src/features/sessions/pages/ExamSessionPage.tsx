@@ -16,9 +16,61 @@ import TimeUpModal from "../components/TimeUpModal";
 import { useExamSession } from "../hooks/useExamSession";
 import { useSessionExitGuard } from "../hooks/useSessionExitGuard";
 import { useCountdownTimer, useElapsedTimer } from "../hooks/useTimer";
+import type { SessionQuestion } from "../types";
 import { tap } from "../../../lib/haptics";
 
 const EXAM_MODE_LABEL = "מצב בחינה · ללא משוב";
+type ExamPart = "B" | "C";
+
+const PART_META: Record<
+  ExamPart,
+  { title: string; shortTitle: string; startLabel: string }
+> = {
+  B: {
+    title: "חלק ב׳ · דין דיוני",
+    shortTitle: "חלק ב׳",
+    startLabel: "נכנסת לחלק ב׳",
+  },
+  C: {
+    title: "חלק ג׳ · דין מהותי",
+    shortTitle: "חלק ג׳",
+    startLabel: "מתחיל חלק ג׳",
+  },
+};
+
+const questionPart = (question: SessionQuestion): ExamPart | null => {
+  const match = question.stable_id.match(/^\d{4}-(0[1-9]|1[0-2])_([BC])_/);
+  return match ? (match[2] as ExamPart) : null;
+};
+
+const getPartProgress = (
+  questions: SessionQuestion[],
+  currentIndex: number,
+) => {
+  const current = questions[currentIndex];
+  if (!current) return null;
+
+  const part = questionPart(current);
+  if (!part) return null;
+
+  const firstIndex = questions.findIndex(
+    (question) => questionPart(question) === part,
+  );
+  const total = questions.filter(
+    (question) => questionPart(question) === part,
+  ).length;
+  const currentInPart = questions
+    .slice(0, currentIndex + 1)
+    .filter((question) => questionPart(question) === part).length;
+
+  return {
+    part,
+    firstIndex,
+    currentInPart,
+    total,
+    progressPct: total > 0 ? (currentInPart / total) * 100 : 0,
+  };
+};
 
 const ExamSessionPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -41,6 +93,7 @@ const ExamSessionPage = () => {
   const {
     status,
     sessionCompleted,
+    questions,
     current,
     currentIndex,
     submitting,
@@ -127,6 +180,12 @@ const ExamSessionPage = () => {
   };
   const showFixedFooter =
     showComplete || answerSubmitted || displaySelected !== null;
+  const partProgress = getPartProgress(questions, currentIndex);
+  const partMeta = partProgress ? PART_META[partProgress.part] : null;
+  const partLabel =
+    partProgress && partMeta && currentIndex === partProgress.firstIndex
+      ? partMeta.startLabel
+      : partMeta?.title;
 
   return (
     <PageShell className="pb-32">
@@ -153,6 +212,33 @@ const ExamSessionPage = () => {
           </div>
         }
       />
+
+      {partProgress && partMeta && (
+        <section
+          className="rounded-2xl border border-default bg-[var(--surface-muted)] px-4 py-3"
+          aria-label="התקדמות לפי חלק"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="font-display text-base font-bold text-[var(--accent-ink)]">
+                {partLabel}
+              </p>
+              <p className="mt-1 text-xs text-secondary">
+                {`שאלה ${partProgress.currentInPart} מתוך ${partProgress.total} ב${partMeta.shortTitle}`}
+              </p>
+            </div>
+            <span className="font-display rounded-full border border-default bg-surface px-3 py-1 text-xs font-bold text-secondary">
+              {partMeta.shortTitle}
+            </span>
+          </div>
+          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-black/10">
+            <div
+              className="h-full rounded-full bg-[var(--accent-ink)] transition-all duration-500 ease-out"
+              style={{ width: `${partProgress.progressPct}%` }}
+            />
+          </div>
+        </section>
+      )}
 
       <main className="mt-4 space-y-5">
         <SessionQuestionCard question={current} isBookmarked={isBookmarked} />
