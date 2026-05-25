@@ -221,6 +221,7 @@ export const usePracticeSession = ({
       });
     } catch {
       notifyError(SUBMIT_ERR);
+      setSelected(null);
     } finally {
       submittingRef.current = false;
       setSubmitting(false);
