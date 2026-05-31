@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   Activity,
   BookOpenCheck,
@@ -14,8 +13,8 @@ import {
 import AppHeader from "../../../components/AppHeader";
 import AppLoader from "../../../components/loader";
 import PageShell from "../../../components/PageShell";
-import { getStatsOverview } from "../api";
 import { useSessionHistory } from "../hooks/useSessionHistory";
+import { useStatsOverview } from "../hooks/useStatsOverview";
 import type { StatsOverview } from "../types";
 import type { SessionSummary } from "../../sessions/types";
 import {
@@ -451,22 +450,13 @@ const SessionRow = ({ session: s }: SessionRowProps) => {
 };
 
 const StatsPage = () => {
-  const [overview, setOverview] = useState<StatsOverview | null>(null);
-  const [overviewUnavailable, setOverviewUnavailable] = useState(false);
+  const { data: overview = null, isLoading: overviewLoading, isError: overviewUnavailable } = useStatsOverview();
 
   const {
     sessions,
     loading: sessionsLoading,
     unavailable: sessionsUnavailable,
   } = useSessionHistory();
-
-  useEffect(() => {
-    getStatsOverview()
-      .then(setOverview)
-      .catch(() => setOverviewUnavailable(true));
-  }, []);
-
-  const overviewLoading = overview === null && !overviewUnavailable;
   const latestCompletedDate = getLastCompletedDate(sessions);
   const averageSessionScore = getAverageSessionScore(sessions);
   const partGap = overview ? getPartGap(overview) : null;

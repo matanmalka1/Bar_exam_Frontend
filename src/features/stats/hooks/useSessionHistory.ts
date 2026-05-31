@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { listUserSessions } from "../../sessions/api";
+import { useUserSessions } from "../../sessions/useUserSessions";
 import type { SessionSummary } from "../../sessions/types";
 
 interface SessionHistoryState {
@@ -9,29 +8,11 @@ interface SessionHistoryState {
 }
 
 export const useSessionHistory = (): SessionHistoryState => {
-  const [sessions, setSessions] = useState<SessionSummary[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [unavailable, setUnavailable] = useState(false);
+  const { data, isLoading, isError } = useUserSessions("completed");
 
-  useEffect(() => {
-    let cancelled = false;
-    listUserSessions("completed")
-      .then((data) => {
-        if (cancelled) return;
-        setSessions(data);
-        setUnavailable(false);
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setUnavailable(true);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  return { sessions, loading, unavailable };
+  return {
+    sessions: data ?? [],
+    loading: isLoading,
+    unavailable: isError,
+  };
 };

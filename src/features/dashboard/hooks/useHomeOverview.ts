@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
-import { getBookmarks } from "../../bookmarks/api";
-import type { BookmarkedQuestion } from "../../bookmarks/types";
-import { listUserSessions } from "../../sessions/api";
+import { useBookmarksQuery } from "../../bookmarks/hooks/useBookmarksQuery";
+import { useUserSessions } from "../../sessions/useUserSessions";
 import { isResumableSession } from "../../sessions/sessionFilters";
 import type { SessionSummary } from "../../sessions/types";
-import { getStatsOverview } from "../../stats/api";
+import { useStatsOverview } from "../../stats/hooks/useStatsOverview";
 import type { StatsOverview } from "../../stats/types";
+import type { BookmarkedQuestion } from "../../bookmarks/types";
 
 type Status = "loading" | "ready";
 
@@ -20,71 +19,24 @@ interface HomeOverview {
   bookmarksUnavailable: boolean;
 }
 
-const getActiveSessions = (sessions: SessionSummary[]): SessionSummary[] =>
-  sessions.filter(isResumableSession);
-
 export const useHomeOverview = (): HomeOverview => {
-  const [status, setStatus] = useState<Status>("loading");
-  const [activeSessions, setActiveSessions] = useState<SessionSummary[]>([]);
-  const [allSessions, setAllSessions] = useState<SessionSummary[]>([]);
-  const [stats, setStats] = useState<StatsOverview | null>(null);
-  const [statsUnavailable, setStatsUnavailable] = useState(false);
-  const [bookmarks, setBookmarks] = useState<BookmarkedQuestion[]>([]);
-  const [bookmarksUnavailable, setBookmarksUnavailable] = useState(false);
-  const [sessionsUnavailable, setSessionsUnavailable] = useState(false);
+  const sessionsQuery = useUserSessions();
+  const statsQuery = useStatsOverview();
+  const bookmarksQuery = useBookmarksQuery();
 
-  useEffect(() => {
-    let cancelled = false;
+  const isLoading =
+    sessionsQuery.isLoading || statsQuery.isLoading || bookmarksQuery.isLoading;
 
-    Promise.allSettled([
-      listUserSessions(),
-      getStatsOverview(),
-      getBookmarks(),
-    ]).then(([sessionsResult, statsResult, bookmarksResult]) => {
-      if (cancelled) return;
-
-      if (sessionsResult.status === "fulfilled") {
-        setActiveSessions(getActiveSessions(sessionsResult.value));
-        setAllSessions(sessionsResult.value);
-        setSessionsUnavailable(false);
-      } else {
-        setActiveSessions([]);
-        setAllSessions([]);
-        setSessionsUnavailable(true);
-      }
-
-      if (statsResult.status === "fulfilled") {
-        setStats(statsResult.value);
-        setStatsUnavailable(false);
-      } else {
-        setStats(null);
-        setStatsUnavailable(true);
-      }
-
-      if (bookmarksResult.status === "fulfilled") {
-        setBookmarks(bookmarksResult.value);
-        setBookmarksUnavailable(false);
-      } else {
-        setBookmarks([]);
-        setBookmarksUnavailable(true);
-      }
-
-      setStatus("ready");
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const allSessions = sessionsQuery.data ?? [];
 
   return {
-    status,
-    activeSessions,
+    status: isLoading ? "loading" : "ready",
+    activeSessions: allSessions.filter(isResumableSession),
     allSessions,
-    stats,
-    bookmarks,
-    sessionsUnavailable,
-    statsUnavailable,
-    bookmarksUnavailable,
+    stats: statsQuery.data ?? null,
+    bookmarks: bookmarksQuery.data ?? [],
+    sessionsUnavailable: sessionsQuery.isError,
+    statsUnavailable: statsQuery.isError,
+    bookmarksUnavailable: bookmarksQuery.isError,
   };
 };

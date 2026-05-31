@@ -23,7 +23,7 @@ vi.mock("./useSessionBookmarks", () => {
   const stable = {
     bookmarkBusy: false,
     bookmarkIds: new Set<string>(),
-    loadBookmarks: (..._args: unknown[]) => Promise.resolve(),
+    loadBookmarks: () => Promise.resolve(),
     toggleBookmark: vi.fn(),
   };
   return { useSessionBookmarks: () => stable };

@@ -1,21 +1,13 @@
-import { useEffect, useState } from "react";
-import { listUserSessions } from "../../sessions/api";
+import { useUserSessions } from "../../sessions/useUserSessions";
 import type { SessionSummary } from "../../sessions/types";
 
 type Status = "loading" | "ok" | "error";
 
-export const useSimulationHistory = () => {
-  const [status, setStatus] = useState<Status>("loading");
-  const [simulations, setSimulations] = useState<SessionSummary[]>([]);
+export const useSimulationHistory = (): { status: Status; simulations: SessionSummary[] } => {
+  const { data, isLoading, isError } = useUserSessions("completed", "simulation");
 
-  useEffect(() => {
-    listUserSessions("completed", "simulation")
-      .then((data) => {
-        setSimulations(data.slice(-10).reverse());
-        setStatus("ok");
-      })
-      .catch(() => setStatus("error"));
-  }, []);
+  const status: Status = isLoading ? "loading" : isError ? "error" : "ok";
+  const simulations = data ? data.slice(-10).reverse() : [];
 
   return { status, simulations };
 };

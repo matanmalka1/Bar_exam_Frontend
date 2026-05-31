@@ -1,17 +1,19 @@
-import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import AppHeader from "../../../components/AppHeader";
 import AppLoader from "../../../components/loader";
 import ErrorState from "../../../components/ErrorState";
 import Button from "../../../components/Button";
 import PageShell from "../../../components/PageShell";
 import ActiveSessionCard from "../../dashboard/components/ActiveSessionCard";
-import { listUserSessions, abandonSession } from "../api";
+import { abandonSession } from "../api";
 import { isResumableSession } from "../sessionFilters";
 import type { SessionSummary } from "../types";
 import { isExamLike } from "../types";
 import { notifyError } from "../../../lib/toast";
 import { extractApiError } from "../../../lib/api-errors";
+import { useUserSessions, sessionsQueryKey } from "../useUserSessions";
+import { useState } from "react";
 
 type PageStatus = "loading" | "ready" | "error";
 
@@ -22,26 +24,13 @@ const resumePath = (session: SessionSummary): string =>
 
 const ActiveSessionsPage = () => {
   const navigate = useNavigate();
-
-  const [sessions, setSessions] = useState<SessionSummary[]>([]);
-  const [status, setStatus] = useState<PageStatus>("loading");
+  const qc = useQueryClient();
+  const { data, isLoading, isError } = useUserSessions("active");
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  const loadSessions = useCallback(async () => {
-    setStatus("loading");
+  const sessions = (data ?? []).filter(isResumableSession);
 
-    try {
-      const data = await listUserSessions("active");
-      setSessions(data.filter(isResumableSession));
-      setStatus("ready");
-    } catch {
-      setStatus("error");
-    }
-  }, []);
-
-  useEffect(() => {
-    void loadSessions();
-  }, [loadSessions]);
+  const status: PageStatus = isLoading ? "loading" : isError ? "error" : "ready";
 
   const handleAbandon = async (session: SessionSummary) => {
     if (!confirm("למחוק את התרגול? פעולה זו אינה הפיכה.")) return;
@@ -50,7 +39,7 @@ const ActiveSessionsPage = () => {
 
     try {
       await abandonSession(session.id);
-      setSessions((prev) => prev.filter((item) => item.id !== session.id));
+      void qc.invalidateQueries({ queryKey: sessionsQueryKey("active") });
     } catch (err) {
       notifyError(extractApiError(err, "לא ניתן למחוק את התרגול"));
     } finally {
@@ -75,7 +64,7 @@ const ActiveSessionsPage = () => {
       {status === "error" && (
         <ErrorState
           message="לא ניתן לטעון תרגולים פתוחים"
-          action={<Button onClick={loadSessions}>נסה שוב</Button>}
+          action={<Button onClick={() => qc.invalidateQueries({ queryKey: sessionsQueryKey("active") })}>נסה שוב</Button>}
         />
       )}
 

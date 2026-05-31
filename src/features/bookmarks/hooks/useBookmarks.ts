@@ -1,10 +1,14 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HTTP_UNPROCESSABLE, isApiStatusError } from "../../../lib/api";
 import { notifyError, notifySuccess } from "../../../lib/toast";
 import { createBookmarksSession } from "../../sessions/api";
-import { getBookmarks, removeBookmark } from "../api";
-import type { BookmarkedQuestion } from "../types";
+import { removeBookmark } from "../api";
+import {
+  useBookmarksQuery,
+  useInvalidateBookmarks,
+  useRemoveBookmarkFromCache,
+} from "./useBookmarksQuery";
 
 type Status = "loading" | "ready" | "error";
 
@@ -14,43 +18,23 @@ const START_EMPTY_ERR = "אין סימניות זמינות לתרגול";
 
 export const useBookmarks = () => {
   const navigate = useNavigate();
-  const [status, setStatus] = useState<Status>("loading");
-  const [bookmarks, setBookmarks] = useState<BookmarkedQuestion[]>([]);
-  const [reloadKey, setReloadKey] = useState(0);
+  const { data: bookmarks = [], isLoading, isError } = useBookmarksQuery();
+  const invalidateBookmarks = useInvalidateBookmarks();
+  const removeBookmarkFromCache = useRemoveBookmarkFromCache();
   const [removingStableId, setRemovingStableId] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
+  const status: Status = isLoading ? "loading" : isError ? "error" : "ready";
 
-    getBookmarks()
-      .then((data) => {
-        if (cancelled) return;
-        setBookmarks(data);
-        setStatus("ready");
-      })
-      .catch(() => {
-        if (!cancelled) setStatus("error");
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [reloadKey]);
-
-  const retry = () => {
-    setStatus("loading");
-    setReloadKey((key) => key + 1);
-  };
+  const retry = () => invalidateBookmarks();
 
   const remove = async (stableId: string) => {
     setRemovingStableId(stableId);
     try {
       await removeBookmark(stableId);
-      setBookmarks((items) =>
-        items.filter((item) => item.stable_id !== stableId),
-      );
+      removeBookmarkFromCache(stableId);
       notifySuccess("הסימניה הוסרה");
+      void invalidateBookmarks();
     } catch {
       notifyError(REMOVE_ERR);
     } finally {
